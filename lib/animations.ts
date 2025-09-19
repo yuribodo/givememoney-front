@@ -1,5 +1,7 @@
+import { Variants } from "motion/react"
+
 // Shared animation variants to prevent re-creation on every render
-export const fadeInUpVariants = {
+export const fadeInUpVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 80
@@ -9,12 +11,12 @@ export const fadeInUpVariants = {
     y: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94]
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
     }
   }
 }
 
-export const fadeInVariants = {
+export const fadeInVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 30
@@ -25,12 +27,12 @@ export const fadeInVariants = {
     transition: {
       duration: 0.6,
       delay: 0.2,
-      ease: "easeOut"
+      ease: [0.04, 0.62, 0.23, 0.98] as [number, number, number, number]
     }
   }
 }
 
-export const ctaVariants = {
+export const ctaVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 60
@@ -40,12 +42,12 @@ export const ctaVariants = {
     y: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94]
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
     }
   }
 }
 
-export const buttonVariants = {
+export const buttonVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 40
@@ -56,7 +58,7 @@ export const buttonVariants = {
     transition: {
       duration: 0.6,
       delay: 0.3,
-      ease: "easeOut"
+      ease: [0.04, 0.62, 0.23, 0.98] as [number, number, number, number]
     }
   }
 }

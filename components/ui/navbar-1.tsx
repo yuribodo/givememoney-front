@@ -1,14 +1,19 @@
-"use client" 
+"use client"
 
 import * as React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import Link from "next/link"
 
 const Navbar1 = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { data: session, status } = useSession()
 
   const toggleMenu = () => setIsOpen(!isOpen)
+  const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen)
 
   return (
     <div className="fixed top-0 left-0 right-0 flex justify-center w-full py-6 px-4 z-50">
@@ -50,21 +55,68 @@ const Navbar1 = () => {
             ))}
           </nav>
 
-        {/* Desktop CTA Button */}
-        <motion.div
-          className="hidden md:block"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          whileHover={{ scale: 1.05 }}
-        >
-          <a
-            href="#"
-            className="inline-flex items-center justify-center px-5 py-2 text-sm text-white bg-cyber-mint-600 hover:bg-cyber-mint-700 rounded-full transition-colors shadow-cyber-sm"
+        {/* Desktop Auth Section */}
+        {status === 'loading' ? (
+          <div className="hidden md:block">
+            <div className="w-24 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+          </div>
+        ) : session ? (
+          <div className="hidden md:block relative">
+            <motion.button
+              onClick={toggleUserMenu}
+              className="flex items-center space-x-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              whileHover={{ scale: 1.05 }}
+            >
+              <User className="w-4 h-4" />
+              <span className="text-sm font-medium">{session.user?.name}</span>
+            </motion.button>
+
+            <AnimatePresence>
+              {userMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2"
+                >
+                  <Link
+                    href="/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => signOut()}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <motion.div
+            className="hidden md:flex items-center space-x-3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
           >
-            Get Started
-          </a>
-        </motion.div>
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm text-electric-slate-800 hover:text-cyber-mint-700 transition-colors font-medium"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center px-5 py-2 text-sm text-white bg-cyber-mint-600 hover:bg-cyber-mint-700 rounded-full transition-colors shadow-cyber-sm"
+            >
+              Sign Up
+            </Link>
+          </motion.div>
+        )}
 
         {/* Mobile Menu Button */}
         <motion.button className="md:hidden flex items-center" onClick={toggleMenu} whileTap={{ scale: 0.9 }}>
@@ -112,15 +164,45 @@ const Navbar1 = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="pt-6"
+                className="pt-6 space-y-4"
               >
-                <a
-                  href="#"
-                  className="inline-flex items-center justify-center w-full px-5 py-3 text-base text-white bg-cyber-mint-600 hover:bg-cyber-mint-700 rounded-full transition-colors shadow-cyber-sm"
-                  onClick={toggleMenu}
-                >
-                  Get Started
-                </a>
+                {session ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="block text-center py-3 text-base text-electric-slate-800 font-medium border border-electric-slate-200 rounded-full"
+                      onClick={toggleMenu}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut()
+                        toggleMenu()
+                      }}
+                      className="w-full py-3 text-base text-red-600 font-medium border border-red-200 rounded-full"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="block text-center py-3 text-base text-electric-slate-800 font-medium border border-electric-slate-200 rounded-full"
+                      onClick={toggleMenu}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="inline-flex items-center justify-center w-full px-5 py-3 text-base text-white bg-cyber-mint-600 hover:bg-cyber-mint-700 rounded-full transition-colors shadow-cyber-sm"
+                      onClick={toggleMenu}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </motion.div>
             </div>
           </motion.div>
