@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData } from '../../lib/validations/auth'
+// import { authApi } from '../../lib/api' // Removed for simplicity
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
@@ -25,8 +26,8 @@ export function RegisterForm() {
     setError(null)
 
     try {
-      // TODO: Integrate with backend when ready
-      setError('Registration will be available when backend integration is complete.')
+      // For now, show message that manual registration is not available
+      setError('Please use Twitch login below to create your account. Manual registration will be available in a future update.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Internal error. Please try again.')
     } finally {
@@ -34,10 +35,9 @@ export function RegisterForm() {
     }
   }
 
-  const handleOAuthSignIn = async () => {
-    setIsLoading(true)
-    setError('OAuth integration coming soon!')
-    setIsLoading(false)
+  const handleTwitchSignIn = () => {
+    // For now, just redirect to login page with Twitch OAuth
+    window.location.href = '/login'
   }
 
   return (
@@ -167,7 +167,7 @@ export function RegisterForm() {
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn()}
+            onClick={() => handleTwitchSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full h-12 cursor-pointer"

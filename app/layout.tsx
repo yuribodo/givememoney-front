@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "./providers/SessionProvider";
+import ErrorBoundary from "../components/ErrorBoundary";
+import { AuthErrorBoundary } from "../components/AuthErrorBoundary";
+import { Navbar1 } from "../components/ui/navbar-1";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +31,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ backgroundColor: '#defcf8' }}
       >
-        <SessionProvider>
-          {children}
-        </SessionProvider>
+        <ErrorBoundary>
+          <AuthErrorBoundary>
+            <Navbar1 />
+            {children}
+          </AuthErrorBoundary>
+        </ErrorBoundary>
       </body>
     </html>
   );
