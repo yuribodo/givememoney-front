@@ -107,6 +107,11 @@ export class AuthService {
     window.location.href = loginUrl
   }
 
+  static loginWithKick() {
+    const loginUrl = this.apiClient.getKickLoginUrl()
+    window.location.href = loginUrl
+  }
+
   static async logout() {
     const token = this.getToken()
 
@@ -139,11 +144,21 @@ export class AuthService {
     this.refreshInProgress = true
 
     try {
-      const user = await this.apiClient.getTwitchUser(token)
+      // Extract provider from JWT token to determine which user endpoint to use
+      const claims = TypeSafeApiClient.extractJWTClaims(token)
+      const provider = claims?.provider
+
+      let user: User
+      if (provider === 'kick') {
+        user = await this.apiClient.getKickUser(token)
+      } else {
+        // Default to Twitch for backward compatibility
+        user = await this.apiClient.getTwitchUser(token)
+      }
 
       this.saveAuth(token, user)
 
-      console.log('✅ User data fetched and validated successfully')
+      console.log(`✅ ${provider || 'Twitch'} user data fetched and validated successfully`)
       return user
     } catch (error) {
       console.error('❌ Error fetching user data:', error)
@@ -184,13 +199,23 @@ export class AuthService {
     console.log('🔄 Processing dashboard redirect with token')
 
     try {
-      const user = await this.apiClient.getTwitchUser(token)
+      // Extract provider from JWT token to determine which user endpoint to use
+      const claims = TypeSafeApiClient.extractJWTClaims(token)
+      const provider = claims?.provider
+
+      let user: User
+      if (provider === 'kick') {
+        user = await this.apiClient.getKickUser(token)
+      } else {
+        // Default to Twitch for backward compatibility
+        user = await this.apiClient.getTwitchUser(token)
+      }
 
       this.saveAuth(token, user)
 
       window.history.replaceState({}, document.title, window.location.pathname)
 
-      console.log('✅ Dashboard redirect processed successfully')
+      console.log(`✅ ${provider || 'Twitch'} dashboard redirect processed successfully`)
 
       // Force event after small delay to ensure all components receive it
       setTimeout(() => {
