@@ -7,6 +7,7 @@ import {
 } from './backend-types'
 import { ApiValidator } from './validators'
 import { ApiError } from './api-schemas'
+import { CSRFProtection } from './csrf'
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
 
@@ -156,7 +157,10 @@ export class TypeSafeApiClient {
   }
 
   getTwitchLoginUrl(): string {
-    return `${this.baseUrl}${API_ENDPOINTS.auth.twitch.login}`
+    const stateToken = CSRFProtection.prepareOAuthState()
+    const loginUrl = new URL(`${this.baseUrl}${API_ENDPOINTS.auth.twitch.login}`)
+    loginUrl.searchParams.set('state', stateToken)
+    return loginUrl.toString()
   }
 
   async getTwitchUser(token: string): Promise<User> {
