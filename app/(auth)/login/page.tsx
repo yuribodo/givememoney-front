@@ -16,6 +16,11 @@ function ErrorMessage({ error }: { error: string | null }) {
     'token_generation_failed': 'There was an error generating your authentication token. Please try again.',
     'missing_code': 'OAuth authorization code is missing. Please try the login process again.',
     'server_error': 'Server error occurred. Please try again later.',
+    'provider_not_found': 'Authentication provider not found. Please try a different login method.',
+    'invalid_state': 'Security validation failed. Please try logging in again.',
+    'user_fetch_failed': 'Failed to retrieve user information. Please try again.',
+    'user_creation_failed': 'Failed to create user account. Please try again.',
+    'session_creation_failed': 'Failed to create session. Please try again.',
   }
 
   const message = errorMessages[error] || 'An unexpected error occurred. Please try again.'
