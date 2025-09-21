@@ -8,6 +8,7 @@ import { registerSchema, type RegisterFormData } from '../../lib/validations/aut
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
+import { KickIcon } from './KickIcon'
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -27,7 +28,7 @@ export function RegisterForm() {
 
     try {
       // For now, show message that manual registration is not available
-      setError('Please use Twitch login below to create your account. Manual registration will be available in a future update.')
+      setError('Please use Twitch or Kick login below to create your account. Manual registration will be available in a future update.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Internal error. Please try again.')
     } finally {
@@ -37,6 +38,11 @@ export function RegisterForm() {
 
   const handleTwitchSignIn = () => {
     // For now, just redirect to login page with Twitch OAuth
+    window.location.href = '/login'
+  }
+
+  const handleKickSignIn = () => {
+    // For now, just redirect to login page with Kick OAuth
     window.location.href = '/login'
   }
 
@@ -157,7 +163,7 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <motion.div
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
@@ -176,6 +182,25 @@ export function RegisterForm() {
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
           </svg>
             <span className="ml-2">Twitch</span>
+          </Button>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Button
+            type="button"
+            onClick={() => handleKickSignIn()}
+            disabled={isLoading}
+            variant="oauth"
+            className="w-full h-12 cursor-pointer"
+          >
+            <KickIcon className="w-5 h-5" />
+            <span className="ml-2">Kick</span>
           </Button>
         </motion.div>
       </div>
