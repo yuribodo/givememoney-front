@@ -12,12 +12,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error('Email and password required')
         }
 
         // TODO: Integrate with backend when ready
-        // For now, return null to prevent login
-        return null
+        // For now, throw error to prevent login
+        throw new Error('Login will be available when backend integration is complete')
       }
     }),
   ],
