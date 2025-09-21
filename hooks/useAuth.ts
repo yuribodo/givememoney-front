@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { SecureAuthService } from '../lib/secure-auth'
+import { AuthService } from '../lib/auth'
 import { User } from '../lib/backend-types'
 
 interface AuthState {
@@ -15,6 +16,8 @@ interface AuthState {
 
 interface AuthActions {
   login: () => void
+  loginWithEmail: (email: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<User | null>
   clearError: () => void
@@ -197,6 +200,38 @@ export function useAuth(): AuthState & AuthActions {
     window.location.href = `${baseUrl}/api/auth/twitch/login`
   }, [])
 
+  const loginWithEmail = async (email: string, password: string): Promise<void> => {
+    try {
+      setError(null)
+      setIsLoading(true)
+
+      const user = await AuthService.loginWithEmail(email, password)
+      setUser(user)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed'
+      setError(errorMessage)
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const register = async (name: string, email: string, password: string, confirmPassword: string): Promise<void> => {
+    try {
+      setError(null)
+      setIsLoading(true)
+
+      const user = await AuthService.registerWithEmail(name, email, password, confirmPassword)
+      setUser(user)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed'
+      setError(errorMessage)
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return {
     user,
     isLoading,
@@ -205,6 +240,8 @@ export function useAuth(): AuthState & AuthActions {
     tokenExpiration,
     isTokenExpiringSoon,
     login,
+    loginWithEmail,
+    register,
     logout,
     refreshUser,
     clearError,

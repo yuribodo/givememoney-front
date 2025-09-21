@@ -246,6 +246,86 @@ export class AuthService {
     }
   }
 
+  static async registerWithEmail(name: string, email: string, password: string, confirmPassword: string): Promise<User> {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
+      const response = await fetch(`${backendUrl}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          confirm_password: confirmPassword,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        if (response.status === 409) {
+          throw new ApiError(409, 'Email already registered')
+        }
+        if (response.status === 400 && errorData.fields) {
+          const fieldErrors = Object.values(errorData.fields).join(', ')
+          throw new ApiError(400, fieldErrors)
+        }
+        throw new ApiError(response.status, errorData.message || 'Registration failed')
+      }
+
+      const data = await response.json()
+      const user = ApiValidator.validateUser(data.user)
+
+      // Save auth data from successful registration
+      this.saveAuth(data.access_token, user)
+
+      log.auth.success('Email registration successful')
+      return user
+    } catch (error) {
+      log.auth.error('Email registration failed', error)
+      throw error instanceof ApiError ? error : new ApiError(500, 'Registration failed')
+    }
+  }
+
+  static async loginWithEmail(email: string, password: string): Promise<User> {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
+      const response = await fetch(`${backendUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        if (response.status === 401) {
+          throw new ApiError(401, 'Invalid email or password')
+        }
+        throw new ApiError(response.status, errorData.message || 'Login failed')
+      }
+
+      const data = await response.json()
+      const user = ApiValidator.validateUser(data.user)
+
+      // Save auth data from successful login
+      this.saveAuth(data.access_token, user)
+
+      log.auth.success('Email login successful')
+      return user
+    } catch (error) {
+      log.auth.error('Email login failed', error)
+      throw error instanceof ApiError ? error : new ApiError(500, 'Login failed')
+    }
+  }
+
   static async refreshTokenIfNeeded(): Promise<boolean> {
     const token = this.getToken()
     if (!token) {

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData } from '../../lib/validations/auth'
-// import { authApi } from '../../lib/api' // Removed for simplicity
+import { AuthService } from '../../lib/auth'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
@@ -22,28 +22,28 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      // For now, show message that manual registration is not available
-      setError('Please use Twitch or Kick login below to create your account. Manual registration will be available in a future update.')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Internal error. Please try again.')
+      await AuthService.registerWithEmail(data.name, data.email, data.password, data.confirmPassword)
+
+      // Redirect to dashboard on successful registration
+      window.location.href = '/dashboard'
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleTwitchSignIn = () => {
-    // For now, just redirect to login page with Twitch OAuth
-    window.location.href = '/login'
+    AuthService.loginWithTwitch()
   }
 
   const handleKickSignIn = () => {
-    // For now, just redirect to login page with Kick OAuth
-    window.location.href = '/login'
+    AuthService.loginWithKick()
   }
 
   return (

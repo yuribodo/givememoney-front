@@ -13,7 +13,7 @@ import { KickIcon } from './KickIcon'
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const credentialsDisabled = true // Credentials auth not yet available
+  const credentialsDisabled = false // Email/password auth now available
 
   const {
     register,
@@ -23,20 +23,17 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   })
 
-  const onSubmit = async () => {
-    // Early return if credentials are disabled
-    if (credentialsDisabled) {
-      return
-    }
-
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      // Future credentials auth implementation will go here
-      setError('Credentials authentication not yet implemented.')
-    } catch {
-      setError('Internal error. Please try again.')
+      await AuthService.loginWithEmail(data.email, data.password)
+
+      // Redirect to dashboard on successful login
+      window.location.href = '/dashboard'
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -63,16 +60,6 @@ export function LoginForm() {
         </motion.div>
       )}
 
-      {credentialsDisabled && (
-        <motion.div
-          className="bg-electric-slate-50 border border-electric-slate-200 text-electric-slate-600 px-4 py-3 rounded-xl text-sm font-body"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          Email/password authentication is not yet available. Please use Twitch or Kick login below.
-        </motion.div>
-      )}
 
       <Input
         {...register('email')}
