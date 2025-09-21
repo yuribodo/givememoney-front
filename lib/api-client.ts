@@ -3,7 +3,8 @@ import {
   TokenPair,
   HealthResponse,
   User,
-  ApiEndpoints
+  ApiEndpoints,
+  KickUserResponse
 } from './backend-types'
 import { ApiValidator } from './validators'
 import { ApiError } from './api-schemas'
@@ -18,6 +19,11 @@ const API_ENDPOINTS: ApiEndpoints = {
       callback: "/api/auth/twitch/callback",
       token: "/api/auth/twitch/token",
       user: "/api/auth/twitch/user"
+    },
+    kick: {
+      login: "/api/auth/kick/login",
+      callback: "/api/auth/kick/callback",
+      user: "/api/auth/kick/user"
     },
     refresh: "/api/auth/refresh",
     logout: "/api/auth/logout"
@@ -187,6 +193,24 @@ export class TypeSafeApiClient {
       },
       (data) => ApiValidator.validateTwitchTokenResponse(data)
     )
+  }
+
+  getKickLoginUrl(): string {
+    const stateToken = CSRFProtection.prepareOAuthState()
+    const loginUrl = new URL(`${this.baseUrl}${API_ENDPOINTS.auth.kick.login}`)
+    loginUrl.searchParams.set('state', stateToken)
+    return loginUrl.toString()
+  }
+
+  async getKickUser(token: string): Promise<User> {
+    const backendUser = await this.makeAuthenticatedRequest(
+      API_ENDPOINTS.auth.kick.user,
+      { method: 'GET' },
+      token,
+      (data) => ApiValidator.validateKickUserResponse(data)
+    )
+
+    return ApiValidator.validateAndTransformKickUser(backendUser)
   }
 
   async refreshToken(refreshToken: string): Promise<TokenPair> {
