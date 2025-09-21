@@ -40,8 +40,8 @@ class Logger {
       message,
       data,
       // Add user context if available (can be enhanced later)
-      userId: typeof window !== 'undefined' ? sessionStorage.getItem('user_id') : undefined,
-      sessionId: typeof window !== 'undefined' ? sessionStorage.getItem('session_id') : undefined
+      userId: typeof window !== 'undefined' ? sessionStorage.getItem('user_id') || undefined : undefined,
+      sessionId: typeof window !== 'undefined' ? sessionStorage.getItem('session_id') || undefined : undefined
     }
   }
 

@@ -3,7 +3,6 @@
  */
 
 import { QueryClient } from '@tanstack/react-query'
-import { log } from './logger'
 
 // Create a singleton QueryClient instance
 export const queryClient = new QueryClient({
@@ -19,7 +18,7 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors (client errors)
         if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status
+          const status = (error as { status: number }).status
           if (status >= 400 && status < 500) {
             return false
           }
@@ -41,11 +40,6 @@ export const queryClient = new QueryClient({
 
       // Network mode configuration
       networkMode: 'online',
-
-      // Error handler
-      onError: (error) => {
-        log.api.error('Query', 'unknown', error)
-      },
     },
 
     mutations: {
@@ -58,11 +52,6 @@ export const queryClient = new QueryClient({
           }
         }
         return false
-      },
-
-      // Error handler
-      onError: (error) => {
-        log.api.error('Mutation', 'unknown', error)
       },
     },
   },

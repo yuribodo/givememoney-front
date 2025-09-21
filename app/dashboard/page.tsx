@@ -75,11 +75,11 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Wallet Provider</dt>
-                    <dd className="mt-1 text-sm text-gray-900 capitalize">{user.wallet.provider}</dd>
+                    <dd className="mt-1 text-sm text-gray-900 capitalize">{user.wallet?.provider || 'Not connected'}</dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Wallet Hash</dt>
-                    <dd className="mt-1 text-sm text-gray-900 font-mono break-all">{user.wallet.hash}</dd>
+                    <dd className="mt-1 text-sm text-gray-900 font-mono break-all">{user.wallet?.hash || 'Not connected'}</dd>
                   </div>
                 </div>
               )}
