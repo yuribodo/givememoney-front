@@ -1,10 +1,6 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
-// Validate required environment variables at startup
-if (!process.env.AUTH_SECRET) {
-  throw new Error('Missing required environment variable: AUTH_SECRET')
-}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
