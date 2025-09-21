@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AuthService } from '../../lib/auth'
 import { loginSchema, type LoginFormData } from '../../lib/validations/auth'
-import { signIn } from 'next-auth/react'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
@@ -21,33 +21,22 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   })
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError(result.error)
-      } else {
-        setError('Login successful! Dashboard integration coming soon.')
-      }
-    } catch (err) {
+      // For now, show message that credentials login is not available
+      setError('Please use Twitch login below. Email/password authentication will be available in a future update.')
+    } catch {
       setError('Internal error. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleOAuthSignIn = async () => {
-    setIsLoading(true)
-    setError('OAuth integration coming soon!')
-    setIsLoading(false)
+  const handleTwitchSignIn = () => {
+    AuthService.loginWithTwitch()
   }
 
   return (
@@ -122,7 +111,7 @@ export function LoginForm() {
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn()}
+            onClick={() => handleTwitchSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full cursor-pointer"
