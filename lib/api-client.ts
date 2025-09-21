@@ -38,13 +38,32 @@ export class TypeSafeApiClient {
     validator: (data: unknown) => T
   ): Promise<T> {
     try {
+      // Detect if body is FormData or if multipart content-type is already set
+      const isFormData = options.body instanceof FormData
+      const existingHeaders = options.headers || {}
+      const hasMultipartContentType = Object.keys(existingHeaders).some(
+        key => key.toLowerCase() === 'content-type' &&
+        String(existingHeaders[key as keyof typeof existingHeaders]).toLowerCase().includes('multipart')
+      )
+
+      // Build headers object
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${token}`
+      }
+
+      // Only add Content-Type if not FormData and not already multipart
+      if (!isFormData && !hasMultipartContentType) {
+        headers['Content-Type'] = 'application/json'
+      }
+
+      // Merge with provided headers (case-insensitive)
+      Object.entries(existingHeaders).forEach(([key, value]) => {
+        headers[key] = String(value)
+      })
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
+        headers
       })
 
       return this.handleResponse(response, validator)
@@ -65,12 +84,30 @@ export class TypeSafeApiClient {
     validator: (data: unknown) => T
   ): Promise<T> {
     try {
+      // Detect if body is FormData or if multipart content-type is already set
+      const isFormData = options.body instanceof FormData
+      const existingHeaders = options.headers || {}
+      const hasMultipartContentType = Object.keys(existingHeaders).some(
+        key => key.toLowerCase() === 'content-type' &&
+        String(existingHeaders[key as keyof typeof existingHeaders]).toLowerCase().includes('multipart')
+      )
+
+      // Build headers object
+      const headers: Record<string, string> = {}
+
+      // Only add Content-Type if not FormData and not already multipart
+      if (!isFormData && !hasMultipartContentType) {
+        headers['Content-Type'] = 'application/json'
+      }
+
+      // Merge with provided headers (case-insensitive)
+      Object.entries(existingHeaders).forEach(([key, value]) => {
+        headers[key] = String(value)
+      })
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
+        headers
       })
 
       return this.handleResponse(response, validator)

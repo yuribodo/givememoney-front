@@ -126,10 +126,6 @@ export function useAuth(): AuthState & AuthActions {
     }
   }, [initAuth])
 
-  const login = () => {
-    AuthService.loginWithTwitch()
-  }
-
   const logout = async () => {
     try {
       setError(null)

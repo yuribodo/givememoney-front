@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
-interface RetryOptions {
+export interface RetryOptions {
   maxAttempts?: number
   baseDelay?: number
   maxDelay?: number
   backoffFactor?: number
   onRetry?: (attempt: number, error: Error) => void
+  shouldRetry?: (error: unknown, attempt: number) => boolean
   onMaxAttemptsReached?: (error: Error) => void
 }
 
-interface RetryState {
+export interface RetryState {
   isRetrying: boolean
   attemptCount: number
   lastError: Error | null
@@ -24,6 +25,7 @@ export function useRetry(options: RetryOptions = {}) {
     maxDelay = 10000,
     backoffFactor = 2,
     onRetry,
+    shouldRetry = () => true,
     onMaxAttemptsReached
   } = options
 
@@ -32,6 +34,21 @@ export function useRetry(options: RetryOptions = {}) {
     attemptCount: 0,
     lastError: null
   })
+
+  const mountedRef = useRef(false)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  const safeSetState = useCallback((updater: React.SetStateAction<RetryState>) => {
+    if (mountedRef.current) {
+      setState(updater)
+    }
+  }, [])
 
   const calculateDelay = useCallback((attempt: number): number => {
     const delay = baseDelay * Math.pow(backoffFactor, attempt - 1)
@@ -45,15 +62,15 @@ export function useRetry(options: RetryOptions = {}) {
   const executeWithRetry = useCallback(async <T>(
     operation: () => Promise<T>
   ): Promise<T> => {
-    setState(prev => ({ ...prev, isRetrying: true, attemptCount: 0, lastError: null }))
+    safeSetState(prev => ({ ...prev, isRetrying: true, attemptCount: 0, lastError: null }))
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        setState(prev => ({ ...prev, attemptCount: attempt }))
+        safeSetState(prev => ({ ...prev, attemptCount: attempt }))
         const result = await operation()
 
         // Success - reset state
-        setState({
+        safeSetState({
           isRetrying: false,
           attemptCount: 0,
           lastError: null
@@ -63,11 +80,17 @@ export function useRetry(options: RetryOptions = {}) {
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error))
 
-        setState(prev => ({ ...prev, lastError: err }))
+        safeSetState(prev => ({ ...prev, lastError: err }))
+
+        // Stop retrying early for non-retriable errors
+        if (!shouldRetry(err, attempt)) {
+          safeSetState(prev => ({ ...prev, isRetrying: false }))
+          throw err
+        }
 
         if (attempt === maxAttempts) {
           // Max attempts reached
-          setState(prev => ({ ...prev, isRetrying: false }))
+          safeSetState(prev => ({ ...prev, isRetrying: false }))
           onMaxAttemptsReached?.(err)
           throw err
         }
@@ -83,15 +106,15 @@ export function useRetry(options: RetryOptions = {}) {
 
     // This should never be reached, but TypeScript needs it
     throw new Error('Unexpected end of retry loop')
-  }, [maxAttempts, calculateDelay, sleep, onRetry, onMaxAttemptsReached])
+  }, [maxAttempts, calculateDelay, sleep, onRetry, onMaxAttemptsReached, shouldRetry, safeSetState])
 
   const reset = useCallback(() => {
-    setState({
+    safeSetState({
       isRetrying: false,
       attemptCount: 0,
       lastError: null
     })
-  }, [])
+  }, [safeSetState])
 
   return {
     ...state,
@@ -102,45 +125,36 @@ export function useRetry(options: RetryOptions = {}) {
 
 // Specialized hook for API requests
 export function useApiRetry(options: RetryOptions = {}) {
-  const defaultOptions: RetryOptions = {
+  const retry = useRetry({
     maxAttempts: 3,
     baseDelay: 1000,
     backoffFactor: 2,
+    // Default retry classifier; can be overridden via options.shouldRetry
+    shouldRetry: (error: unknown) => {
+      // Abort/cancel should not retry
+      if (error && typeof error === 'object' && 'name' in (error as any) && (error as any).name === 'AbortError') {
+        return false
+      }
+      // Network errors (fetch/TypeError) — retry
+      if (error instanceof Error && /network|fetch/i.test(error.message)) {
+        return true
+      }
+      // HTTP-ish errors with status
+      if (error && typeof error === 'object' && 'status' in (error as any)) {
+        const status = (error as any).status as number
+        // Retry: 408 (timeout), 429 (rate limit), and 5xx
+        return status === 408 || status === 429 || (status >= 500 && status < 600)
+      }
+      // Unknown: no retry by default
+      return false
+    },
     ...options
-  }
-
-  const retry = useRetry(defaultOptions)
+  })
 
   const executeApiCall = useCallback(async <T>(
     apiCall: () => Promise<T>
   ): Promise<T> => {
-    return retry.executeWithRetry(async () => {
-      try {
-        return await apiCall()
-      } catch (error) {
-        // Only retry on network errors or 5xx server errors
-        if (error instanceof Error) {
-          // Check if it's a fetch error (network issue)
-          if (error.message.includes('NetworkError') ||
-              error.message.includes('fetch')) {
-            throw error // Retry
-          }
-
-          // Check if it's an API error with status
-          if ('status' in error) {
-            const status = (error as { status: number }).status
-            if (status >= 500 && status < 600) {
-              throw error // Retry on server errors
-            }
-            // Don't retry on client errors (4xx)
-            throw new Error(`API Error ${status}: ${error.message}`)
-          }
-        }
-
-        // Don't retry on unknown errors
-        throw error
-      }
-    })
+    return retry.executeWithRetry(apiCall)
   }, [retry])
 
   return {
@@ -152,19 +166,34 @@ export function useApiRetry(options: RetryOptions = {}) {
 // Hook for component-level error handling with retry
 export function useErrorRetry() {
   const [error, setError] = useState<Error | null>(null)
+  const mountedRef = useRef(false)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  const safeSetError = useCallback((errorValue: React.SetStateAction<Error | null>) => {
+    if (mountedRef.current) {
+      setError(errorValue)
+    }
+  }, [])
+
   const retry = useRetry({
     onRetry: (attempt, err) => {
       console.log(`Retrying operation (attempt ${attempt}):`, err.message)
     },
     onMaxAttemptsReached: (err) => {
-      setError(err)
+      safeSetError(err)
     }
   })
 
   const clearError = useCallback(() => {
-    setError(null)
+    safeSetError(null)
     retry.reset()
-  }, [retry])
+  }, [retry, safeSetError])
 
   const executeWithErrorHandling = useCallback(async <T>(
     operation: () => Promise<T>
@@ -174,10 +203,10 @@ export function useErrorRetry() {
       return await retry.executeWithRetry(operation)
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err))
-      setError(error)
+      safeSetError(error)
       return null
     }
-  }, [retry, clearError])
+  }, [retry, clearError, safeSetError])
 
   return {
     error,
