@@ -8,6 +8,7 @@ import { loginSchema, type LoginFormData } from '../../lib/validations/auth'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
+import { KickIcon } from './KickIcon'
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -45,6 +46,10 @@ export function LoginForm() {
     AuthService.loginWithTwitch()
   }
 
+  const handleKickSignIn = () => {
+    AuthService.loginWithKick()
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && (
@@ -65,7 +70,7 @@ export function LoginForm() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
         >
-          Email/password authentication is not yet available. Please use Twitch login below.
+          Email/password authentication is not yet available. Please use Twitch or Kick login below.
         </motion.div>
       )}
 
@@ -123,7 +128,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <motion.div
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
@@ -139,6 +144,22 @@ export function LoginForm() {
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
           </svg>
             <span className="ml-2">Twitch</span>
+          </Button>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Button
+            type="button"
+            onClick={() => handleKickSignIn()}
+            disabled={isLoading}
+            variant="oauth"
+            className="w-full cursor-pointer"
+          >
+            <KickIcon className="w-5 h-5" />
+            <span className="ml-2">Kick</span>
           </Button>
         </motion.div>
       </div>
