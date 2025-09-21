@@ -3,6 +3,7 @@ import { ApiValidator } from './validators'
 import { ApiError } from './api-schemas'
 import { apiClient, TypeSafeApiClient } from './api-client'
 import { User } from './backend-types'
+import { log } from './logger'
 
 export type { User }
 
@@ -14,13 +15,13 @@ export class AuthService {
     try {
       // Validate JWT token format
       if (!TypeSafeApiClient.isValidJWTFormat(token)) {
-        console.error('Invalid JWT format provided to saveAuth')
+        log.auth.error('Invalid JWT format provided to saveAuth')
         throw new ApiError(400, 'Invalid JWT token format')
       }
 
       // Validate JWT token expiry
       if (TypeSafeApiClient.isJWTExpired(token)) {
-        console.error('Expired JWT token provided to saveAuth')
+        log.auth.error('Expired JWT token provided to saveAuth')
         throw new ApiError(401, 'JWT token is expired')
       }
 
@@ -44,7 +45,7 @@ export class AuthService {
       if (error instanceof ApiError) {
         throw error
       }
-      console.error('Invalid user data provided to saveAuth:', error)
+      log.auth.error('Invalid user data provided to saveAuth', error)
       throw new ApiError(500, 'Invalid user data format', error)
     }
   }
@@ -53,13 +54,13 @@ export class AuthService {
     const token = SecureStorage.getToken()
 
     if (token && !TypeSafeApiClient.isValidJWTFormat(token)) {
-      console.warn('Invalid JWT format in storage, clearing auth')
+      log.security.event('Invalid JWT format in storage, clearing auth')
       this.clearAuth()
       return null
     }
 
     if (token && TypeSafeApiClient.isJWTExpired(token)) {
-      console.warn('JWT token is expired, clearing auth')
+      log.auth.error('JWT token is expired, clearing auth')
       this.clearAuth()
       return null
     }
@@ -73,7 +74,7 @@ export class AuthService {
       try {
         return ApiValidator.validateUser(userData)
       } catch (error) {
-        console.error('Stored user data is invalid:', error)
+        log.security.event('Stored user data is invalid, clearing auth', error)
         this.clearAuth()
         return null
       }
@@ -114,9 +115,9 @@ export class AuthService {
     if (token) {
       try {
         await this.apiClient.logout(token)
-        console.log('✅ Backend logout successful')
+        log.auth.success('Backend logout successful')
       } catch (error) {
-        console.warn('⚠️ Backend logout failed (not critical):', error)
+        log.warn('Backend logout failed (not critical)', error)
       }
     }
 
@@ -220,9 +221,70 @@ export class AuthService {
     }
   }
 
-  // TODO: implement refresh token logic when backend supports it
   static async refreshTokenIfNeeded(): Promise<boolean> {
-    return false
+    const token = this.getToken()
+    if (!token) {
+      log.debug('No token available for refresh')
+      return false
+    }
+
+    // Check if token is expiring soon (within 30 minutes)
+    if (!this.isTokenExpiringSoon()) {
+      log.debug('Token not expiring soon, no refresh needed')
+      return false
+    }
+
+    if (this.refreshInProgress) {
+      log.debug('Token refresh already in progress')
+      return false
+    }
+
+    this.refreshInProgress = true
+
+    try {
+      // Note: Refresh tokens are HttpOnly and handled server-side
+      // This client-side method will trigger a server-side refresh
+      log.debug('Attempting token refresh via server-side endpoint')
+
+      // Make a request to our refresh endpoint which will handle the HttpOnly refresh token
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include', // Include HttpOnly cookies
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Refresh failed: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const tokenPair = ApiValidator.validateTokenPair(data)
+
+      // Get current user data to maintain session
+      const currentUser = this.getUser()
+      if (!currentUser) {
+        log.auth.error('No user data available during token refresh')
+        this.clearAuth()
+        return false
+      }
+
+      // Save new token with existing user data
+      this.saveAuth(tokenPair.access_token, currentUser)
+
+      log.auth.success('Token refresh successful')
+      return true
+
+    } catch (error) {
+      log.auth.error('Token refresh failed', error)
+
+      // If refresh fails, clear auth and force re-login
+      this.clearAuth()
+      return false
+    } finally {
+      this.refreshInProgress = false
+    }
   }
 
   static getTokenExpiration(): Date | null {
