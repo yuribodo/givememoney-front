@@ -7,7 +7,7 @@ import { loginSchema, type LoginFormData } from '../../lib/validations/auth'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
-import { InputEnhanced as Input } from '../../components/ui/input-enhanced'
+import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 
 export function LoginForm() {
@@ -46,7 +46,7 @@ export function LoginForm() {
     }
   }
 
-  const handleOAuthSignIn = async (provider: string) => {
+  const handleOAuthSignIn = async () => {
     setIsLoading(true)
     setError('OAuth integration coming soon!')
     setIsLoading(false)
@@ -69,6 +69,7 @@ export function LoginForm() {
         {...register('email')}
         type="email"
         id="email"
+        variant="auth"
         label="Email"
         placeholder="your@email.com"
         error={errors.email?.message}
@@ -78,6 +79,7 @@ export function LoginForm() {
         {...register('password')}
         type="password"
         id="password"
+        variant="auth"
         label="Password"
         placeholder="••••••••"
         showPasswordToggle
@@ -122,7 +124,7 @@ export function LoginForm() {
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn('twitch')}
+            onClick={() => handleOAuthSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full cursor-pointer"

@@ -4,16 +4,13 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData } from '../../lib/validations/auth'
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
-import { InputEnhanced as Input } from '../../components/ui/input-enhanced'
+import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const {
     register,
@@ -23,39 +20,13 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   })
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Error creating account')
-      }
-
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError('Account created but login failed. Please try signing in manually.')
-      } else {
-        router.push('/dashboard')
-      }
+      // TODO: Integrate with backend when ready
+      setError('Registration will be available when backend integration is complete.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Internal error. Please try again.')
     } finally {
@@ -63,14 +34,10 @@ export function RegisterForm() {
     }
   }
 
-  const handleOAuthSignIn = async (provider: string) => {
+  const handleOAuthSignIn = async () => {
     setIsLoading(true)
-    try {
-      await signIn(provider, { callbackUrl: '/dashboard' })
-    } catch (err) {
-      setError('Login error. Please try again.')
-      setIsLoading(false)
-    }
+    setError('OAuth integration coming soon!')
+    setIsLoading(false)
   }
 
   return (
@@ -98,6 +65,7 @@ export function RegisterForm() {
               {...register('name')}
               type="text"
               id="name"
+              variant="auth"
               label="Full name"
               placeholder="Your full name"
               error={errors.name?.message}
@@ -113,6 +81,7 @@ export function RegisterForm() {
               {...register('email')}
               type="email"
               id="email"
+              variant="auth"
               label="Email"
               placeholder="your@email.com"
               error={errors.email?.message}
@@ -130,6 +99,7 @@ export function RegisterForm() {
               {...register('password')}
               type="password"
               id="password"
+              variant="auth"
               label="Password"
               placeholder="••••••••"
               showPasswordToggle
@@ -146,6 +116,7 @@ export function RegisterForm() {
               {...register('confirmPassword')}
               type="password"
               id="confirmPassword"
+              variant="auth"
               label="Confirm password"
               placeholder="••••••••"
               showPasswordToggle
@@ -196,7 +167,7 @@ export function RegisterForm() {
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn('twitch')}
+            onClick={() => handleOAuthSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full h-12 cursor-pointer"
