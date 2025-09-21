@@ -35,8 +35,8 @@ const mockHealthResponse = {
 }
 
 const mockTokenPair = {
-  access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  access_token: "ACCESS_TOKEN_PLACEHOLDER",
+  refresh_token: "REFRESH_TOKEN_PLACEHOLDER",
   expires_in: 3600
 }
 
@@ -88,7 +88,7 @@ export function testApiClientHelpers() {
   console.log('🧪 Testing API client helpers...')
 
   // Test JWT validation
-  const validJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTIzIiwiZXhwIjoxNjk5OTk5OTk5fQ.signature"
+  const validJWT = "VALID_JWT_TEST_PLACEHOLDER"
   const invalidJWT = "invalid.jwt.token"
 
   console.log('Valid JWT format:', TypeSafeApiClient.isValidJWTFormat(validJWT))

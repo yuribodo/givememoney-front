@@ -47,7 +47,7 @@ export interface BackendStreamer {
   name: string
   email: string
   wallet_id: string        // UUID as string
-  wallet: BackendWallet    // Preloaded wallet data
+  wallet?: BackendWallet   // Preloaded wallet data (nullable)
   created_at: string       // ISO timestamp
   updated_at: string       // ISO timestamp
 }
@@ -141,7 +141,7 @@ export interface User {
     id: string
     provider: WalletProvider
     hash: string
-  }
+  } | null
   createdAt?: Date        // Parsed from ISO string
   updatedAt?: Date        // Parsed from ISO string
 }
@@ -169,11 +169,11 @@ export function transformBackendStreamerToFrontend(backendStreamer: BackendStrea
     email: backendStreamer.email,
     provider: backendStreamer.provider,
     providerId: backendStreamer.provider_id,
-    wallet: {
+    wallet: backendStreamer.wallet ? {
       id: backendStreamer.wallet.id,
       provider: backendStreamer.wallet.wallet_provider,
       hash: backendStreamer.wallet.hash
-    },
+    } : null,
     createdAt: new Date(backendStreamer.created_at),
     updatedAt: new Date(backendStreamer.updated_at)
   }

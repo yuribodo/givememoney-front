@@ -3,6 +3,7 @@ interface CookieOptions {
   secure?: boolean
   sameSite?: 'strict' | 'lax' | 'none'
   path?: string
+  domain?: string
 }
 
 export class SecureStorage {
@@ -13,18 +14,20 @@ export class SecureStorage {
     const defaultOptions: CookieOptions = {
       maxAge: 7 * 24 * 60 * 60, // 7 days
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/'
     }
 
     const finalOptions = { ...defaultOptions, ...options }
 
     if (typeof window !== 'undefined') {
+      const encodedToken = encodeURIComponent(token)
       const cookieString = [
-        `${this.TOKEN_NAME}=${token}`,
+        `${this.TOKEN_NAME}=${encodedToken}`,
         `Max-Age=${finalOptions.maxAge}`,
         `Path=${finalOptions.path}`,
         `SameSite=${finalOptions.sameSite}`,
+        finalOptions.domain ? `Domain=${finalOptions.domain}` : '',
         finalOptions.secure ? 'Secure' : ''
       ].filter(Boolean).join('; ')
 
@@ -40,7 +43,7 @@ export class SecureStorage {
     if (sessionToken) return sessionToken
 
     const cookieMatch = document.cookie.match(new RegExp(`(^| )${this.TOKEN_NAME}=([^;]+)`))
-    return cookieMatch ? cookieMatch[2] : null
+    return cookieMatch ? decodeURIComponent(cookieMatch[2]) : null
   }
 
   static removeToken(): void {
@@ -48,8 +51,8 @@ export class SecureStorage {
 
     sessionStorage.removeItem(this.TOKEN_NAME)
 
-    document.cookie = `${this.TOKEN_NAME}=; Max-Age=0; Path=/; SameSite=strict`
-    document.cookie = `${this.TOKEN_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=strict`
+    document.cookie = `${this.TOKEN_NAME}=; Max-Age=0; Path=/; SameSite=lax`
+    document.cookie = `${this.TOKEN_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=lax`
   }
 
   static setUserData(userData: object): void {

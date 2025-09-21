@@ -1,5 +1,6 @@
 import { SecureStorage } from './secure-storage'
-import { ApiValidator, ApiError } from './api-schemas'
+import { ApiValidator } from './validators'
+import { ApiError } from './api-schemas'
 import { apiClient, TypeSafeApiClient } from './api-client'
 import { User } from './backend-types'
 
@@ -11,16 +12,38 @@ export class AuthService {
 
   static saveAuth(token: string, user: User) {
     try {
+      // Validate JWT token format
+      if (!TypeSafeApiClient.isValidJWTFormat(token)) {
+        console.error('Invalid JWT format provided to saveAuth')
+        throw new ApiError(400, 'Invalid JWT token format')
+      }
+
+      // Validate JWT token expiry
+      if (TypeSafeApiClient.isJWTExpired(token)) {
+        console.error('Expired JWT token provided to saveAuth')
+        throw new ApiError(401, 'JWT token is expired')
+      }
+
+      // Validate user data
       const validatedUser = ApiValidator.validateUser(user)
+
+      // Only store data after successful validation
       SecureStorage.setToken(token)
       SecureStorage.setUserData(validatedUser)
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('auth-updated', {
-          detail: { user: validatedUser, token }
+          detail: {
+            user: validatedUser,
+            isAuthenticated: true,
+            userId: validatedUser.id
+          }
         }))
       }
     } catch (error) {
+      if (error instanceof ApiError) {
+        throw error
+      }
       console.error('Invalid user data provided to saveAuth:', error)
       throw new ApiError(500, 'Invalid user data format', error)
     }
@@ -63,7 +86,11 @@ export class AuthService {
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('auth-updated', {
-        detail: { user: null, token: null }
+        detail: {
+          user: null,
+          isAuthenticated: false,
+          userId: null
+        }
       }))
     }
   }
@@ -167,7 +194,11 @@ export class AuthService {
       // Force event after small delay to ensure all components receive it
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('auth-updated', {
-          detail: { user, token }
+          detail: {
+            user,
+            isAuthenticated: true,
+            userId: user.id
+          }
         }))
       }, 100)
 

@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/button'
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const credentialsDisabled = true // Credentials auth not yet available
 
   const {
     register,
@@ -22,12 +23,17 @@ export function LoginForm() {
   })
 
   const onSubmit = async () => {
+    // Early return if credentials are disabled
+    if (credentialsDisabled) {
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      // For now, show message that credentials login is not available
-      setError('Please use Twitch login below. Email/password authentication will be available in a future update.')
+      // Future credentials auth implementation will go here
+      setError('Credentials authentication not yet implemented.')
     } catch {
       setError('Internal error. Please try again.')
     } finally {
@@ -52,6 +58,17 @@ export function LoginForm() {
         </motion.div>
       )}
 
+      {credentialsDisabled && (
+        <motion.div
+          className="bg-electric-slate-50 border border-electric-slate-200 text-electric-slate-600 px-4 py-3 rounded-xl text-sm font-body"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          Email/password authentication is not yet available. Please use Twitch login below.
+        </motion.div>
+      )}
+
       <Input
         {...register('email')}
         type="email"
@@ -60,6 +77,7 @@ export function LoginForm() {
         label="Email"
         placeholder="your@email.com"
         error={errors.email?.message}
+        disabled={credentialsDisabled}
       />
 
       <Input
@@ -71,15 +89,16 @@ export function LoginForm() {
         placeholder="••••••••"
         showPasswordToggle
         error={errors.password?.message}
+        disabled={credentialsDisabled}
       />
 
       <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: credentialsDisabled ? 1 : 1.02 }}
+        whileTap={{ scale: credentialsDisabled ? 1 : 0.98 }}
       >
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || credentialsDisabled}
           variant="auth"
           size="auth"
           className="w-full cursor-pointer"

@@ -3,6 +3,7 @@
 import React, { Component, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import Link from 'next/link'
+import { AuthService } from '../lib/auth'
 
 interface Props {
   children: ReactNode
@@ -48,10 +49,8 @@ export class AuthErrorBoundary extends Component<Props, State> {
 
   private handleClearAuth = () => {
     if (typeof window !== 'undefined') {
-      // Clear any stored auth data
-      sessionStorage.clear()
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user_data')
+      // Clear auth data using centralized helper
+      AuthService.clearAuth()
 
       // Redirect to home
       window.location.href = '/'
