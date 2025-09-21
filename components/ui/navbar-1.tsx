@@ -4,13 +4,13 @@ import * as React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Menu, X, User } from "lucide-react"
-import { useSession, signOut } from "next-auth/react"
+import { useAuth } from "../../hooks/useAuth"
 import Link from "next/link"
 
 const Navbar1 = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const { data: session, status } = useSession()
+  const { user, isLoading, logout } = useAuth()
 
   const toggleMenu = () => setIsOpen(!isOpen)
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen)
@@ -37,7 +37,7 @@ const Navbar1 = () => {
             </svg>
           </motion.div>
         </div>
-        
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {["Features", "Pricing", "About", "Contact"].map((item) => (
@@ -56,11 +56,11 @@ const Navbar1 = () => {
           </nav>
 
         {/* Desktop Auth Section */}
-        {status === 'loading' ? (
+        {isLoading ? (
           <div className="hidden md:block">
             <div className="w-24 h-8 bg-gray-200 animate-pulse rounded-full"></div>
           </div>
-        ) : session ? (
+        ) : user ? (
           <div className="hidden md:block relative">
             <motion.button
               onClick={toggleUserMenu}
@@ -68,7 +68,7 @@ const Navbar1 = () => {
               whileHover={{ scale: 1.05 }}
             >
               <User className="w-4 h-4" />
-              <span className="text-sm font-medium">{session.user?.name}</span>
+              <span className="text-sm font-medium">{user.name}</span>
             </motion.button>
 
             <AnimatePresence>
@@ -87,7 +87,7 @@ const Navbar1 = () => {
                     Dashboard
                   </Link>
                   <button
-                    onClick={() => signOut()}
+                    onClick={() => logout()}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   >
                     Sign Out
@@ -166,7 +166,7 @@ const Navbar1 = () => {
                 exit={{ opacity: 0, y: 20 }}
                 className="pt-6 space-y-4"
               >
-                {session ? (
+                {user ? (
                   <>
                     <Link
                       href="/dashboard"
@@ -177,7 +177,7 @@ const Navbar1 = () => {
                     </Link>
                     <button
                       onClick={() => {
-                        signOut()
+                        logout()
                         toggleMenu()
                       }}
                       className="w-full py-3 text-base text-red-600 font-medium border border-red-200 rounded-full"
