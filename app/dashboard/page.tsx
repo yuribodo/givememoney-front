@@ -2,44 +2,101 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AuthService } from '../../lib/auth'
-import { useAuth } from '../../hooks/useAuth'
+import { SecureAuthService } from '../../lib/secure-auth'
+import { User } from '../../lib/backend-types'
 
 export default function DashboardPage() {
-  const { user, isLoading } = useAuth()
   const router = useRouter()
-  const [isProcessingRedirect, setIsProcessingRedirect] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const processRedirect = async () => {
-      // Check if this is a redirect from backend with token
-      const token = AuthService.extractTokenFromUrl()
-      if (token) {
-        setIsProcessingRedirect(true)
-        const user = await AuthService.processDashboardRedirect()
-        setIsProcessingRedirect(false)
+    const checkAuthentication = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
 
-        if (!user) {
-          router.push('/login?error=invalid_token')
+        const sessionStatus = await SecureAuthService.checkSession()
+
+        if (!sessionStatus.authenticated) {
+          router.push('/login?error=session_expired')
+          return
         }
-      } else if (!isLoading && !user) {
-        // No token and no user - redirect to login
-        router.push('/login')
+
+        const userData = SecureAuthService.getUser()
+
+        if (!userData && sessionStatus.authenticated) {
+          console.log('Session valid but no user data found, fetching from backend...')
+
+          try {
+            const response = await fetch('/api/auth/session', {
+              method: 'GET',
+              credentials: 'include',
+            })
+
+            if (response.ok) {
+              const sessionData = await response.json()
+              if (sessionData.user) {
+                sessionStorage.setItem('user_data', JSON.stringify(sessionData.user))
+                sessionStorage.setItem('session_id', sessionData.user.id)
+                setUser(sessionData.user)
+                return
+              } else if (sessionData.backendError) {
+                console.warn('Backend unreachable, using cached data if available')
+                setError('Backend connection issue - some features may be limited')
+                return
+              }
+            }
+          } catch (fetchError) {
+            console.error('Failed to fetch user data from backend:', fetchError)
+          }
+
+          console.warn('Could not get user data from backend')
+          router.push('/login?error=invalid_session')
+          return
+        }
+
+        if (userData) {
+          setUser(userData)
+        }
+
+      } catch (error) {
+        console.error('Authentication check failed:', error)
+        setError('Failed to verify authentication')
+        router.push('/login?error=auth_check_failed')
+      } finally {
+        setIsLoading(false)
       }
     }
 
-    processRedirect()
-  }, [isLoading, user, router])
+    checkAuthentication()
+  }, [router])
 
 
-  if (isLoading || isProcessingRedirect) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-          <span className="text-lg">
-            {isProcessingRedirect ? 'Processing login...' : 'Loading dashboard...'}
-          </span>
+          <span className="text-lg">Loading dashboard...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Return to Login
+          </button>
         </div>
       </div>
     )
