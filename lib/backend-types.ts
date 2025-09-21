@@ -64,6 +64,18 @@ export interface TwitchUserResponse {
   wallet_hash: string      // Wallet hash
 }
 
+// API Response from KickUser endpoint (similar structure to Twitch)
+export interface KickUserResponse {
+  id: string               // Streamer UUID
+  name: string
+  email: string
+  provider: "kick"
+  provider_id: string      // Kick user ID
+  wallet_id: string        // Wallet UUID
+  wallet_provider: WalletProvider
+  wallet_hash: string      // Wallet hash
+}
+
 // OAuth Token Response from TwitchToken endpoint (auth_controller.go lines 116-124)
 export interface TwitchTokenResponse {
   access_token: string     // Twitch access token
@@ -123,6 +135,11 @@ export interface ApiEndpoints {
       token: "/api/auth/twitch/token"           // POST - Exchange code for tokens
       user: "/api/auth/twitch/user"             // GET - Get user data with token
     }
+    kick: {
+      login: "/api/auth/kick/login"             // GET - Redirects to Kick OAuth
+      callback: "/api/auth/kick/callback"       // GET - OAuth callback with code
+      user: "/api/auth/kick/user"               // GET - Get user data with token (if needed)
+    }
     refresh: "/api/auth/refresh"                // POST - Refresh JWT tokens
     logout: "/api/auth/logout"                  // POST - Logout (optional cleanup)
   }
@@ -148,6 +165,21 @@ export interface User {
 
 // Transform functions from backend to frontend types
 export function transformBackendUserToFrontend(backendUser: TwitchUserResponse): User {
+  return {
+    id: backendUser.id,
+    name: backendUser.name,
+    email: backendUser.email,
+    provider: backendUser.provider,
+    providerId: backendUser.provider_id,
+    wallet: {
+      id: backendUser.wallet_id,
+      provider: backendUser.wallet_provider,
+      hash: backendUser.wallet_hash
+    }
+  }
+}
+
+export function transformKickUserToFrontend(backendUser: KickUserResponse): User {
   return {
     id: backendUser.id,
     name: backendUser.name,
