@@ -191,6 +191,12 @@ export function useAuth(): AuthState & AuthActions {
     }
   }, [user, isTokenExpiringSoon])
 
+  const login = useCallback(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
+    const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl
+    window.location.href = `${baseUrl}/api/auth/twitch/login`
+  }, [])
+
   return {
     user,
     isLoading,
@@ -198,7 +204,7 @@ export function useAuth(): AuthState & AuthActions {
     isAuthenticated: !!user,
     tokenExpiration,
     isTokenExpiringSoon,
-    login: () => window.location.href = 'http://localhost:9090/api/auth/twitch/login',
+    login,
     logout,
     refreshUser,
     clearError,

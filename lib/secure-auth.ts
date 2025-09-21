@@ -212,6 +212,7 @@ export class SecureAuthService {
     this.refreshInProgress = true
 
     try {
+      // Server will read refresh_token from HttpOnly cookies
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',

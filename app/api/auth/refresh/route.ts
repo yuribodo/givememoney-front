@@ -3,12 +3,15 @@ import { cookies } from 'next/headers'
 
 export async function POST() {
   try {
+    // Get refresh token from HttpOnly cookie instead of request body
     const cookieStore = await cookies()
-    const refreshToken = cookieStore.get('refresh_token')
+    const refreshTokenCookie = cookieStore.get('refresh_token')
 
-    if (!refreshToken) {
+    if (!refreshTokenCookie) {
       return NextResponse.json({ error: 'No refresh token available' }, { status: 401 })
     }
+
+    const refresh_token = refreshTokenCookie.value
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:9090'
 
@@ -17,8 +20,10 @@ export async function POST() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': `refresh_token=${refreshToken.value}`,
+          'Accept': 'application/json',
+          'Cookie': `refresh_token=${refresh_token}`,
         },
+        body: JSON.stringify({ refresh_token }),
       })
 
         if (!refreshResponse.ok) {
@@ -31,9 +36,39 @@ export async function POST() {
           return response
         }
 
-        await refreshResponse.json()
-        const response = NextResponse.json({ success: true })
-
+        const data = await refreshResponse.json()
+        const response = NextResponse.json({
+          success: true,
+          access_token: data.access_token,
+          refresh_token: data.refresh_token ?? null,
+        })
+        response.cookies.set('auth_token', data.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+          maxAge: typeof data.access_expires_in === 'number'
+            ? data.access_expires_in
+            : (typeof data.expires_in === 'number' ? data.expires_in : 60 * 60),
+        })
+        if (data.refresh_token) {
+          response.cookies.set('refresh_token', data.refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 30,
+          })
+        }
+        if (data.user?.id) {
+          response.cookies.set('session_id', data.user.id, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+          })
+        }
         return response
       } catch (fetchError) {
         console.error('Backend refresh failed:', fetchError)

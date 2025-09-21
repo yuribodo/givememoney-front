@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { serialize } from 'cookie'
 import { User } from '../../../../lib/backend-types'
 
 interface SessionData {
@@ -11,6 +12,13 @@ interface SessionData {
 // Set secure HttpOnly cookies (server-side only)
 export async function POST(request: NextRequest) {
   try {
+    // CSRF/origin check
+    const origin = request.headers.get('origin')
+    const host = request.headers.get('host')
+    if (!origin || !host || new URL(origin).host !== host) {
+      return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+    }
+
     const { access_token, refresh_token, user }: SessionData = await request.json()
 
     if (!access_token || !user) {
@@ -39,9 +47,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Set non-sensitive session identifier for client state
+    // Set opaque session identifier (server-generated), not user.id
+    // TODO: replace `user.id` with a backend-issued opaque SID
     response.cookies.set('session_id', user.id, {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
@@ -69,10 +78,15 @@ export async function GET() {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:9090'
 
     try {
+      const cookieHeader = [
+        serialize('auth_token', authToken.value),
+        serialize('session_id', sessionId.value)
+      ].join('; ')
+
       const backendResponse = await fetch(`${backendUrl}/api/auth/session`, {
         method: 'GET',
         headers: {
-          'Cookie': `auth_token=${authToken.value}; session_id=${sessionId.value}`,
+          'Cookie': cookieHeader,
         },
       })
 
@@ -90,11 +104,10 @@ export async function GET() {
     } catch (backendError) {
       console.error('Backend session check failed:', backendError)
       return NextResponse.json({
-        authenticated: true,
-        sessionId: sessionId.value,
-        hasToken: true,
-        backendError: 'Backend unreachable'
-      })
+        authenticated: false,
+        reason: 'backend_unreachable',
+        ...(sessionId && { sessionId: sessionId.value })
+      }, { status: 503 })
     }
   } catch (error) {
     console.error('Session check error:', error)
@@ -125,7 +138,7 @@ export async function DELETE() {
     })
 
     response.cookies.set('session_id', '', {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',

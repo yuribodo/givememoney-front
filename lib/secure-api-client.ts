@@ -7,10 +7,8 @@ interface ApiResponse<T = unknown> {
 }
 
 export class SecureApiClient {
-  private static baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
-
   /**
-   * Make authenticated API request with automatic token refresh
+   * Make authenticated API request through proxy with automatic token refresh
    */
   static async request<T = unknown>(
     endpoint: string,
@@ -27,9 +25,9 @@ export class SecureApiClient {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`/api/proxy${endpoint}`, {
         ...options,
-        credentials: 'include', // Include HttpOnly cookies
+        credentials: 'include', // Include HttpOnly cookies for same-origin request
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -43,7 +41,7 @@ export class SecureApiClient {
 
         if (refreshSuccess) {
           // Retry the original request with new token
-          const retryResponse = await fetch(`${this.baseUrl}${endpoint}`, {
+          const retryResponse = await fetch(`/api/proxy${endpoint}`, {
             ...options,
             credentials: 'include',
             headers: {
@@ -139,14 +137,14 @@ export class SecureApiClient {
   }
 
   /**
-   * Public API request (no authentication required)
+   * Public API request (no authentication required) through proxy
    */
   static async publicRequest<T = unknown>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`/api/proxy${endpoint}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
