@@ -1,8 +1,6 @@
 'use client'
 
 import { motion } from "motion/react"
-import { Button } from "../../components/ui/button"
-import { Badge } from "../../components/ui/badge"
 import { ArrowRight } from "lucide-react"
 import { BackgroundBeams } from "../../components/ui/background-beams"
 import TrueFocus from "../../components/TrueFocus"
