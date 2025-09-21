@@ -8,7 +8,8 @@ import {
   JWTClaims,
   BackendStreamer,
   BackendWallet,
-  User
+  User,
+  KickUserResponse
 } from './backend-types'
 
 // Provider enum schemas
@@ -60,6 +61,18 @@ export const TwitchUserResponseSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   provider: StreamerProviderSchema,
+  provider_id: z.string(),
+  wallet_id: z.string().uuid(),
+  wallet_provider: WalletProviderSchema,
+  wallet_hash: z.string().min(1) // Supports both temp hashes and full 64-char crypto hashes
+})
+
+// KickUser endpoint response (similar structure to Twitch)
+export const KickUserResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  provider: z.literal("kick"),
   provider_id: z.string(),
   wallet_id: z.string().uuid(),
   wallet_provider: WalletProviderSchema,
@@ -135,6 +148,10 @@ export class ApiValidator {
     return this.validateResponse(TwitchUserResponseSchema, data)
   }
 
+  static validateKickUserResponse(data: unknown): KickUserResponse {
+    return this.validateResponse(KickUserResponseSchema, data)
+  }
+
   static validateTwitchTokenResponse(data: unknown): TwitchTokenResponse {
     return this.validateResponse(TwitchTokenResponseSchema, data)
   }
@@ -176,6 +193,22 @@ export class ApiValidator {
   // Helper method to validate and transform backend user to frontend user
   static validateAndTransformTwitchUser(data: unknown): User {
     const backendUser = this.validateTwitchUserResponse(data)
+    return {
+      id: backendUser.id,
+      name: backendUser.name,
+      email: backendUser.email,
+      provider: backendUser.provider,
+      providerId: backendUser.provider_id,
+      wallet: {
+        id: backendUser.wallet_id,
+        provider: backendUser.wallet_provider,
+        hash: backendUser.wallet_hash
+      }
+    }
+  }
+
+  static validateAndTransformKickUser(data: unknown): User {
+    const backendUser = this.validateKickUserResponse(data)
     return {
       id: backendUser.id,
       name: backendUser.name,
