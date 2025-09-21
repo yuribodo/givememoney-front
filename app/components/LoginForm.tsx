@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginFormData } from '../../lib/validations/auth'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
@@ -13,7 +12,6 @@ import { Button } from '../../components/ui/button'
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const {
     register,
@@ -37,7 +35,7 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error)
       } else {
-        router.push('/dashboard')
+        setError('Login successful! Dashboard integration coming soon.')
       }
     } catch (err) {
       setError('Internal error. Please try again.')
