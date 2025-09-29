@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "motion/react"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight } from "@phosphor-icons/react"
 import { BackgroundBeams } from "../../components/ui/background-beams"
 import TrueFocus from "../../components/TrueFocus"
 import { CryptoIcons } from "./CryptoIcons"
@@ -98,7 +98,7 @@ export function HeroSection() {
             className="bg-cyber-mint-600 hover:bg-cyber-mint-700 text-white px-8 py-4 sm:px-12 sm:py-6 text-lg sm:text-xl font-semibold rounded-full cursor-pointer transition-colors duration-300 w-full max-w-sm sm:max-w-none sm:w-auto group flex items-center justify-center"
           >
             Get Started
-            <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform duration-200" />
+            <ArrowRight size={20} weight="duotone" className="ml-3 group-hover:translate-x-1 transition-transform duration-200" />
           </motion.button>
 
         </motion.div>

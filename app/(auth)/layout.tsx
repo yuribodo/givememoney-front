@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react"
 import { BackgroundBeams } from "../../components/ui/background-beams"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "@phosphor-icons/react"
 import Link from "next/link"
 
 export default function AuthLayout({
@@ -25,7 +25,7 @@ export default function AuthLayout({
           href="/"
           className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/80 backdrop-blur-lg border border-white/30 hover:bg-white/90 hover:border-white/50 transition-all duration-300 group shadow-lg"
         >
-          <ArrowLeft className="w-6 h-6 text-electric-slate-700 group-hover:text-electric-slate-900 transition-colors" />
+          <ArrowLeft size={24} weight="duotone" className="text-electric-slate-700 group-hover:text-electric-slate-900 transition-colors" />
         </Link>
       </motion.div>
 
