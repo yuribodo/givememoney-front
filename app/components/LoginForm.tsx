@@ -3,15 +3,17 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AuthService } from '../../lib/auth'
 import { loginSchema, type LoginFormData } from '../../lib/validations/auth'
-import { signIn } from 'next-auth/react'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
+import { KickIcon } from './KickIcon'
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const credentialsDisabled = false // Email/password auth now available
 
   const {
     register,
@@ -26,28 +28,23 @@ export function LoginForm() {
     setError(null)
 
     try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
+      await AuthService.loginWithEmail(data.email, data.password)
 
-      if (result?.error) {
-        setError(result.error)
-      } else {
-        setError('Login successful! Dashboard integration coming soon.')
-      }
-    } catch (err) {
-      setError('Internal error. Please try again.')
+      // Redirect to dashboard on successful login
+      window.location.href = '/dashboard'
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleOAuthSignIn = async () => {
-    setIsLoading(true)
-    setError('OAuth integration coming soon!')
-    setIsLoading(false)
+  const handleTwitchSignIn = () => {
+    AuthService.loginWithTwitch()
+  }
+
+  const handleKickSignIn = () => {
+    AuthService.loginWithKick()
   }
 
   return (
@@ -63,6 +60,7 @@ export function LoginForm() {
         </motion.div>
       )}
 
+
       <Input
         {...register('email')}
         type="email"
@@ -71,6 +69,7 @@ export function LoginForm() {
         label="Email"
         placeholder="your@email.com"
         error={errors.email?.message}
+        disabled={credentialsDisabled}
       />
 
       <Input
@@ -82,15 +81,16 @@ export function LoginForm() {
         placeholder="••••••••"
         showPasswordToggle
         error={errors.password?.message}
+        disabled={credentialsDisabled}
       />
 
       <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: credentialsDisabled ? 1 : 1.02 }}
+        whileTap={{ scale: credentialsDisabled ? 1 : 0.98 }}
       >
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || credentialsDisabled}
           variant="auth"
           size="auth"
           className="w-full cursor-pointer"
@@ -115,14 +115,14 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <motion.div
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn()}
+            onClick={() => handleTwitchSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full cursor-pointer"
@@ -131,6 +131,22 @@ export function LoginForm() {
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
           </svg>
             <span className="ml-2">Twitch</span>
+          </Button>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Button
+            type="button"
+            onClick={() => handleKickSignIn()}
+            disabled={isLoading}
+            variant="oauth"
+            className="w-full cursor-pointer"
+          >
+            <KickIcon className="w-5 h-5" />
+            <span className="ml-2">Kick</span>
           </Button>
         </motion.div>
       </div>

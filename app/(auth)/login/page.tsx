@@ -4,8 +4,49 @@ import { motion } from "motion/react"
 import { LoginForm } from '../../components/LoginForm'
 import Link from 'next/link'
 import { Card, CardContent } from '../../../components/ui/card'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function ErrorMessage({ error }: { error: string | null }) {
+  if (!error) return null
+
+  const errorMessages: Record<string, string> = {
+    'invalid_token': 'Authentication failed. The token is invalid or expired. Please try logging in again.',
+    'auth_failed': 'Authentication failed. Please check your credentials and try again.',
+    'token_generation_failed': 'There was an error generating your authentication token. Please try again.',
+    'missing_code': 'OAuth authorization code is missing. Please try the login process again.',
+    'server_error': 'Server error occurred. Please try again later.',
+    'provider_not_found': 'Authentication provider not found. Please try a different login method.',
+    'invalid_state': 'Security validation failed. Please try logging in again.',
+    'user_fetch_failed': 'Failed to retrieve user information. Please try again.',
+    'user_creation_failed': 'Failed to create user account. Please try again.',
+    'session_creation_failed': 'Failed to create session. Please try again.',
+  }
+
+  const message = errorMessages[error] || 'An unexpected error occurred. Please try again.'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+    >
+      <div className="flex items-center">
+        <svg className="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+        <div>
+          <h3 className="text-sm font-medium text-red-800">Login Error</h3>
+          <p className="text-sm text-red-700 mt-1">{message}</p>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function LoginContent() {
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error')
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -21,6 +62,8 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-cyber-mint-50/10 to-transparent rounded-xl" />
 
         <CardContent className="relative z-10 p-8">
+        <ErrorMessage error={error} />
+
         <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: 10 }}
@@ -73,5 +116,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </motion.div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

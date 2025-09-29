@@ -54,7 +54,7 @@ export function HowItWorksSection() {
             className="text-2xl text-electric-slate-700 font-medium"
             variants={fadeInVariants}
           >
-            Twitch, YouTube, TikTok, anywhere
+            Twitch, Kick, YouTube, TikTok, anywhere
           </motion.p>
         </motion.div>
 

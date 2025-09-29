@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData } from '../../lib/validations/auth'
+import { AuthService } from '../../lib/auth'
 import { motion } from 'motion/react'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
+import { KickIcon } from './KickIcon'
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -20,24 +22,28 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      // TODO: Integrate with backend when ready
-      setError('Registration will be available when backend integration is complete.')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Internal error. Please try again.')
+      await AuthService.registerWithEmail(data.name, data.email, data.password, data.confirmPassword)
+
+      // Redirect to dashboard on successful registration
+      window.location.href = '/dashboard'
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleOAuthSignIn = async () => {
-    setIsLoading(true)
-    setError('OAuth integration coming soon!')
-    setIsLoading(false)
+  const handleTwitchSignIn = () => {
+    AuthService.loginWithTwitch()
+  }
+
+  const handleKickSignIn = () => {
+    AuthService.loginWithKick()
   }
 
   return (
@@ -157,7 +163,7 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <motion.div
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
@@ -167,7 +173,7 @@ export function RegisterForm() {
         >
           <Button
             type="button"
-            onClick={() => handleOAuthSignIn()}
+            onClick={() => handleTwitchSignIn()}
             disabled={isLoading}
             variant="oauth"
             className="w-full h-12 cursor-pointer"
@@ -176,6 +182,25 @@ export function RegisterForm() {
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
           </svg>
             <span className="ml-2">Twitch</span>
+          </Button>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Button
+            type="button"
+            onClick={() => handleKickSignIn()}
+            disabled={isLoading}
+            variant="oauth"
+            className="w-full h-12 cursor-pointer"
+          >
+            <KickIcon className="w-5 h-5" />
+            <span className="ml-2">Kick</span>
           </Button>
         </motion.div>
       </div>
