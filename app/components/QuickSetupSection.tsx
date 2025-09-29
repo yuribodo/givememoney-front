@@ -6,7 +6,7 @@ import { speedSlideVariants, timerCountVariants, pulseGlowVariants, immediateVie
 
 export function QuickSetupSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 overflow-hidden">
       <CryptoIcons />
 
       {/* Enhanced background with speed lines effect */}
@@ -36,7 +36,7 @@ export function QuickSetupSection() {
         ))}
       </div>
 
-      <div className="relative max-w-5xl mx-auto z-10 text-center">
+      <div className="relative max-w-5xl mx-auto z-10 text-center w-full">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -44,43 +44,45 @@ export function QuickSetupSection() {
         >
           <motion.div
             variants={speedSlideVariants}
-            className="mb-8"
+            className="mb-6 sm:mb-8 px-4 sm:px-0"
           >
-            <span className="text-8xl lg:text-10xl font-display font-black text-electric-slate-950 leading-none tracking-tight">
-              Live in{' '}
-            </span>
-            <motion.span
-              className="text-8xl lg:text-10xl font-display font-black text-cyber-mint-600 leading-none tracking-tight inline-block"
-              variants={timerCountVariants}
-              whileInView={{
-                scale: [1, 1.05, 1],
-                textShadow: [
-                  "0 0 0px rgba(0, 171, 150, 0)",
-                  "0 0 20px rgba(0, 171, 150, 0.5)",
-                  "0 0 0px rgba(0, 171, 150, 0)"
-                ]
-              }}
-              transition={{
-                scale: {
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                  ease: "easeInOut"
-                },
-                textShadow: {
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                  ease: "easeInOut"
-                }
-              }}
-            >
-              60 seconds
-            </motion.span>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+              <span className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-10xl font-display font-black text-electric-slate-950 leading-none tracking-tight">
+                Live in{' '}
+              </span>
+              <motion.span
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-10xl font-display font-black text-cyber-mint-600 leading-none tracking-tight block sm:inline-block"
+                variants={timerCountVariants}
+                whileInView={{
+                  scale: [1, 1.05, 1],
+                  textShadow: [
+                    "0 0 0px rgba(0, 171, 150, 0)",
+                    "0 0 20px rgba(0, 171, 150, 0.5)",
+                    "0 0 0px rgba(0, 171, 150, 0)"
+                  ]
+                }}
+                transition={{
+                  scale: {
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut"
+                  },
+                  textShadow: {
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut"
+                  }
+                }}
+              >
+                60 seconds
+              </motion.span>
+            </div>
           </motion.div>
 
           <motion.p
-            className="text-2xl text-electric-slate-700 font-medium"
+            className="text-lg sm:text-xl md:text-2xl text-electric-slate-700 font-medium px-4 sm:px-0"
             variants={pulseGlowVariants}
           >
             From setup to first donation

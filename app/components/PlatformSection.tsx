@@ -43,12 +43,12 @@ const platforms = [
 
 export function PlatformSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 overflow-hidden">
       <CryptoIcons />
 
       <div className="absolute inset-0 bg-gradient-to-br from-cyber-mint-50 via-pearl to-cyber-mint-100 opacity-40"></div>
 
-      <div className="relative max-w-5xl mx-auto z-10 text-center">
+      <div className="relative max-w-5xl mx-auto z-10 text-center w-full">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -56,52 +56,54 @@ export function PlatformSection() {
         >
           <motion.div
             variants={expandFromCenterVariants}
-            className="mb-8"
+            className="mb-6 sm:mb-8 px-4 sm:px-0"
           >
-            <span className="text-8xl lg:text-10xl font-display font-black text-electric-slate-950 leading-none tracking-tight">
-              Works on{' '}
-            </span>
-            <span
-              className="text-8xl lg:text-10xl font-display font-black leading-none tracking-tight inline-block"
-              style={{
-                background: 'linear-gradient(45deg, #f43f5e, #ec4899, #d946ef, #f43f5e)',
-                backgroundSize: '300% 300%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              <motion.span
-                animate={{
-                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'linear'
-                }}
+            <div className="text-center">
+              <span className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-10xl font-display font-black text-electric-slate-950 leading-none tracking-tight">
+                Works on{' '}
+              </span>
+              <span
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-10xl font-display font-black leading-none tracking-tight inline-block"
                 style={{
-                  background: 'inherit',
-                  backgroundSize: 'inherit',
+                  background: 'linear-gradient(45deg, #f43f5e, #ec4899, #d946ef, #f43f5e)',
+                  backgroundSize: '300% 300%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
                 }}
               >
-                every platform
-              </motion.span>
-            </span>
+                <motion.span
+                  animate={{
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear'
+                  }}
+                  style={{
+                    background: 'inherit',
+                    backgroundSize: 'inherit',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  every platform
+                </motion.span>
+              </span>
+            </div>
           </motion.div>
 
           <motion.div
             variants={platformsContainerVariants}
-            className="flex flex-wrap justify-center items-center gap-4 mt-12"
+            className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 mt-8 sm:mt-12 px-4 sm:px-0"
           >
             {platforms.map((platform, i) => (
               <motion.div
                 key={platform.name}
                 variants={platformItemVariants}
-                className={`flex items-center ${platform.color} ${platform.bgColor} px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300 font-semibold text-sm`}
+                className={`flex items-center ${platform.color} ${platform.bgColor} px-3 py-2 sm:px-4 sm:py-3 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300 font-semibold text-xs sm:text-sm`}
                 whileHover={{
                   scale: 1.05,
                   rotate: [-1, 1, -1, 0],
@@ -118,7 +120,7 @@ export function PlatformSection() {
           </motion.div>
 
           <motion.p
-            className="text-2xl text-electric-slate-700 font-medium mt-8"
+            className="text-lg sm:text-xl md:text-2xl text-electric-slate-700 font-medium mt-6 sm:mt-8 px-4 sm:px-0"
             variants={cascadeVariants}
           >
             Stream anywhere, receive donations everywhere
