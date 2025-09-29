@@ -57,8 +57,9 @@ const Navbar1 = () => {
 
         {/* Desktop Auth Section */}
         {isLoading ? (
-          <div className="hidden md:block">
-            <div className="w-24 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+          <div className="hidden md:flex items-center space-x-3">
+            <div className="w-16 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+            <div className="w-20 h-8 bg-gray-200 animate-pulse rounded-full"></div>
           </div>
         ) : user ? (
           <div className="hidden md:block relative">

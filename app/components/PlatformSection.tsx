@@ -46,77 +46,7 @@ export function PlatformSection() {
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
       <CryptoIcons />
 
-      {/* Enhanced background with connection lines */}
-      <div className="absolute inset-0 bg-gradient-to-br from-warm-coral-50 via-pearl to-warm-coral-100 opacity-40"></div>
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Connection network */}
-        {[
-          { left: 10, top: 20 },
-          { left: 22, top: 45 },
-          { left: 34, top: 15 },
-          { left: 46, top: 35 },
-          { left: 58, top: 25 },
-          { left: 70, top: 40 },
-          { left: 82, top: 30 },
-          { left: 94, top: 50 }
-        ].map((pos, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-px h-24 bg-gradient-to-b from-transparent via-warm-coral-200 to-transparent"
-            style={{
-              left: `${pos.left}%`,
-              top: `${pos.top}%`,
-              transformOrigin: 'center'
-            }}
-            animate={{
-              opacity: [0.2, 0.6, 0.2],
-              scaleY: [0.5, 1, 0.5],
-              rotate: [0, 360]
-            }}
-            transition={{
-              duration: 4 + i * 0.5,
-              repeat: Infinity,
-              delay: i * 0.3,
-              ease: 'easeInOut'
-            }}
-          />
-        ))}
-
-        {/* Connecting dots */}
-        {[
-          { left: 5, top: 15 },
-          { left: 13, top: 55 },
-          { left: 21, top: 25 },
-          { left: 29, top: 45 },
-          { left: 37, top: 35 },
-          { left: 45, top: 15 },
-          { left: 53, top: 55 },
-          { left: 61, top: 25 },
-          { left: 69, top: 45 },
-          { left: 77, top: 35 },
-          { left: 85, top: 20 },
-          { left: 93, top: 50 }
-        ].map((pos, i) => (
-          <motion.div
-            key={`dot-${i}`}
-            className="absolute w-2 h-2 rounded-full bg-warm-coral-300"
-            style={{
-              left: `${pos.left}%`,
-              top: `${pos.top}%`,
-            }}
-            animate={{
-              scale: [0.5, 1.2, 0.5],
-              opacity: [0.3, 0.8, 0.3]
-            }}
-            transition={{
-              duration: 2 + i * 0.2,
-              repeat: Infinity,
-              delay: i * 0.1,
-              ease: 'easeInOut'
-            }}
-          />
-        ))}
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-br from-cyber-mint-50 via-pearl to-cyber-mint-100 opacity-40"></div>
 
       <div className="relative max-w-5xl mx-auto z-10 text-center">
         <motion.div
