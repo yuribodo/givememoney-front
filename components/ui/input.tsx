@@ -1,6 +1,6 @@
 import * as React from "react"
 import { motion } from "motion/react"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeSlash } from "@phosphor-icons/react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 import { Label } from "./label"
@@ -72,9 +72,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             whileTap={{ scale: 0.95 }}
           >
             {showPassword ? (
-              <EyeOff className="h-5 w-5" />
+              <EyeSlash size={20} weight="duotone" />
             ) : (
-              <Eye className="h-5 w-5" />
+              <Eye size={20} weight="duotone" />
             )}
           </motion.button>
         )}

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { Menu, X, User } from "lucide-react"
+import { List, X, User } from "@phosphor-icons/react"
 import { useAuth } from "../../hooks/useAuth"
 import Link from "next/link"
 
@@ -68,7 +68,7 @@ const Navbar1 = () => {
               className="flex items-center space-x-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
               whileHover={{ scale: 1.05 }}
             >
-              <User className="w-4 h-4" />
+              <User size={16} weight="duotone" />
               <span className="text-sm font-medium">{user.name}</span>
             </motion.button>
 
@@ -121,7 +121,7 @@ const Navbar1 = () => {
 
         {/* Mobile Menu Button */}
         <motion.button className="md:hidden flex items-center" onClick={toggleMenu} whileTap={{ scale: 0.9 }}>
-          <Menu className="h-6 w-6 text-electric-slate-800" />
+          <List size={24} weight="duotone" className="text-electric-slate-800" />
         </motion.button>
       </div>
 
@@ -143,7 +143,7 @@ const Navbar1 = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <X className="h-6 w-6 text-electric-slate-800" />
+              <X size={24} weight="duotone" className="text-electric-slate-800" />
             </motion.button>
             <div className="flex flex-col space-y-6">
               {["Features", "Pricing", "About", "Contact"].map((item, i) => (
