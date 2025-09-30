@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -20,6 +20,12 @@ interface FloatingNavbarProps {
 export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [blobStyle, setBlobStyle] = useState({ left: 0, width: 0, opacity: 0 })
+
+  const navContainerRef = useRef<HTMLDivElement>(null)
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+
   const pathname = usePathname()
   const { user, isLoading, logout } = useAuth()
 
@@ -44,6 +50,26 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
     },
   ]
 
+  // Calculate blob position and size
+  const updateBlobPosition = (targetLabel: string | null) => {
+    if (!navContainerRef.current) return
+
+    const target = targetLabel || navigationItems.find(item => item.isActive)?.label
+    if (!target) return
+
+    const targetButton = buttonRefs.current[target]
+    if (!targetButton) return
+
+    const containerRect = navContainerRef.current.getBoundingClientRect()
+    const buttonRect = targetButton.getBoundingClientRect()
+
+    setBlobStyle({
+      left: buttonRect.left - containerRect.left,
+      width: buttonRect.width,
+      opacity: 1
+    })
+  }
+
   // Handle smooth transitions between sections
   const handleNavigation = (href: string) => {
     setIsTransitioning(true)
@@ -51,6 +77,11 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
       window.location.href = href
     }, 150) // Small delay for transition effect
   }
+
+  // Initialize blob position
+  useEffect(() => {
+    updateBlobPosition(null)
+  }, [pathname])
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -76,49 +107,68 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
           </div>
 
           {/* Navigation Icons */}
-          <div className="flex items-center gap-1">
-            {navigationItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleNavigation(item.href)}
-                disabled={isTransitioning}
-                className={`nav-item group relative flex items-center gap-2 transition-all duration-300 cursor-pointer hover:scale-105 ${
-                  item.isActive
-                    ? 'bg-gradient-to-r from-cyber-mint-500 to-cyber-mint-600 text-white shadow-lg px-4 py-3 nav-item-active'
-                    : 'text-electric-slate-600 hover:bg-electric-slate-50 hover:text-electric-slate-900 p-3 nav-item-inactive'
-                }`}
-                aria-label={item.label}
-              >
-                <item.icon
-                  size={20}
-                  weight="duotone"
-                  className="transition-transform duration-200"
-                />
+          <div ref={navContainerRef} className="relative flex items-center gap-1">
+            {/* Morphing Background Blob */}
+            <div
+              className="absolute top-0 bg-gradient-to-r from-cyber-mint-500 to-cyber-mint-600 rounded-xl shadow-lg pointer-events-none"
+              style={{
+                left: blobStyle.left,
+                width: blobStyle.width,
+                height: '48px',
+                opacity: blobStyle.opacity,
+                transition: 'all 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                zIndex: 1,
+                borderRadius: '12px'
+              }}
+            />
 
-                {/* Show text only for active item with smooth transition */}
-                <span
-                  className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ease-out overflow-hidden ${
-                    item.isActive
-                      ? 'opacity-100 w-auto max-w-[120px] ml-1'
-                      : 'opacity-0 w-0 max-w-0 ml-0'
-                  }`}
-                  style={{
-                    transitionProperty: 'opacity, width, margin-left, max-width',
-                    transitionDelay: item.isActive ? '50ms' : '0ms'
+            {navigationItems.map((item) => {
+              const isActive = item.isActive
+              const isHovered = hoveredItem === item.label
+              const shouldShowBlobOnThisItem = hoveredItem ? isHovered : isActive
+
+              return (
+                <button
+                  key={item.label}
+                  ref={(el) => {
+                    buttonRefs.current[item.label] = el
                   }}
+                  onClick={() => handleNavigation(item.href)}
+                  disabled={isTransitioning}
+                  onMouseEnter={() => {
+                    setHoveredItem(item.label)
+                    updateBlobPosition(item.label)
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredItem(null)
+                    updateBlobPosition(null)
+                  }}
+                  className="relative flex items-center px-3 py-3 rounded-xl transition-all duration-300 cursor-pointer group"
+                  style={{ zIndex: 2 }}
+                  aria-label={item.label}
                 >
-                  {item.label}
-                </span>
+                  <item.icon
+                    size={20}
+                    weight="duotone"
+                    className={`transition-all duration-500 ease-out ${
+                      shouldShowBlobOnThisItem
+                        ? 'text-white scale-110 rotate-6'
+                        : 'text-electric-slate-700 hover:text-electric-slate-900 hover:scale-105 hover:rotate-3'
+                    }`}
+                  />
 
-                {/* Tooltip for inactive items */}
-                {!item.isActive && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-electric-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                  <span
+                    className={`font-medium text-sm whitespace-nowrap ml-2 transition-all duration-400 ease-out opacity-100 translate-x-0 ${
+                      shouldShowBlobOnThisItem
+                        ? 'text-white'
+                        : 'text-electric-slate-700 hover:text-electric-slate-900'
+                    }`}
+                  >
                     {item.label}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-electric-slate-900"></div>
-                  </div>
-                )}
-              </button>
-            ))}
+                  </span>
+                </button>
+              )
+            })}
           </div>
 
           {/* Status + User */}
