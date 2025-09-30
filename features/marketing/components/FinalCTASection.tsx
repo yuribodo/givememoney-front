@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from "motion/react"
-import { CryptoIcons } from "./CryptoIcons"
-import { ctaVariants, buttonVariants, viewportSettings } from "../../lib/animations"
+import { CryptoIcons } from "@/components/ui/CryptoIcons"
+import { ctaVariants, buttonVariants, viewportSettings } from "@/lib/animations"
 
 export function FinalCTASection() {
 

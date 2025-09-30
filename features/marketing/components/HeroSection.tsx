@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react"
 import { ArrowRight } from "@phosphor-icons/react"
-import { BackgroundBeams } from "../../components/ui/background-beams"
-import TrueFocus from "../../components/TrueFocus"
-import { CryptoIcons } from "./CryptoIcons"
+import { BackgroundBeams } from "@/components/ui/background-beams"
+import TrueFocus from "@/components/TrueFocus"
+import { CryptoIcons } from "@/components/ui/CryptoIcons"
 
 export function HeroSection() {
   return (

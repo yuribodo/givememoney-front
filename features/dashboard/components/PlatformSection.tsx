@@ -1,15 +1,15 @@
 'use client'
 
 import { motion } from "motion/react"
-import { CryptoIcons } from "./CryptoIcons"
-import { KickIcon } from "./KickIcon"
+import { CryptoIcons } from "@/components/ui/CryptoIcons"
+import { KickIcon } from "@/components/ui/KickIcon"
 import {
   expandFromCenterVariants,
   cascadeVariants,
   platformsContainerVariants,
   platformItemVariants,
   immediateViewportSettings
-} from "../../lib/animations"
+} from "@/lib/animations"
 
 const platforms = [
   {

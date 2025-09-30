@@ -11,7 +11,7 @@ import {
   User,
   CircleDashed
 } from '@phosphor-icons/react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/features/auth'
 
 interface FloatingNavbarProps {
   isLive?: boolean

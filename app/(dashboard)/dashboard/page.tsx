@@ -1,10 +1,7 @@
 'use client'
 
-import { FloatingNavbar } from '../components/FloatingNavbar'
-import { LiveStatusCard } from '../components/LiveStatusCard'
-import { WeeklyStatsCard } from '../components/WeeklyStatsCard'
-import { TopDonorsCard } from '../components/TopDonorsCard'
-import { RecentDonationsFeed } from '../components/RecentDonationsFeed'
+import { FloatingNavbar } from '@/components/layout/FloatingNavbar'
+import { LiveStatusCard, WeeklyStatsCard, TopDonorsCard, RecentDonationsFeed } from '@/features/dashboard'
 import { mockDashboardData } from '@/lib/mock-data'
 
 export default function DashboardPage() {

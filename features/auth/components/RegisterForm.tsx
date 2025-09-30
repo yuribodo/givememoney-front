@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { registerSchema, type RegisterFormData } from '../../lib/validations/auth'
-import { AuthService } from '../../lib/auth'
+import { registerSchema, type RegisterFormData } from '../types/auth'
+import { AuthService } from '../services/auth'
 import { motion } from 'motion/react'
-import { Input } from '../../components/ui/input'
-import { Button } from '../../components/ui/button'
-import { KickIcon } from './KickIcon'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { KickIcon } from '@/components/ui/KickIcon'
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)

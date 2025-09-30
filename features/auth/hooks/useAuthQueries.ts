@@ -3,9 +3,9 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { AuthService, User } from '../lib/auth'
-import { queryKeys, mutationKeys, invalidateQueries } from '../lib/query-client'
-import { log } from '../lib/logger'
+import { AuthService, User } from '../services/auth'
+import { queryKeys, mutationKeys, invalidateQueries } from '@/lib/query-client'
+import { log } from '@/lib/logger'
 
 // Query hook for current user data
 export function useUserQuery() {

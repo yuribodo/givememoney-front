@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { FloatingNavbar } from '../components/FloatingNavbar'
-import { OverlayPreview } from '../components/OverlayPreview'
-import { OverlaySettings } from '../components/OverlaySettings'
-import { OverlayLinkCard } from '../components/OverlayLinkCard'
+import { FloatingNavbar } from '@/components/layout/FloatingNavbar'
+import { OverlayPreview, OverlaySettings, OverlayLinkCard } from '@/features/overlay'
 
 export default function OverlayPage() {
   const [overlayConfig, setOverlayConfig] = useState({

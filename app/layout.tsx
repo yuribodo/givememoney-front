@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ErrorBoundary from "../components/ErrorBoundary";
-import { AuthErrorBoundary } from "../components/AuthErrorBoundary";
-import { ConditionalNavbar } from "./components/ConditionalNavbar";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { AuthErrorBoundary } from "@/features/auth";
+import { ConditionalNavbar } from "@/components/layout/ConditionalNavbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

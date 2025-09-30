@@ -1,4 +1,4 @@
-import { User } from './backend-types'
+import { User } from '@/lib/backend-types'
 
 interface SessionResponse {
   authenticated: boolean

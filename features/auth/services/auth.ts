@@ -1,9 +1,9 @@
-import { SecureStorage } from './secure-storage'
-import { ApiValidator } from './validators'
-import { ApiError } from './api-schemas'
-import { apiClient, TypeSafeApiClient } from './api-client'
-import { User } from './backend-types'
-import { log } from './logger'
+import { SecureStorage } from '@/lib/secure-storage'
+import { ApiValidator } from '@/lib/validators'
+import { ApiError } from '@/lib/api-schemas'
+import { apiClient, TypeSafeApiClient } from '@/lib/api-client'
+import { User } from '@/lib/backend-types'
+import { log } from '@/lib/logger'
 
 export type { User }
 

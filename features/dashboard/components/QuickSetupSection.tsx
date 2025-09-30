@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from "motion/react"
-import { CryptoIcons } from "./CryptoIcons"
-import { speedSlideVariants, timerCountVariants, pulseGlowVariants, immediateViewportSettings } from "../../lib/animations"
+import { CryptoIcons } from "@/components/ui/CryptoIcons"
+import { speedSlideVariants, timerCountVariants, pulseGlowVariants, immediateViewportSettings } from "@/lib/animations"
 
 export function QuickSetupSection() {
   return (

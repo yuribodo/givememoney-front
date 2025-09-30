@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { SecureAuthService } from '../lib/secure-auth'
-import { AuthService } from '../lib/auth'
-import { User } from '../lib/backend-types'
+import { SecureAuthService } from '../services/secure-auth'
+import { AuthService } from '../services/auth'
+import { User } from '@/lib/backend-types'
 
 interface AuthState {
   user: User | null

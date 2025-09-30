@@ -3,7 +3,7 @@
 import React, { Component, ReactNode } from 'react'
 import { Warning, ArrowClockwise, House } from '@phosphor-icons/react'
 import Link from 'next/link'
-import { AuthService } from '../lib/auth'
+import { AuthService } from '../services/auth'
 
 interface Props {
   children: ReactNode
