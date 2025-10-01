@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { DollarSign, Circle, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, getTimeAgo } from '@/lib/mock-data'
 import { DashboardCard } from './DashboardCard'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
+import Image from 'next/image'
 
 interface RecentDonation {
   id: number
@@ -23,6 +25,8 @@ interface RecentDonationsFeedProps {
 export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
   const [displayDonations, setDisplayDonations] = useState(donations)
   const [newDonationId, setNewDonationId] = useState<number | null>(null)
+  const containerRef = useRef(null)
+  const isInView = useInView(containerRef, { once: true, margin: '-100px' })
 
   // Simulate real-time updates
   useEffect(() => {
@@ -42,16 +46,18 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
     }
   }, [newDonationId])
 
-  const getCurrencyEmoji = (currency: string) => {
+  const getCurrencyIcon = (currency: string) => {
     switch (currency.toUpperCase()) {
       case 'BTC':
-        return '₿'
+        return '/icons/bitcoin.png'
       case 'ETH':
-        return 'Ξ'
+        return '/icons/ethereum.png'
       case 'SOL':
-        return '◎'
+        return '/icons/solana.png'
+      case 'BNB':
+        return '/icons/binance.png'
       default:
-        return '$'
+        return null
     }
   }
 
@@ -66,64 +72,146 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
     }
   }
 
+  const donationVariants = {
+    hidden: { opacity: 0, y: 20, x: -15, scale: 0.9 },
+    show: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      x: 0,
+      scale: 1,
+      transition: {
+        delay: 0.1 * i,
+        duration: 0.5,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      },
+    }),
+    exit: {
+      opacity: 0,
+      x: -30,
+      scale: 0.9,
+      transition: {
+        duration: 0.3,
+      },
+    },
+  }
+
+  const newDonationVariants = {
+    initial: { scale: 0.9, opacity: 0 },
+    animate: {
+      scale: [0.9, 1.05, 1],
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        times: [0, 0.6, 1],
+        ease: 'easeOut',
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        duration: 0.3,
+      },
+    },
+  }
+
   return (
-    <DashboardCard title="Doações Recentes" icon={DollarSign} contentClassName="p-6 space-y-4">
+    <div ref={containerRef}>
+      <DashboardCard title="Doações Recentes" icon={DollarSign} contentClassName="p-6 space-y-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-4"
+        >
         {/* Donations list */}
         <div className="space-y-3">
-          {displayDonations.slice(0, 10).map((donation) => (
-            <div
-              key={donation.id}
-              className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 ${
-                newDonationId === donation.id
-                  ? 'bg-cyber-mint-25 border-cyber-mint-200 animate-scale-in'
-                  : 'bg-white border-electric-slate-200 hover:border-electric-slate-300'
-              }`}
-            >
-              {/* Status indicator */}
-              <Circle
-                size={8}
-                fill="currentColor"
-                className={`mt-2 ${getStatusColor(donation.status)}`}
-              />
+          <AnimatePresence mode="popLayout">
+            {displayDonations.slice(0, 10).map((donation, index) => (
+              <motion.div
+                key={donation.id}
+                custom={index}
+                variants={newDonationId === donation.id ? newDonationVariants : donationVariants}
+                initial="hidden"
+                animate={isInView && (newDonationId === donation.id ? 'animate' : 'show')}
+                exit="exit"
+                layout
+                className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 ${
+                  newDonationId === donation.id
+                    ? 'bg-cyber-mint-25 border-cyber-mint-200'
+                    : 'bg-white border-electric-slate-200 hover:border-electric-slate-300'
+                }`}
+              >
+                {/* Status indicator */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={isInView ? { scale: 1 } : { scale: 0 }}
+                  transition={{ delay: 0.2 + index * 0.1, type: 'spring' }}
+                >
+                  <Circle
+                    size={8}
+                    fill="currentColor"
+                    className={`mt-2 ${getStatusColor(donation.status)}`}
+                  />
+                </motion.div>
 
-              {/* Donation content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-electric-slate-900">
-                      {donation.username}
+                {/* Donation content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-electric-slate-900">
+                        {donation.username}
+                      </span>
+                      <span className="text-sm text-electric-slate-600">doou</span>
+                    </div>
+                    <div className="text-xs text-electric-slate-500">
+                      {getTimeAgo(donation.timestamp)}
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="flex items-center gap-2 mt-1">
+                    {getCurrencyIcon(donation.currency) && (
+                      <Image
+                        src={getCurrencyIcon(donation.currency)!}
+                        alt={donation.currency}
+                        width={20}
+                        height={20}
+                        className="flex-shrink-0"
+                      />
+                    )}
+                    <span className="text-lg font-semibold text-cyber-mint-600 money-display">
+                      {formatCurrency(donation.amount)}
                     </span>
-                    <span className="text-sm text-electric-slate-600">doou</span>
+                    <span className="text-sm text-electric-slate-500 uppercase">
+                      {donation.currency}
+                    </span>
                   </div>
-                  <div className="text-xs text-electric-slate-500">
-                    {getTimeAgo(donation.timestamp)}
-                  </div>
-                </div>
 
-                {/* Amount */}
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-lg font-semibold text-cyber-mint-600 money-display">
-                    {getCurrencyEmoji(donation.currency)} {formatCurrency(donation.amount)}
-                  </span>
-                  <span className="text-sm text-electric-slate-500 uppercase">
-                    {donation.currency}
-                  </span>
+                  {/* Message */}
+                  {donation.message && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={isInView ? { opacity: 1, height: 'auto' } : { opacity: 0, height: 0 }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
+                      className="mt-2 p-2 bg-electric-slate-50 rounded text-sm text-electric-slate-700 italic overflow-hidden"
+                    >
+                      &ldquo;{donation.message}&rdquo;
+                    </motion.div>
+                  )}
                 </div>
-
-                {/* Message */}
-                {donation.message && (
-                  <div className="mt-2 p-2 bg-electric-slate-50 rounded text-sm text-electric-slate-700 italic">
-                    &ldquo;{donation.message}&rdquo;
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Empty state */}
         {displayDonations.length === 0 && (
-          <div className="text-center py-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-12"
+          >
             <DollarSign
               size={48}
               className="text-muted-foreground mx-auto mb-4"
@@ -132,12 +220,17 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
             <div className="text-sm text-muted-foreground">
               As doações aparecerão aqui em tempo real
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* View all button */}
         {displayDonations.length > 10 && (
-          <div className="pt-4 border-t border-border">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="pt-4 border-t border-border"
+          >
             <Button
               variant="ghost"
               className="w-full flex items-center justify-center gap-2 text-cyber-mint-600 hover:text-cyber-mint-700"
@@ -145,16 +238,23 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
               Ver todas as {displayDonations.length} doações
               <ArrowRight size={16} />
             </Button>
-          </div>
+          </motion.div>
         )}
 
         {/* Auto-refresh indicator */}
         {displayDonations.length > 0 && (
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className=" flex items-center justify-center gap-2 text-xs text-muted-foreground"
+          >
             <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
             Atualizando em tempo real
-          </div>
+          </motion.div>
         )}
-    </DashboardCard>
+        </motion.div>
+      </DashboardCard>
+    </div>
   )
 }
