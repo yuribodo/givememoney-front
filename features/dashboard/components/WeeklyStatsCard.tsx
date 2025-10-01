@@ -1,8 +1,8 @@
 'use client'
 
-import { ChartBar, TrendUp, TrendDown } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BarChart3, TrendingUp, TrendingDown } from 'lucide-react'
 import { formatCurrency, formatPercentage } from '@/lib/mock-data'
+import { DashboardCard } from './DashboardCard'
 
 interface WeeklyStatsData {
   total: number
@@ -19,18 +19,10 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
   const { total, percentageChange, totalDonations, previousWeek } = data
 
   const isPositiveChange = percentageChange >= 0
-  const TrendIcon = isPositiveChange ? TrendUp : TrendDown
+  const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <ChartBar size={20} weight="duotone" className="text-cyber-mint-500" />
-          ESTA SEMANA
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
+    <DashboardCard title="Esta Semana" icon={BarChart3} contentClassName="p-6 space-y-4">
         {/* Main total */}
         <div className="text-center">
           <div className="text-3xl font-bold money-display text-electric-slate-900">
@@ -42,7 +34,6 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
         <div className="flex items-center justify-center gap-2">
           <TrendIcon
             size={16}
-            weight="duotone"
             className={isPositiveChange ? 'text-success-emerald' : 'text-error-rose'}
           />
           <span
@@ -86,7 +77,6 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
             />
           </div>
         </div>
-      </CardContent>
-    </Card>
+    </DashboardCard>
   )
 }

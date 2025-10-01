@@ -1,7 +1,6 @@
 'use client'
 
 import { Users, Trophy, Medal, Award } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -11,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatCurrency } from '@/lib/mock-data'
+import { DashboardCard } from './DashboardCard'
 
 interface TopDonor {
   username: string
@@ -41,66 +41,58 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Users size={20} className="text-cyber-mint-500" />
-          TOP DOADORES
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent>
-        {donors.length === 0 ? (
-          <div className="text-center py-8">
-            <Users size={32} className="text-muted-foreground mx-auto mb-2" />
-            <div className="text-sm text-muted-foreground">
-              Nenhuma doação ainda
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Seus top doadores aparecerão aqui
-            </div>
+    <DashboardCard title="Top Doadores" icon={Users}>
+      {donors.length === 0 ? (
+        <div className="text-center py-12 px-6">
+          <Users size={32} className="text-muted-foreground mx-auto mb-2" />
+          <div className="text-sm text-muted-foreground">
+            Nenhuma doação ainda
           </div>
-        ) : (
-          <>
-            <Table>
-              <TableHeader className="bg-transparent">
-                <TableRow className="hover:bg-transparent border-b">
-                  <TableHead className="w-12"></TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <tbody aria-hidden="true" className="table-row h-2"></tbody>
-              <TableBody className="[&_td:first-child]:rounded-l-lg [&_td:last-child]:rounded-r-lg">
-                {donors.slice(0, 5).map((donor) => (
-                  <TableRow
-                    key={donor.rank}
-                    className="border-none odd:bg-muted/50 hover:bg-transparent odd:hover:bg-muted/50"
-                  >
-                    <TableCell className="py-2.5 w-12">
+          <div className="text-xs text-muted-foreground mt-1">
+            Seus top doadores aparecerão aqui
+          </div>
+        </div>
+      ) : (
+        <>
+          <Table>
+            <TableHeader className="bg-muted/30">
+              <TableRow className="hover:bg-transparent border-b border-border/50">
+                <TableHead className="w-16 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
+                <TableHead className="text-xs font-semibold text-muted-foreground">Nome</TableHead>
+                <TableHead className="text-right text-xs font-semibold text-muted-foreground pr-6">Valor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {donors.slice(0, 5).map((donor) => (
+                <TableRow
+                  key={donor.rank}
+                  className="border-b border-border/30 last:border-0 hover:bg-muted/20 transition-colors"
+                >
+                  <TableCell className="py-3 w-16 text-center">
+                    <div className="flex items-center justify-center">
                       {getRankIcon(donor.rank)}
-                    </TableCell>
-                    <TableCell className="py-2.5 font-medium">
-                      {donor.username}
-                    </TableCell>
-                    <TableCell className="py-2.5 text-right font-semibold money-display">
-                      {formatCurrency(donor.amount)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3 font-medium text-foreground">
+                    {donor.username}
+                  </TableCell>
+                  <TableCell className="py-3 text-right font-semibold money-display text-foreground pr-6">
+                    {formatCurrency(donor.amount)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-            {donors.length > 5 && (
-              <div className="pt-4 border-t border-border mt-2">
-                <button className="w-full text-sm text-cyber-mint-600 hover:text-cyber-mint-700 font-medium">
-                  Ver todos os doadores →
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+          {donors.length > 5 && (
+            <div className="p-4 bg-muted/20 border-t border-border/50">
+              <button className="w-full text-sm text-cyber-mint-600 hover:text-cyber-mint-700 font-medium transition-colors">
+                Ver todos os doadores →
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </DashboardCard>
   )
 }

@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CurrencyDollar, Circle, ArrowRight } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DollarSign, Circle, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, getTimeAgo } from '@/lib/mock-data'
+import { DashboardCard } from './DashboardCard'
 
 interface RecentDonation {
   id: number
@@ -67,15 +67,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <CurrencyDollar size={20} weight="duotone" className="text-cyber-mint-500" />
-          DOAÇÕES RECENTES
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
+    <DashboardCard title="Doações Recentes" icon={DollarSign} contentClassName="p-6 space-y-4">
         {/* Donations list */}
         <div className="space-y-3 max-h-80 overflow-y-auto">
           {displayDonations.map((donation) => (
@@ -90,7 +82,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
               {/* Status indicator */}
               <Circle
                 size={8}
-                weight="fill"
+                fill="currentColor"
                 className={`mt-2 ${getStatusColor(donation.status)}`}
               />
 
@@ -132,13 +124,12 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
         {/* Empty state */}
         {displayDonations.length === 0 && (
           <div className="text-center py-12">
-            <CurrencyDollar
+            <DollarSign
               size={48}
-              weight="duotone"
-              className="text-electric-slate-300 mx-auto mb-4"
+              className="text-muted-foreground mx-auto mb-4"
             />
-            <div className="text-electric-slate-600 mb-2">Nenhuma doação ainda</div>
-            <div className="text-sm text-electric-slate-500">
+            <div className="text-muted-foreground mb-2">Nenhuma doação ainda</div>
+            <div className="text-sm text-muted-foreground">
               As doações aparecerão aqui em tempo real
             </div>
           </div>
@@ -146,23 +137,22 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
 
         {/* View all button */}
         {displayDonations.length > 0 && (
-          <div className="pt-4 border-t border-electric-slate-200">
+          <div className="pt-4 border-t border-border">
             <Button
               variant="ghost"
               className="w-full flex items-center justify-center gap-2 text-cyber-mint-600 hover:text-cyber-mint-700"
             >
               Ver todas as doações
-              <ArrowRight size={16} weight="duotone" />
+              <ArrowRight size={16} />
             </Button>
           </div>
         )}
 
         {/* Auto-refresh indicator */}
-        <div className="flex items-center justify-center gap-2 text-xs text-electric-slate-500">
-          <Circle size={6} weight="fill" className="text-success-emerald animate-pulse" />
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
           Atualizando em tempo real
         </div>
-      </CardContent>
-    </Card>
+    </DashboardCard>
   )
 }
