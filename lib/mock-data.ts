@@ -15,6 +15,7 @@ export interface DashboardData {
     dailyData: Array<{
       day: string
       value: number
+      messages: number
     }>
   }
   topDonors: Array<{
@@ -48,13 +49,13 @@ export const mockDashboardData: DashboardData = {
     totalDonations: 67,
     previousWeek: 1013.90,
     dailyData: [
-      { day: 'Seg', value: 145.50 },
-      { day: 'Ter', value: 198.20 },
-      { day: 'Qua', value: 167.80 },
-      { day: 'Qui', value: 223.40 },
-      { day: 'Sex', value: 189.60 },
-      { day: 'Sáb', value: 175.30 },
-      { day: 'Dom', value: 147.50 }
+      { day: 'Mon', value: 145.50, messages: 8 },
+      { day: 'Tue', value: 198.20, messages: 12 },
+      { day: 'Wed', value: 167.80, messages: 10 },
+      { day: 'Thu', value: 223.40, messages: 15 },
+      { day: 'Fri', value: 189.60, messages: 11 },
+      { day: 'Sat', value: 175.30, messages: 9 },
+      { day: 'Sun', value: 147.50, messages: 7 }
     ]
   },
   topDonors: [

@@ -11,6 +11,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter'
 interface DailyData {
   day: string
   value: number
+  messages: number
 }
 
 interface WeeklyStatsData {
@@ -34,12 +35,24 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload
       return (
-        <div className="bg-card border border-border rounded-lg shadow-lg p-3">
-          <p className="text-xs text-muted-foreground mb-1">{payload[0].payload.day}</p>
-          <p className="text-sm font-semibold text-foreground money-display">
-            {formatCurrency(payload[0].value)}
-          </p>
+        <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-[160px]">
+          <p className="text-xs font-semibold text-muted-foreground mb-2">{data.day}</p>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">Value:</span>
+              <span className="text-sm font-semibold text-foreground money-display">
+                {formatCurrency(data.value)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">Messages:</span>
+              <span className="text-sm font-semibold text-foreground">
+                {data.messages}
+              </span>
+            </div>
+          </div>
         </div>
       )
     }
