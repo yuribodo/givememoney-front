@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge-2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, Wallet, MessageSquare, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '@/lib/mock-data'
 
 interface MetricsData {
@@ -21,6 +21,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
   const stats = [
     {
       title: 'Saldo',
+      icon: Wallet,
       value: balance,
       delta: 12.5,
       lastMonth: balance * 0.888,
@@ -30,6 +31,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
     },
     {
       title: 'Mensagens Recebidas',
+      icon: MessageSquare,
       value: messagesReceived,
       delta: 8.3,
       lastMonth: Math.round(messagesReceived * 0.924),
@@ -39,6 +41,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
     },
     {
       title: 'Valor Recebido',
+      icon: TrendingUp,
       value: valueReceived,
       delta: 15.7,
       lastMonth: valueReceived * 0.864,
@@ -56,32 +59,38 @@ export function MetricsCards({ data }: MetricsCardsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {stats.map((stat, index) => (
-        <Card key={index}>
-          <CardHeader className="border-0">
-            <CardTitle className="text-muted-foreground text-sm font-medium">{stat.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2.5">
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl font-medium text-foreground tracking-tight">
-                {stat.format ? stat.format(stat.value) : formatNumber(stat.value)}
-              </span>
-              <Badge variant={stat.positive ? 'success' : 'destructive'} appearance="light">
-                {stat.delta > 0 ? <ArrowUp /> : <ArrowDown />}
-                {stat.delta}%
-              </Badge>
-            </div>
-            <div className="text-xs text-muted-foreground mt-2 border-t pt-2.5">
-              Vs last month:{' '}
-              <span className="font-medium text-foreground">
-                {stat.lastFormat
-                  ? stat.lastFormat(stat.lastMonth)
-                  : formatNumber(stat.lastMonth)}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {stats.map((stat, index) => {
+        const Icon = stat.icon;
+        return (
+          <Card key={index} className="overflow-hidden">
+            <CardHeader className="bg-gray-50 border-b border-gray-200">
+              <CardTitle className="flex items-center justify-center gap-2 text-base">
+                <Icon size={20} className="text-foreground" />
+                <span className="text-foreground font-semibold">{stat.title}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2.5 p-6">
+              <div className="flex items-center justify-start gap-2.5">
+                <span className="text-3xl font-bold text-foreground tracking-tight money-display">
+                  {stat.format ? stat.format(stat.value) : formatNumber(stat.value)}
+                </span>
+                <Badge variant={stat.positive ? 'success' : 'destructive'} appearance="light">
+                  {stat.delta > 0 ? <ArrowUp /> : <ArrowDown />}
+                  {stat.delta}%
+                </Badge>
+              </div>
+              <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2.5">
+                Vs last month:{' '}
+                <span className="font-medium text-foreground">
+                  {stat.lastFormat
+                    ? stat.lastFormat(stat.lastMonth)
+                    : formatNumber(stat.lastMonth)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   )
 }
