@@ -22,7 +22,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
 
   const stats = [
     {
-      title: 'Saldo',
+      title: 'Balance',
       icon: Wallet,
       value: balance,
       delta: 12.5,
@@ -32,7 +32,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
       lastFormat: formatCurrency,
     },
     {
-      title: 'Mensagens Recebidas',
+      title: 'Messages Received',
       icon: MessageSquare,
       value: messagesReceived,
       delta: 8.3,
@@ -42,7 +42,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
       lastFormat: (v: number) => v.toString(),
     },
     {
-      title: 'Valor Recebido',
+      title: 'Value Received',
       icon: TrendingUp,
       value: valueReceived,
       delta: 15.7,
@@ -116,7 +116,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
               </CardHeader>
               <CardContent className="space-y-2.5 p-6">
                 <div className="flex items-center justify-start gap-2.5">
-                  {stat.title === 'Mensagens Recebidas' ? (
+                  {stat.title === 'Messages Received' ? (
                     <AnimatedCounter
                       value={stat.value}
                       className="text-3xl font-bold text-foreground tracking-tight"

@@ -101,7 +101,7 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
 
   return (
     <div className="h-full">
-      <DashboardCard title="Top Doadores" icon={Users} className="h-full">
+      <DashboardCard title="Top Donors" icon={Users} className="h-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -111,10 +111,10 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
           <div className="text-center py-12 px-6">
             <Users size={32} className="text-muted-foreground mx-auto mb-2" />
             <div className="text-sm text-muted-foreground">
-              Nenhuma doação ainda
+              No donations yet
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Seus top doadores aparecerão aqui
+              Your top donors will appear here
             </div>
           </div>
         ) : (
@@ -128,8 +128,8 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
                   animate="show"
                 >
                   <TableHead className="w-16 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
-                  <TableHead className="text-xs font-semibold text-muted-foreground">Nome</TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-muted-foreground pr-6">Valor</TableHead>
+                  <TableHead className="text-xs font-semibold text-muted-foreground">Name</TableHead>
+                  <TableHead className="text-right text-xs font-semibold text-muted-foreground pr-6">Amount</TableHead>
                 </motion.tr>
               </TableHeader>
               <TableBody>
@@ -170,7 +170,7 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
                 transition={{ delay: 0.6 }}
               >
                 <button className="w-full text-sm text-cyber-mint-600 hover:text-cyber-mint-700 font-medium transition-colors">
-                  Ver todos os doadores →
+                  View all donors →
                 </button>
               </motion.div>
             )}

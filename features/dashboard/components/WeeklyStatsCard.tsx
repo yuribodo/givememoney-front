@@ -87,7 +87,7 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
 
   return (
     <div className="h-full">
-      <DashboardCard title="Esta Semana" icon={BarChart3} contentClassName="p-0 flex flex-col flex-1">
+      <DashboardCard title="This Week" icon={BarChart3} contentClassName="p-0 flex flex-col flex-1">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -95,7 +95,7 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
           className="p-6 flex flex-col flex-1"
         >
           <div className="text-center mb-6">
-            <div className="text-sm text-muted-foreground mb-1">Total da Semana</div>
+            <div className="text-sm text-muted-foreground mb-1">Weekly Total</div>
             <AnimatedCounter
               value={total}
               className="text-3xl font-bold money-display text-foreground"

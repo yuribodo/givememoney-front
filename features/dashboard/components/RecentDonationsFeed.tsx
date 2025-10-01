@@ -117,7 +117,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
 
   return (
     <div ref={containerRef}>
-      <DashboardCard title="Doações Recentes" icon={DollarSign} contentClassName="p-6 space-y-4">
+      <DashboardCard title="Recent Donations" icon={DollarSign} contentClassName="p-6 space-y-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
@@ -162,7 +162,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
                       <span className="font-medium text-electric-slate-900">
                         {donation.username}
                       </span>
-                      <span className="text-sm text-electric-slate-600">doou</span>
+                      <span className="text-sm text-electric-slate-600">donated</span>
                     </div>
                     <div className="text-xs text-electric-slate-500">
                       {getTimeAgo(donation.timestamp)}
@@ -216,9 +216,9 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
               size={48}
               className="text-muted-foreground mx-auto mb-4"
             />
-            <div className="text-muted-foreground mb-2">Nenhuma doação ainda</div>
+            <div className="text-muted-foreground mb-2">No donations yet</div>
             <div className="text-sm text-muted-foreground">
-              As doações aparecerão aqui em tempo real
+              Donations will appear here in real-time
             </div>
           </motion.div>
         )}
@@ -235,7 +235,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
               variant="ghost"
               className="w-full flex items-center justify-center gap-2 text-cyber-mint-600 hover:text-cyber-mint-700"
             >
-              Ver todas as {displayDonations.length} doações
+              View all {displayDonations.length} donations
               <ArrowRight size={16} />
             </Button>
           </motion.div>
@@ -250,7 +250,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
             className=" flex items-center justify-center gap-2 text-xs text-muted-foreground"
           >
             <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
-            Atualizando em tempo real
+            Updating in real-time
           </motion.div>
         )}
         </motion.div>
