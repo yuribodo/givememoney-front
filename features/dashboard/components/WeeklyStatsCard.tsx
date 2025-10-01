@@ -1,14 +1,18 @@
 'use client'
 
-import { BarChart3, TrendingUp, TrendingDown } from 'lucide-react'
-import { formatCurrency, formatPercentage } from '@/lib/mock-data'
+import { BarChart3 } from 'lucide-react'
+import { formatCurrency } from '@/lib/mock-data'
 import { DashboardCard } from './DashboardCard'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+
+interface DailyData {
+  day: string
+  value: number
+}
 
 interface WeeklyStatsData {
+  dailyData: DailyData[]
   total: number
-  percentageChange: number
-  totalDonations: number
-  previousWeek: number
 }
 
 interface WeeklyStatsCardProps {
@@ -16,67 +20,64 @@ interface WeeklyStatsCardProps {
 }
 
 export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
-  const { total, percentageChange, totalDonations, previousWeek } = data
+  const { dailyData, total } = data
 
-  const isPositiveChange = percentageChange >= 0
-  const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-card border border-border rounded-lg shadow-lg p-3">
+          <p className="text-xs text-muted-foreground mb-1">{payload[0].payload.day}</p>
+          <p className="text-sm font-semibold text-foreground money-display">
+            {formatCurrency(payload[0].value)}
+          </p>
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
-    <DashboardCard title="Esta Semana" icon={BarChart3} contentClassName="p-6 space-y-4">
-        {/* Main total */}
-        <div className="text-center">
-          <div className="text-3xl font-bold money-display text-electric-slate-900">
+    <DashboardCard title="Esta Semana" icon={BarChart3} contentClassName="p-0">
+      <div className="p-6 pb-4">
+        <div className="text-center mb-6">
+          <div className="text-sm text-muted-foreground mb-1">Total da Semana</div>
+          <div className="text-3xl font-bold money-display text-foreground">
             {formatCurrency(total)}
           </div>
         </div>
 
-        {/* Percentage change */}
-        <div className="flex items-center justify-center gap-2">
-          <TrendIcon
-            size={16}
-            className={isPositiveChange ? 'text-success-emerald' : 'text-error-rose'}
-          />
-          <span
-            className={`text-sm font-semibold ${
-              isPositiveChange ? 'text-success-emerald' : 'text-error-rose'
-            }`}
-          >
-            {formatPercentage(percentageChange)} vs anterior
-          </span>
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={dailyData} margin={{ top: 10, right: 15, left: -20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e6ed" vertical={false} />
+              <XAxis
+                dataKey="day"
+                stroke="#6b7899"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="#6b7899"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                width={50}
+                tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e6ed' }} />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#00a896"
+                strokeWidth={3}
+                dot={{ fill: '#00a896', r: 3 }}
+                activeDot={{ r: 5, fill: '#00a896' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-
-        {/* Additional stats */}
-        <div className="pt-3 border-t border-electric-slate-200 space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="metric-label">Total doações</span>
-            <span className="text-sm font-medium text-electric-slate-700">
-              {totalDonations}
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="metric-label">Semana anterior</span>
-            <span className="text-sm font-medium text-electric-slate-700 money-display">
-              {formatCurrency(previousWeek)}
-            </span>
-          </div>
-        </div>
-
-        {/* Visual indicator bar */}
-        <div className="mt-4">
-          <div className="h-2 bg-electric-slate-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isPositiveChange
-                  ? 'bg-gradient-to-r from-success-emerald to-cyber-mint-500'
-                  : 'bg-gradient-to-r from-error-rose to-warm-coral'
-              }`}
-              style={{
-                width: `${Math.min(Math.abs(percentageChange) * 2, 100)}%`
-              }}
-            />
-          </div>
-        </div>
+      </div>
     </DashboardCard>
   )
 }

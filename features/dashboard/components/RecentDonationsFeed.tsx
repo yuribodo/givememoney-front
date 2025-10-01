@@ -69,8 +69,8 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
   return (
     <DashboardCard title="Doações Recentes" icon={DollarSign} contentClassName="p-6 space-y-4">
         {/* Donations list */}
-        <div className="space-y-3 max-h-80 overflow-y-auto">
-          {displayDonations.map((donation) => (
+        <div className="space-y-3">
+          {displayDonations.slice(0, 10).map((donation) => (
             <div
               key={donation.id}
               className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 ${
@@ -136,23 +136,25 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
         )}
 
         {/* View all button */}
-        {displayDonations.length > 0 && (
+        {displayDonations.length > 10 && (
           <div className="pt-4 border-t border-border">
             <Button
               variant="ghost"
               className="w-full flex items-center justify-center gap-2 text-cyber-mint-600 hover:text-cyber-mint-700"
             >
-              Ver todas as doações
+              Ver todas as {displayDonations.length} doações
               <ArrowRight size={16} />
             </Button>
           </div>
         )}
 
         {/* Auto-refresh indicator */}
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
-          Atualizando em tempo real
-        </div>
+        {displayDonations.length > 0 && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
+            Atualizando em tempo real
+          </div>
+        )}
     </DashboardCard>
   )
 }

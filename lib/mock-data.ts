@@ -12,6 +12,10 @@ export interface DashboardData {
     percentageChange: number
     totalDonations: number
     previousWeek: number
+    dailyData: Array<{
+      day: string
+      value: number
+    }>
   }
   topDonors: Array<{
     username: string
@@ -42,7 +46,16 @@ export const mockDashboardData: DashboardData = {
     total: 1247.30,
     percentageChange: 23,
     totalDonations: 67,
-    previousWeek: 1013.90
+    previousWeek: 1013.90,
+    dailyData: [
+      { day: 'Seg', value: 145.50 },
+      { day: 'Ter', value: 198.20 },
+      { day: 'Qua', value: 167.80 },
+      { day: 'Qui', value: 223.40 },
+      { day: 'Sex', value: 189.60 },
+      { day: 'Sáb', value: 175.30 },
+      { day: 'Dom', value: 147.50 }
+    ]
   },
   topDonors: [
     { username: "@crypto_fan", amount: 50.00, rank: 1 },
