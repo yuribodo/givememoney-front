@@ -1,3 +1,5 @@
+'use client'
+
 import { ChartBar, TrendUp, TrendDown } from '@phosphor-icons/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatPercentage } from '@/lib/mock-data'
