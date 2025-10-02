@@ -99,12 +99,16 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
       <div className="floating-navbar rounded-2xl transition-all duration-300 hover:shadow-xl">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Logo */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => handleNavigation('/dashboard')}
+            className="flex items-center gap-2 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            aria-label="Go to Dashboard"
+          >
             <GameController size={20} weight="duotone" className="text-cyber-mint-500" />
             <span className="text-lg font-bold text-electric-slate-900 hidden sm:block">
               GiveMeMoney
             </span>
-          </div>
+          </button>
 
           {/* Navigation Icons */}
           <div ref={navContainerRef} className="relative flex items-center gap-1">
