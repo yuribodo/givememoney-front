@@ -74,17 +74,12 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
 
   const donationVariants = {
     hidden: { opacity: 0, y: 20, x: -15, scale: 0.9 },
-    show: (i: number) => ({
+    show: {
       opacity: 1,
       y: 0,
       x: 0,
       scale: 1,
-      transition: {
-        delay: 0.1 * i,
-        duration: 0.5,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    }),
+    },
     exit: {
       opacity: 0,
       x: -30,
@@ -103,7 +98,7 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
       transition: {
         duration: 0.5,
         times: [0, 0.6, 1],
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
     exit: {
@@ -130,11 +125,15 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
             {displayDonations.slice(0, 10).map((donation, index) => (
               <motion.div
                 key={donation.id}
-                custom={index}
                 variants={newDonationId === donation.id ? newDonationVariants : donationVariants}
                 initial="hidden"
                 animate={isInView && (newDonationId === donation.id ? 'animate' : 'show')}
                 exit="exit"
+                transition={{
+                  delay: 0.1 * index,
+                  duration: 0.5,
+                  ease: "easeOut",
+                }}
                 layout
                 className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 ${
                   newDonationId === donation.id

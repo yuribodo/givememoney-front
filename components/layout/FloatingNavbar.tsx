@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -29,7 +29,7 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
   const pathname = usePathname()
   const { user, isLoading, logout } = useAuth()
 
-  const navigationItems = [
+  const navigationItems = useMemo(() => [
     {
       icon: ChartLine,
       label: 'Dashboard',
@@ -48,10 +48,10 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
       href: '/donations',
       isActive: pathname === '/donations'
     },
-  ]
+  ], [pathname])
 
   // Calculate blob position and size
-  const updateBlobPosition = (targetLabel: string | null) => {
+  const updateBlobPosition = useCallback((targetLabel: string | null) => {
     if (!navContainerRef.current) return
 
     const target = targetLabel || navigationItems.find(item => item.isActive)?.label
@@ -68,7 +68,7 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
       width: buttonRect.width,
       opacity: 1
     })
-  }
+  }, [navigationItems])
 
   // Handle smooth transitions between sections
   const handleNavigation = (href: string) => {
@@ -81,7 +81,7 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
   // Initialize blob position
   useEffect(() => {
     updateBlobPosition(null)
-  }, [pathname])
+  }, [pathname, updateBlobPosition])
 
   // Close user menu when clicking outside
   useEffect(() => {

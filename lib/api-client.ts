@@ -3,8 +3,7 @@ import {
   TokenPair,
   HealthResponse,
   User,
-  ApiEndpoints,
-  KickUserResponse
+  ApiEndpoints
 } from './backend-types'
 import { ApiValidator } from './validators'
 import { ApiError } from './api-schemas'

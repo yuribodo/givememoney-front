@@ -7,7 +7,6 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
 } from '@/components/ui/table'
 import { formatCurrency } from '@/lib/mock-data'
 import { DashboardCard } from './DashboardCard'
@@ -31,11 +30,6 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
       scale: 1,
       rotate: 0,
       opacity: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 200,
-        damping: 12,
-      },
     },
   }
 
@@ -43,19 +37,34 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
     switch (rank) {
       case 1:
         return (
-          <motion.div variants={iconVariants} initial="hidden" animate="show">
+          <motion.div 
+            variants={iconVariants} 
+            initial="hidden" 
+            animate="show"
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+          >
             <Trophy size={16} className="text-yellow-500" />
           </motion.div>
         )
       case 2:
         return (
-          <motion.div variants={iconVariants} initial="hidden" animate="show">
+          <motion.div 
+            variants={iconVariants} 
+            initial="hidden" 
+            animate="show"
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+          >
             <Medal size={16} className="text-gray-400" />
           </motion.div>
         )
       case 3:
         return (
-          <motion.div variants={iconVariants} initial="hidden" animate="show">
+          <motion.div 
+            variants={iconVariants} 
+            initial="hidden" 
+            animate="show"
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+          >
             <Award size={16} className="text-orange-500" />
           </motion.div>
         )
@@ -66,6 +75,7 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
             variants={iconVariants}
             initial="hidden"
             animate="show"
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
           >
             <span className="text-xs font-medium text-muted-foreground">{rank}</span>
           </motion.div>
@@ -78,10 +88,6 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
     show: {
       opacity: 1,
       x: 0,
-      transition: {
-        duration: 0.4,
-        ease: 'easeOut',
-      },
     },
   }
 
@@ -94,7 +100,7 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
       transition: {
         delay: 0.2 + i * 0.15,
         duration: 0.5,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: "easeOut" as const,
       },
     }),
   }
@@ -126,6 +132,7 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
                   variants={headerVariants}
                   initial="hidden"
                   animate="show"
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                 >
                   <TableHead className="w-16 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
                   <TableHead className="text-xs font-semibold text-muted-foreground">Name</TableHead>
