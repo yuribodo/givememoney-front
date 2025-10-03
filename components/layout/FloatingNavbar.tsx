@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'motion/react'
 import {
   GameController,
   ChartLine,
-  MonitorPlay,
   CurrencyCircleDollar,
   User,
-  CircleDashed
+  CircleDashed,
+  PaintBrush
 } from '@phosphor-icons/react'
 import { useAuth } from '@/features/auth'
 
@@ -37,10 +37,10 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
       isActive: pathname === '/dashboard'
     },
     {
-      icon: MonitorPlay,
-      label: 'Overlay',
-      href: '/overlay',
-      isActive: pathname === '/overlay'
+      icon: PaintBrush,
+      label: 'Layout',
+      href: '/layout',
+      isActive: pathname.startsWith('/layout')
     },
     {
       icon: CurrencyCircleDollar,
