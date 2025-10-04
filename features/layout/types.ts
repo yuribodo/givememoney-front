@@ -5,20 +5,15 @@ export interface AlertConfig {
   messageColor: string
   accentColor: string
 
-  // Logo
-  logoUrl: string | null
-  logoPosition: 'left' | 'center' | 'right' | 'none'
-  logoSize: 'small' | 'medium' | 'large'
-
   // Content
   headerText: string
   showDonorName: boolean
   showAmount: boolean
   showMessage: boolean
 
-  // Style
-  style: 'minimal' | 'gaming' | 'neon' | 'glassmorphism'
-  duration: number // in milliseconds
+  // Animation
+  minDuration: number // in milliseconds
+  maxDuration: number // in milliseconds
   soundEnabled: boolean
 }
 
