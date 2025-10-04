@@ -33,7 +33,6 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <AuthErrorBoundary>
-            <ConditionalNavbar />
             {children}
           </AuthErrorBoundary>
         </ErrorBoundary>
