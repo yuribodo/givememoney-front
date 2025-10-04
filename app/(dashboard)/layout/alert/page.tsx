@@ -5,7 +5,9 @@ import { FloatingNavbar } from '@/components/layout/FloatingNavbar'
 import { AlertPreview } from '@/features/layout/components/AlertPreview'
 import { AlertCustomizer } from '@/features/layout/components/AlertCustomizer'
 import { AlertConfig } from '@/features/layout/types'
+import { Card, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
+import { Bell } from 'lucide-react'
 
 export default function AlertEditorPage() {
   const [config, setConfig] = useState<AlertConfig>({
@@ -15,20 +17,15 @@ export default function AlertEditorPage() {
     messageColor: '#cbd2dd',
     accentColor: '#00a896',
 
-    // Logo
-    logoUrl: null,
-    logoPosition: 'left',
-    logoSize: 'medium',
-
     // Content
     headerText: '💰 Nova Doação!',
     showDonorName: true,
     showAmount: true,
     showMessage: true,
 
-    // Style
-    style: 'gaming',
-    duration: 5000,
+    // Animation
+    minDuration: 3000,
+    maxDuration: 8000,
     soundEnabled: true,
   })
 
@@ -60,41 +57,42 @@ export default function AlertEditorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-pearl with-floating-navbar">
+    <div className="min-h-screen bg-background with-floating-navbar">
       <FloatingNavbar isLive={false} />
 
       <motion.main
-        className="dashboard-grid"
+        className="container max-w-[1600px] mx-auto px-4 sm:px-6 py-8 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
         {/* Page Header */}
-        <motion.div className="card-large" variants={itemVariants}>
-          <div className="text-center py-8">
-            <h1 className="text-3xl font-bold text-electric-slate-900 mb-2">
-              🔔 Customizar Alerta de Doação
-            </h1>
-            <p className="text-electric-slate-600">
-              Configure as cores, logo e mensagens que aparecerão nos alertas da sua stream
-            </p>
+        <motion.div variants={itemVariants} className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Bell className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight">Editor de Alertas</h1>
           </div>
+          <p className="text-muted-foreground">
+            Personalize como os alertas de doação aparecerão durante suas lives
+          </p>
         </motion.div>
 
-        {/* Preview Section */}
-        <motion.div className="card-medium" variants={itemVariants}>
-          <div className="bg-white rounded-xl p-6 border-2 border-electric-slate-200">
-            <h2 className="text-lg font-bold text-electric-slate-900 mb-4">
-              Preview em Tempo Real
-            </h2>
-            <AlertPreview config={config} />
-          </div>
-        </motion.div>
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+          {/* Customizer Section - Left Side */}
+          <motion.div variants={itemVariants}>
+            <AlertCustomizer config={config} onChange={handleConfigChange} />
+          </motion.div>
 
-        {/* Customizer Section */}
-        <motion.div className="card-medium" variants={itemVariants}>
-          <AlertCustomizer config={config} onChange={handleConfigChange} />
-        </motion.div>
+          {/* Preview Section - Right Side (Sticky) */}
+          <motion.div variants={itemVariants} className="lg:sticky lg:top-24">
+            <Card>
+              <CardContent className="p-6">
+                <AlertPreview config={config} />
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
       </motion.main>
     </div>
   )
