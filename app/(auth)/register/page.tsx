@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "motion/react"
-import { RegisterForm } from '../../components/RegisterForm'
+import { RegisterForm } from '@/features/auth'
 import Link from 'next/link'
 import { Card, CardContent } from '../../../components/ui/card'
 

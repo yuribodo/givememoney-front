@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "motion/react"
-import { LoginForm } from '../../components/LoginForm'
+import { LoginForm } from '@/features/auth'
 import Link from 'next/link'
 import { Card, CardContent } from '../../../components/ui/card'
 import { useSearchParams } from 'next/navigation'

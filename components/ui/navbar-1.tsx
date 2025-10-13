@@ -4,7 +4,7 @@ import * as React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { List, X, User } from "@phosphor-icons/react"
-import { useAuth } from "../../hooks/useAuth"
+import { useAuth } from "@/features/auth"
 import Link from "next/link"
 
 const Navbar1 = () => {

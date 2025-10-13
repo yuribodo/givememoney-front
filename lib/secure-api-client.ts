@@ -1,4 +1,4 @@
-import { SecureAuthService } from './secure-auth'
+import { SecureAuthService } from '@/features/auth/services/secure-auth'
 
 interface ApiResponse<T = unknown> {
   data?: T
