@@ -69,7 +69,8 @@ export class TypeSafeApiClient {
 
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
-        headers
+        headers,
+        credentials: 'include'
       })
 
       return this.handleResponse(response, validator)
@@ -173,10 +174,10 @@ export class TypeSafeApiClient {
       API_ENDPOINTS.auth.twitch.user,
       { method: 'GET' },
       token,
-      (data) => ApiValidator.validateTwitchUserResponse(data)
+      (data) => ApiValidator.validateBackendUserInfoResponse(data)
     )
 
-    return ApiValidator.validateAndTransformTwitchUser(backendUser)
+    return ApiValidator.validateAndTransformUserInfo(backendUser)
   }
 
   async exchangeTwitchCode(code: string): Promise<TwitchTokenResponse> {
@@ -206,10 +207,10 @@ export class TypeSafeApiClient {
       API_ENDPOINTS.auth.kick.user,
       { method: 'GET' },
       token,
-      (data) => ApiValidator.validateKickUserResponse(data)
+      (data) => ApiValidator.validateBackendUserInfoResponse(data)
     )
 
-    return ApiValidator.validateAndTransformKickUser(backendUser)
+    return ApiValidator.validateAndTransformUserInfo(backendUser)
   }
 
   async refreshToken(refreshToken: string): Promise<TokenPair> {

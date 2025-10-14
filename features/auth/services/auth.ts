@@ -132,8 +132,8 @@ export class AuthService {
   static async fetchUserData(): Promise<User | null> {
     const token = this.getToken()
     if (!token) {
-      console.warn('No token available for fetchUserData')
-      return null
+      console.warn('No token available for fetchUserData, checking session endpoint')
+      return this.fetchUserFromSession()
     }
 
     if (this.refreshInProgress) {
@@ -148,17 +148,21 @@ export class AuthService {
       const claims = TypeSafeApiClient.extractJWTClaims(token)
       const provider = claims?.provider
 
-      let user: User
+      let user: User | null = null
       if (provider === 'kick') {
         user = await this.apiClient.getKickUser(token)
+      } else if (provider === 'email') {
+        user = await this.fetchUserFromSession(token)
       } else {
         // Default to Twitch for backward compatibility
         user = await this.apiClient.getTwitchUser(token)
       }
 
-      this.saveAuth(token, user)
+      if (user) {
+        this.saveAuth(token, user)
+        console.log(`✅ ${provider || 'twitch'} user data fetched and validated successfully`)
+      }
 
-      console.log(`✅ ${provider || 'Twitch'} user data fetched and validated successfully`)
       return user
     } catch (error) {
       console.error('❌ Error fetching user data:', error)
@@ -192,7 +196,12 @@ export class AuthService {
   static async processDashboardRedirect(): Promise<User | null> {
     const token = this.extractTokenFromUrl()
     if (!token) {
-      console.warn('No token found in URL for dashboard redirect')
+      console.warn('No token found in URL for dashboard redirect, checking active session')
+      const sessionUser = await this.fetchUserFromSession()
+      if (sessionUser) {
+        window.history.replaceState({}, document.title, window.location.pathname)
+        return sessionUser
+      }
       return null
     }
 
@@ -203,12 +212,21 @@ export class AuthService {
       const claims = TypeSafeApiClient.extractJWTClaims(token)
       const provider = claims?.provider
 
-      let user: User
+      let user: User | null = null
       if (provider === 'kick') {
         user = await this.apiClient.getKickUser(token)
+      } else if (provider === 'email') {
+        user = await this.fetchUserFromSession(token)
       } else {
-        // Default to Twitch for backward compatibility
         user = await this.apiClient.getTwitchUser(token)
+      }
+
+      if (!user) {
+        user = await this.fetchUserFromSession(token)
+      }
+
+      if (!user) {
+        throw new Error('User data unavailable after redirect')
       }
 
       this.saveAuth(token, user)
@@ -276,7 +294,7 @@ export class AuthService {
       }
 
       const data = await response.json()
-      const user = ApiValidator.validateUser(data.user)
+      const user = ApiValidator.validateAndTransformUserInfo(data.user)
 
       // Save auth data from successful registration
       this.saveAuth(data.access_token, user)
@@ -313,7 +331,7 @@ export class AuthService {
       }
 
       const data = await response.json()
-      const user = ApiValidator.validateUser(data.user)
+      const user = ApiValidator.validateAndTransformUserInfo(data.user)
 
       // Save auth data from successful login
       this.saveAuth(data.access_token, user)
@@ -323,6 +341,40 @@ export class AuthService {
     } catch (error) {
       log.auth.error('Email login failed', error)
       throw error instanceof ApiError ? error : new ApiError(500, 'Login failed')
+    }
+  }
+
+  private static async fetchUserFromSession(token?: string): Promise<User | null> {
+    try {
+      const response = await fetch('/api/auth/session', {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = await response.json()
+      if (!data.user) {
+        return null
+      }
+
+      const user = ApiValidator.validateAndTransformUserInfo(data.user)
+      SecureStorage.setUserData(user)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth-updated', {
+          detail: {
+            user,
+            isAuthenticated: true,
+            userId: user.id
+          }
+        }))
+      }
+      return user
+    } catch (error) {
+      console.error('Failed to fetch session user', error)
+      return null
     }
   }
 

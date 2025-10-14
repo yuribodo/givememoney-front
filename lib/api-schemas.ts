@@ -45,7 +45,6 @@ export { ApiValidator } from './validators'
 export type {
   StreamerProvider,
   WalletProvider,
-  TwitchUserResponse,
   TwitchTokenResponse,
   TokenPair,
   BackendErrorResponse,
