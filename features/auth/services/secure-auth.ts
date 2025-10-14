@@ -1,4 +1,5 @@
 import { User } from '@/lib/backend-types'
+import { ApiValidator } from '@/lib/validators'
 
 interface SessionResponse {
   authenticated: boolean
@@ -38,11 +39,13 @@ export class SecureAuthService {
 
       // Store only non-sensitive user data in sessionStorage for client state
       if (data.user) {
-        sessionStorage.setItem('user_data', JSON.stringify(data.user))
-        sessionStorage.setItem('session_id', data.user.id)
+        const user = ApiValidator.validateAndTransformUserInfo(data.user)
+        sessionStorage.setItem('user_data', JSON.stringify(user))
+        sessionStorage.setItem('session_id', user.id)
+        return user
       }
 
-      return data.user
+      return null
     } catch (error) {
       console.error('Session creation failed:', error)
       return null
@@ -63,7 +66,16 @@ export class SecureAuthService {
         return { authenticated: false }
       }
 
-      return await response.json()
+      const data = await response.json()
+
+      if (data.user) {
+        const user = ApiValidator.validateAndTransformUserInfo(data.user)
+        data.user = user
+        sessionStorage.setItem('user_data', JSON.stringify(user))
+        sessionStorage.setItem('session_id', user.id)
+      }
+
+      return data
     } catch (error) {
       console.error('Session check failed:', error)
       return { authenticated: false }
@@ -78,7 +90,10 @@ export class SecureAuthService {
 
     try {
       const userData = sessionStorage.getItem('user_data')
-      return userData ? JSON.parse(userData) : null
+      if (!userData) return null
+
+      const parsed = JSON.parse(userData)
+      return ApiValidator.validateUser(parsed)
     } catch (error) {
       console.error('Error parsing user data:', error)
       this.clearClientData()
@@ -164,14 +179,20 @@ export class SecureAuthService {
 
       // If session is valid but we don't have user data locally,
       // we need to fetch it from the backend
-      const user = this.getUser()
-      if (!user && sessionStatus.sessionId) {
-        // Here you would fetch user data from your backend API
-        // For now, keep existing user data if session is valid
-        console.warn('Session valid but no user data - implement user data fetch')
+      if (sessionStatus.user) {
+        return sessionStatus.user
       }
 
-      return user
+      const user = this.getUser()
+      if (user) {
+        return user
+      }
+
+      if (sessionStatus.sessionId) {
+        console.warn('Session valid but no user data returned')
+      }
+
+      return null
     } catch (error) {
       console.error('Auth state refresh failed:', error)
       return this.getUser() // Return cached user if available

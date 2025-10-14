@@ -64,7 +64,7 @@ const BackendUserInfoWalletSchema = z.object({
 export const BackendUserInfoSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
-  email: z.union([z.string().email(), z.literal(''), z.null()]).optional(),
+  email: z.string().email(),
   provider: StreamerProviderSchema,
   provider_id: z.string().min(1),
   avatar_url: z.string().url().optional(),
@@ -72,13 +72,7 @@ export const BackendUserInfoSchema = z.object({
 })
 
 const BackendUserInfoResponseSchema = z.object({
-  user: BackendUserInfoSchema.optional(),
-  id: z.string().uuid().optional(),
-  name: z.string().optional(),
-  email: z.string().email().optional(),
-  provider: StreamerProviderSchema.optional(),
-  provider_id: z.string().optional(),
-  wallet: BackendUserInfoWalletSchema.nullable().optional()
+  user: BackendUserInfoSchema
 })
 
 // TwitchToken endpoint response (auth_controller.go lines 116-124)
@@ -180,20 +174,7 @@ export class ApiValidator {
 
   static validateBackendUserInfoResponse(data: unknown): BackendUserInfo {
     const response = this.validateResponse(BackendUserInfoResponseSchema, data)
-    if (response.user) {
-      return response.user
-    }
-
-    // Fallback for responses where user fields are at the root level
-    return this.validateBackendUserInfo({
-      id: response.id,
-      name: response.name,
-      email: response.email,
-      provider: response.provider,
-      provider_id: response.provider_id,
-      avatar_url: undefined,
-      wallet: response.wallet ?? null
-    })
+    return response.user
   }
 
   // Frontend type validators
@@ -209,10 +190,6 @@ export class ApiValidator {
   // Helper method to validate and transform backend user to frontend user
   static validateAndTransformUserInfo(data: unknown): User {
     const backendUser = this.validateBackendUserInfo(data)
-    const email = backendUser.email && backendUser.email !== ''
-      ? backendUser.email
-      : `${backendUser.provider || 'user'}-${backendUser.id}@placeholder.local`
-
     const wallet = backendUser.wallet && backendUser.wallet !== null
       ? {
           id: backendUser.wallet.id,
@@ -226,7 +203,7 @@ export class ApiValidator {
     return {
       id: backendUser.id,
       name: backendUser.name,
-      email,
+      email: backendUser.email,
       provider: backendUser.provider,
       providerId: backendUser.provider_id,
       wallet

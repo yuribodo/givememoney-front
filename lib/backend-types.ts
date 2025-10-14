@@ -1,5 +1,5 @@
 // Provider enums matching Go constants
-export type StreamerProvider = "twitch" | "kick" | "youtube"
+export type StreamerProvider = "twitch" | "kick" | "youtube" | "email"
 export type WalletProvider = "metamask" | "phantom"
 
 // JWT Claims from Go JWTClaims struct
@@ -52,28 +52,18 @@ export interface BackendStreamer {
   updated_at: string       // ISO timestamp
 }
 
-// API Response from TwitchUser endpoint (auth_controller.go lines 143-152)
-export interface TwitchUserResponse {
-  id: string               // Streamer UUID
+export interface BackendUserInfo {
+  id: string
   name: string
-  email: string
+  email?: string | null
   provider: StreamerProvider
-  provider_id: string      // Twitch user ID
-  wallet_id: string        // Wallet UUID
-  wallet_provider: WalletProvider
-  wallet_hash: string      // Wallet hash
-}
-
-// API Response from KickUser endpoint (similar structure to Twitch)
-export interface KickUserResponse {
-  id: string               // Streamer UUID
-  name: string
-  email: string
-  provider: "kick"
-  provider_id: string      // Kick user ID
-  wallet_id: string        // Wallet UUID
-  wallet_provider: WalletProvider
-  wallet_hash: string      // Wallet hash
+  provider_id: string
+  avatar_url?: string
+  wallet?: {
+    id: string
+    provider: string
+    hash: string
+  } | null
 }
 
 // OAuth Token Response from TwitchToken endpoint (auth_controller.go lines 116-124)
@@ -114,7 +104,7 @@ export type LogoutRequest = Record<string, never>
 
 // Type guards for runtime validation
 export function isStreamerProvider(value: string): value is StreamerProvider {
-  return ["twitch", "kick", "youtube"].includes(value)
+  return ["twitch", "kick", "youtube", "email"].includes(value)
 }
 
 export function isWalletProvider(value: string): value is WalletProvider {
@@ -154,7 +144,7 @@ export interface User {
   email: string
   provider: StreamerProvider
   providerId: string       // Camelcase version of provider_id
-  wallet: {
+  wallet?: {
     id: string
     provider: WalletProvider
     hash: string
@@ -164,33 +154,22 @@ export interface User {
 }
 
 // Transform functions from backend to frontend types
-export function transformBackendUserToFrontend(backendUser: TwitchUserResponse): User {
-  return {
-    id: backendUser.id,
-    name: backendUser.name,
-    email: backendUser.email,
-    provider: backendUser.provider,
-    providerId: backendUser.provider_id,
-    wallet: {
-      id: backendUser.wallet_id,
-      provider: backendUser.wallet_provider,
-      hash: backendUser.wallet_hash
-    }
-  }
-}
+export function transformBackendUserInfoToFrontend(backendUser: BackendUserInfo): User {
+  const fallbackEmail = backendUser.email && backendUser.email !== ''
+    ? backendUser.email
+    : `${backendUser.provider || 'user'}-${backendUser.id}@placeholder.local`
 
-export function transformKickUserToFrontend(backendUser: KickUserResponse): User {
   return {
     id: backendUser.id,
     name: backendUser.name,
-    email: backendUser.email,
+    email: fallbackEmail,
     provider: backendUser.provider,
     providerId: backendUser.provider_id,
-    wallet: {
-      id: backendUser.wallet_id,
-      provider: backendUser.wallet_provider,
-      hash: backendUser.wallet_hash
-    }
+    wallet: backendUser.wallet ? {
+      id: backendUser.wallet.id,
+      provider: backendUser.wallet.provider as WalletProvider,
+      hash: backendUser.wallet.hash
+    } : null
   }
 }
 
