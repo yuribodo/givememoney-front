@@ -1,4 +1,4 @@
 // Marketing feature exports
 export { HeroSection } from './components/HeroSection'
-export { HowItWorksSection } from './components/HowItWorksSection'
+export { ValuePropsSection } from './components/ValuePropsSection'
 export { FinalCTASection } from './components/FinalCTASection'

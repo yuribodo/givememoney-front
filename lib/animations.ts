@@ -1,160 +1,30 @@
 import { Variants } from "motion/react"
 
-// Shared animation variants to prevent re-creation on every render
+// ===== AWWWARDS DESIGN - Subtle Animations =====
+
+// Ease out expo - dramatic exits, subtle entrance
+const easeOutExpo = [0.16, 1, 0.3, 1] as [number, number, number, number]
+const easeOutQuart = [0.25, 1, 0.5, 1] as [number, number, number, number]
+
+// Hero staggered entrance - subtle y: 20, not dramatic y: 80
+export const heroElementVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20
+  },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      delay: delay * 0.1,
+      ease: easeOutExpo
+    }
+  })
+}
+
+// Fade in with subtle movement
 export const fadeInUpVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 80
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
-    }
-  }
-}
-
-export const fadeInVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 30
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      delay: 0.2,
-      ease: [0.04, 0.62, 0.23, 0.98] as [number, number, number, number]
-    }
-  }
-}
-
-export const ctaVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 60
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
-    }
-  }
-}
-
-export const buttonVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 40
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      delay: 0.3,
-      ease: [0.04, 0.62, 0.23, 0.98] as [number, number, number, number]
-    }
-  }
-}
-
-// Scroll-following animation variants for sections
-export const stickyScrollVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 100
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 1,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
-    }
-  },
-  exit: {
-    opacity: 0,
-    y: -100,
-    transition: {
-      duration: 0.8,
-      ease: [0.55, 0.055, 0.675, 0.19] as [number, number, number, number]
-    }
-  }
-}
-
-export const sectionContainerVariants: Variants = {
-  hidden: {
-    opacity: 0
-  },
-  visible: {
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-      staggerChildren: 0.2
-    }
-  }
-}
-
-// Common viewport settings
-export const viewportSettings = {
-  once: true,
-  margin: "0px"
-}
-
-// Immediate viewport settings for better visibility
-export const immediateViewportSettings = {
-  once: true,
-  margin: "200px"
-}
-
-// Enhanced viewport settings for scroll-following sections
-export const stickyViewportSettings = {
-  once: false,
-  margin: "-50px"
-}
-
-// QuickSetupSection - Speed/Velocity themed animations
-export const speedSlideVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    x: -100,
-    scale: 0.9
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.68, -0.55, 0.265, 1.55] as [number, number, number, number] // elastic
-    }
-  }
-}
-
-export const timerCountVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    rotateX: -90,
-    scale: 0.8
-  },
-  visible: {
-    opacity: 1,
-    rotateX: 0,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      delay: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
-    }
-  }
-}
-
-export const pulseGlowVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 20
@@ -163,94 +33,127 @@ export const pulseGlowVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.4,
-      delay: 0.1,
-      ease: "easeOut"
+      duration: 0.6,
+      ease: easeOutExpo
     }
   }
 }
 
-// PlatformSection - Expansion/Connection themed animations
-export const expandFromCenterVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.3,
-    rotateY: -45
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotateY: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
-    }
-  }
-}
-
-export const flowGradientVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    backgroundPosition: "-200% center"
-  },
-  visible: {
-    opacity: 1,
-    backgroundPosition: "200% center",
-    transition: {
-      duration: 1.5,
-      delay: 0.4,
-      ease: "linear",
-      repeat: Infinity,
-      repeatType: "reverse" as const
-    }
-  }
-}
-
-export const cascadeVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-    scale: 0.9
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      delay: 0.6,
-      ease: [0.04, 0.62, 0.23, 0.98] as [number, number, number, number]
-    }
-  }
-}
-
-export const platformsContainerVariants: Variants = {
+// Simple fade for dividers and subtle elements
+export const fadeInVariants: Variants = {
   hidden: {
     opacity: 0
   },
   visible: {
     opacity: 1,
     transition: {
-      duration: 0.6,
-      staggerChildren: 0.1,
-      delayChildren: 0.8
+      duration: 0.3,
+      ease: easeOutQuart
     }
   }
 }
 
-export const platformItemVariants: Variants = {
+// CTA section variants
+export const ctaVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 20,
-    scale: 0.8
+    y: 20
   },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.4,
-      ease: [0.68, -0.55, 0.265, 1.55] as [number, number, number, number]
+      duration: 0.6,
+      ease: easeOutExpo
     }
   }
 }
+
+// Button entrance
+export const buttonVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      delay: 0.3,
+      ease: easeOutExpo
+    }
+  }
+}
+
+// Container with staggered children
+export const sectionContainerVariants: Variants = {
+  hidden: {
+    opacity: 0
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+      staggerChildren: 0.15
+    }
+  }
+}
+
+// Staggered item for lists
+export const staggerItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: easeOutExpo
+    }
+  }
+}
+
+// Viewport settings - trigger when visible
+export const viewportSettings = {
+  once: true,
+  margin: "-100px"
+}
+
+// Immediate viewport - trigger early for hero
+export const immediateViewportSettings = {
+  once: true,
+  margin: "0px"
+}
+
+// ===== Legacy variants for backward compatibility =====
+
+export const stickyScrollVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: easeOutExpo }
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: { duration: 0.4, ease: easeOutQuart }
+  }
+}
+
+export const stickyViewportSettings = {
+  once: false,
+  margin: "-50px"
+}
+
+export const speedSlideVariants: Variants = fadeInUpVariants
+export const timerCountVariants: Variants = fadeInUpVariants
+export const pulseGlowVariants: Variants = fadeInUpVariants
+export const expandFromCenterVariants: Variants = fadeInUpVariants
+export const flowGradientVariants: Variants = fadeInVariants
+export const cascadeVariants: Variants = fadeInUpVariants
+export const platformsContainerVariants: Variants = sectionContainerVariants
+export const platformItemVariants: Variants = staggerItemVariants

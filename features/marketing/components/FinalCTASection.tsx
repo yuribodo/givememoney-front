@@ -1,55 +1,239 @@
 'use client'
 
 import { motion } from "motion/react"
-import { CryptoIcons } from "@/components/ui/CryptoIcons"
-import { ctaVariants, buttonVariants, viewportSettings } from "@/lib/animations"
+import { Check, ArrowRight, Lightning, ShieldCheck, CurrencyCircleDollar } from "@phosphor-icons/react"
+import Link from "next/link"
+import Image from "next/image"
+
+const trustSignals = [
+  { text: 'No credit card required', icon: ShieldCheck },
+  { text: 'Live in 60 seconds', icon: Lightning },
+  { text: '0% platform fees', icon: CurrencyCircleDollar }
+]
+
+const cryptoLogos = [
+  { src: '/icons/bitcoin.png', alt: 'Bitcoin' },
+  { src: '/icons/ethereum.png', alt: 'Ethereum' },
+  { src: '/icons/solana.png', alt: 'Solana' },
+  { src: '/icons/binance.png', alt: 'Binance' }
+]
+
+const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      delay,
+      ease: easeOutExpo
+    }
+  })
+}
 
 export function FinalCTASection() {
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 overflow-hidden">
-      <CryptoIcons />
-      <div className="absolute inset-0 bg-gradient-to-br from-warm-coral-50 via-pearl to-warm-coral-100 opacity-40"></div>
+    <section
+      className="relative overflow-hidden"
+      style={{
+        backgroundColor: 'var(--bg-subtle)',
+        borderTop: '1px solid var(--border-subtle)',
+        paddingTop: 'clamp(80px, 10vw, 120px)',
+        paddingBottom: 'clamp(80px, 10vw, 120px)'
+      }}
+    >
+      {/* Subtle background decoration */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Floating coins animation */}
+        <motion.div
+          className="absolute -left-8 top-1/4"
+          animate={{ y: [-10, 10, -10], rotate: [-5, 5, -5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Image
+            src="/icons/bitcoin.png"
+            alt=""
+            width={80}
+            height={80}
+            className="opacity-10"
+          />
+        </motion.div>
+        <motion.div
+          className="absolute -right-4 top-1/3"
+          animate={{ y: [10, -10, 10], rotate: [5, -5, 5] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        >
+          <Image
+            src="/icons/ethereum.png"
+            alt=""
+            width={60}
+            height={60}
+            className="opacity-10"
+          />
+        </motion.div>
+        <motion.div
+          className="absolute left-1/4 -bottom-4"
+          animate={{ y: [-8, 8, -8] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        >
+          <Image
+            src="/icons/solana.png"
+            alt=""
+            width={50}
+            height={50}
+            className="opacity-10"
+          />
+        </motion.div>
+      </div>
 
-      <div className="relative max-w-5xl mx-auto text-center z-10 w-full">
+      <div className="relative max-w-[800px] mx-auto px-6 text-center">
 
+        {/* Crypto logos row */}
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={viewportSettings}
+          viewport={{ once: true, margin: '-100px' }}
+          variants={fadeInUp}
+          custom={0}
+          className="flex justify-center items-center gap-4 mb-8"
         >
-          <motion.h2
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-10xl font-display font-black text-electric-slate-950 mb-8 sm:mb-12 leading-none tracking-tight px-4 sm:px-0"
-            variants={ctaVariants}
-          >
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-              <span>Earn{' '}</span>
-              <span className="bg-gradient-to-r from-cyber-mint-500 to-cyber-mint-700 bg-clip-text text-transparent block sm:inline">
-                crypto donations
-              </span>
-            </div>
-          </motion.h2>
-
-          <motion.p
-            className="text-lg sm:text-xl md:text-2xl text-electric-slate-700 font-medium mb-12 sm:mb-16 px-4 sm:px-0"
-            variants={ctaVariants}
-          >
-            Bitcoin, Ethereum, Solana & more
-          </motion.p>
-
-          <motion.div variants={buttonVariants} className="px-4 sm:px-0">
-            <motion.button
-              className="bg-electric-slate-950 text-white px-8 py-4 sm:px-12 md:px-16 sm:py-5 md:py-6 rounded-full text-lg sm:text-xl md:text-2xl font-semibold transition-all duration-300 shadow-2xl w-full max-w-sm sm:max-w-none sm:w-auto"
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: "#334155",
-                boxShadow: "0 25px 50px rgba(0,0,0,0.25)"
+          {cryptoLogos.map((logo, index) => (
+            <motion.div
+              key={logo.alt}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.4 }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)'
               }}
-              whileTap={{ scale: 0.95 }}
             >
-              Start Now
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={24}
+                height={24}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h2
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={fadeInUp}
+          custom={0.1}
+          className="font-display font-extrabold"
+          style={{
+            fontSize: 'clamp(36px, 4vw + 16px, 64px)',
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+            color: 'var(--text-primary)'
+          }}
+        >
+          Ready to start?
+        </motion.h2>
+
+        {/* Social Proof */}
+        <motion.p
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={fadeInUp}
+          custom={0.2}
+          className="font-body"
+          style={{
+            fontSize: 'clamp(16px, 1.5vw + 8px, 20px)',
+            lineHeight: 1.6,
+            color: 'var(--text-secondary)',
+            marginTop: '16px'
+          }}
+        >
+          Join 2,400+ streamers already earning with crypto donations
+        </motion.p>
+
+        {/* CTA Button */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={fadeInUp}
+          custom={0.3}
+          style={{ marginTop: '40px' }}
+        >
+          <Link href="/login">
+            <motion.button
+              className="group inline-flex items-center gap-3 font-semibold text-white rounded-full cursor-pointer"
+              style={{
+                padding: '20px 40px',
+                fontSize: '18px',
+                backgroundColor: 'var(--text-primary)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12)'
+              }}
+              whileHover={{
+                y: -3,
+                backgroundColor: '#2D302D',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1), 0 16px 32px rgba(0,0,0,0.15)',
+                transition: { duration: 0.3, ease: easeOutExpo }
+              }}
+              whileTap={{
+                y: 0,
+                scale: 0.98,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                transition: { duration: 0.1 }
+              }}
+            >
+              Create Free Account
+              <ArrowRight
+                size={20}
+                weight="bold"
+                className="group-hover:translate-x-1 transition-transform duration-200"
+              />
             </motion.button>
-          </motion.div>
+          </Link>
+        </motion.div>
+
+        {/* Trust Signals */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8"
+          style={{ marginTop: '48px' }}
+        >
+          {trustSignals.map((signal, index) => (
+            <motion.div
+              key={signal.text}
+              variants={fadeInUp}
+              custom={0.4 + index * 0.1}
+              className="flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)'
+              }}
+            >
+              <signal.icon
+                size={18}
+                weight="duotone"
+                style={{ color: 'var(--accent-primary)' }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: '14px',
+                  color: 'var(--text-secondary)'
+                }}
+              >
+                {signal.text}
+              </span>
+            </motion.div>
+          ))}
         </motion.div>
 
       </div>
