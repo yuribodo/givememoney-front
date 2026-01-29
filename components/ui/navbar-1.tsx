@@ -7,13 +7,6 @@ import { CaretDown, ArrowRight } from "@phosphor-icons/react"
 import { useAuth } from "@/features/auth"
 import Link from "next/link"
 
-const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Docs", href: "#docs" },
-  { label: "About", href: "#about" },
-]
-
 const Navbar1 = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -59,50 +52,11 @@ const Navbar1 = () => {
           }}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 z-10">
-            <div className="relative w-8 h-8">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="url(#logo-grad)" />
-                <path d="M16 8L20 12L16 16L12 12L16 8Z" fill="white" fillOpacity="0.9"/>
-                <path d="M16 16L20 20L16 24L12 20L16 16Z" fill="white" fillOpacity="0.5"/>
-                <defs>
-                  <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
-                    <stop stopColor="#00A896" />
-                    <stop offset="1" stopColor="#007A6A" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <span className="font-semibold text-[15px] text-gray-900 hidden sm:block">
+          <Link href="/" className="flex items-center z-10">
+            <span className="font-bold text-xl text-gray-900 tracking-tight">
               GiveMeMoney
             </span>
           </Link>
-
-          {/* Desktop Navigation - Center */}
-          <div
-            className="hidden md:flex items-center absolute left-1/2 -translate-x-1/2"
-          >
-            <div className="flex items-center gap-1 bg-gray-100/80 rounded-full p-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="relative px-4 py-1.5 text-[13px] font-medium text-gray-600 rounded-full transition-all duration-200 hover:text-gray-900 hover:bg-white"
-                  style={{
-                    boxShadow: 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
 
           {/* Right Section */}
           <div className="flex items-center gap-2 z-10">
@@ -224,36 +178,17 @@ const Navbar1 = () => {
             />
 
             <motion.div
-              className="relative h-full flex flex-col pt-24 px-6 pb-8"
+              className="relative h-full flex flex-col justify-center px-6 pb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
             >
-              <div className="flex-1 space-y-1">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.label}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 + 0.1 }}
-                  >
-                    <Link
-                      href={link.href}
-                      className="flex items-center py-3 text-xl font-semibold text-gray-900"
-                      onClick={toggleMenu}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-
               <motion.div
-                className="space-y-3 pt-6 border-t border-gray-100"
+                className="space-y-3"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.1 }}
               >
                 {user ? (
                   <>
