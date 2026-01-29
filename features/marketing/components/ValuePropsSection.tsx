@@ -1,371 +1,146 @@
 'use client'
 
 import { motion } from "motion/react"
-import { AnimatedCounter } from "./ui/AnimatedCounter"
-import { Wallet, MonitorPlay, CurrencyCircleDollar, ArrowRight, TwitchLogo } from "@phosphor-icons/react"
-import Image from "next/image"
-
-const metrics = [
-  {
-    value: 2400,
-    prefix: '',
-    suffix: '+',
-    label: 'ACTIVE STREAMERS'
-  },
-  {
-    value: 180,
-    prefix: '$',
-    suffix: 'K',
-    label: 'PROCESSED MONTHLY'
-  },
-  {
-    value: 0,
-    prefix: '',
-    suffix: '%',
-    label: 'PLATFORM FEES'
-  }
-]
+import { TwitchLogo } from "@phosphor-icons/react"
 
 const steps = [
   {
-    icon: Wallet,
-    label: 'Connect Wallet',
-    description: 'MetaMask or Phantom'
+    number: '01',
+    title: 'Connect',
+    highlight: 'your wallet',
+    description: 'MetaMask or Phantom. One click. No signup required.',
   },
   {
-    icon: MonitorPlay,
-    label: 'Add to OBS',
-    description: 'Copy & paste overlay'
+    number: '02',
+    title: 'Copy',
+    highlight: 'overlay URL',
+    description: 'Paste into OBS as browser source. Done.',
   },
   {
-    icon: CurrencyCircleDollar,
-    label: 'Receive Crypto',
-    description: 'BTC, ETH, SOL & more'
+    number: '03',
+    title: 'Receive',
+    highlight: 'crypto',
+    description: 'BTC, ETH, SOL direct to your wallet. Zero fees.',
   }
 ]
-
-const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1]
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      delay,
-      ease: easeOutExpo
-    }
-  })
-}
 
 export function ValuePropsSection() {
   return (
     <section
+      id="how-it-works"
       className="relative"
       style={{
-        backgroundColor: 'var(--bg-primary)',
-        paddingTop: 'clamp(64px, 8vw, 96px)',
-        paddingBottom: 'clamp(64px, 8vw, 96px)'
+        backgroundColor: '#FAFBFA',
+        paddingTop: 'clamp(80px, 10vw, 120px)',
+        paddingBottom: 'clamp(80px, 10vw, 120px)'
       }}
     >
-      <div className="max-w-[1100px] mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-6">
 
-        {/* How It Works - Visual Flow */}
+        {/* Header */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="mb-20"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
         >
-          <motion.h2
-            variants={fadeInUp}
-            custom={0}
-            className="font-display font-bold text-center"
+          <span className="text-cyber-mint-500 text-sm font-mono tracking-wider uppercase mb-3 block">
+            How It Works
+          </span>
+          <h2
+            className="font-display font-bold text-gray-900 max-w-lg"
             style={{
-              fontSize: 'clamp(28px, 3vw + 8px, 40px)',
-              color: 'var(--text-primary)',
-              marginBottom: '48px'
+              fontSize: 'clamp(32px, 4vw, 48px)',
+              lineHeight: 1.1,
+              letterSpacing: '-0.03em'
             }}
           >
-            How It Works
-          </motion.h2>
+            Three steps to your first donation
+          </h2>
+        </motion.div>
 
-          {/* Steps Flow */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.label}
-                variants={fadeInUp}
-                custom={0.1 + index * 0.15}
-                className="relative flex flex-col items-center"
-              >
-                {/* Step Card */}
-                <div
-                  className="w-full p-6 rounded-2xl text-center"
-                  style={{
-                    backgroundColor: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                  }}
+        {/* Steps */}
+        <div className="space-y-0 mb-16">
+          {steps.map((step, index) => (
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group border-t border-gray-200 py-8 md:py-10"
+            >
+              <div className="flex flex-col md:flex-row md:items-baseline gap-4 md:gap-10">
+                {/* Number */}
+                <span
+                  className="text-gray-200 font-mono font-bold shrink-0 group-hover:text-cyber-mint-300 transition-colors duration-300"
+                  style={{ fontSize: 'clamp(40px, 6vw, 72px)' }}
                 >
-                  {/* Icon */}
-                  <div
-                    className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-4"
-                    style={{ backgroundColor: 'var(--accent-subtle)' }}
-                  >
-                    <step.icon
-                      size={28}
-                      weight="duotone"
-                      style={{ color: 'var(--accent-primary)' }}
-                    />
-                  </div>
+                  {step.number}
+                </span>
 
-                  {/* Label */}
+                {/* Content */}
+                <div className="flex-1">
                   <h3
-                    className="font-semibold"
+                    className="font-display font-semibold text-gray-900 mb-1"
                     style={{
-                      fontSize: '18px',
-                      color: 'var(--text-primary)',
-                      marginBottom: '4px'
+                      fontSize: 'clamp(20px, 2.5vw, 28px)',
+                      letterSpacing: '-0.01em'
                     }}
                   >
-                    {step.label}
+                    {step.title}{' '}
+                    <span className="text-gray-400 font-normal">{step.highlight}</span>
                   </h3>
-
-                  {/* Description */}
-                  <p
-                    style={{
-                      fontSize: '14px',
-                      color: 'var(--text-tertiary)'
-                    }}
-                  >
+                  <p className="text-gray-500 text-base max-w-md">
                     {step.description}
                   </p>
                 </div>
-
-                {/* Arrow connector (hidden on mobile and last item) */}
-                {index < steps.length - 1 && (
-                  <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10">
-                    <ArrowRight
-                      size={24}
-                      weight="bold"
-                      style={{ color: 'var(--border-default)' }}
-                    />
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Divider */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-20"
-          style={{
-            height: '1px',
-            backgroundColor: 'var(--border-subtle)',
-            transformOrigin: 'center'
-          }}
-        />
-
-        {/* Metrics Grid */}
-        <div
-          className="grid grid-cols-1 md:grid-cols-3 text-center mb-20"
-          style={{ gap: 'clamp(48px, 6vw, 80px)' }}
-        >
-          {metrics.map((metric, index) => (
-            <motion.div
-              key={metric.label}
-              custom={index * 0.15}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
-              variants={fadeInUp}
-            >
-              {/* Number */}
-              <div
-                className="font-mono font-bold"
-                style={{
-                  fontSize: 'clamp(48px, 6vw + 16px, 72px)',
-                  lineHeight: 1.1,
-                  color: 'var(--text-primary)',
-                  fontVariantNumeric: 'tabular-nums'
-                }}
-              >
-                {metric.value === 0 ? (
-                  <span>{metric.prefix}0{metric.suffix}</span>
-                ) : (
-                  <AnimatedCounter
-                    target={metric.value}
-                    prefix={metric.prefix}
-                    suffix={metric.suffix}
-                    duration={1.5}
-                  />
-                )}
-              </div>
-
-              {/* Label */}
-              <div
-                className="font-semibold uppercase"
-                style={{
-                  fontSize: 'clamp(12px, 1vw + 8px, 14px)',
-                  lineHeight: 1.4,
-                  letterSpacing: '0.08em',
-                  color: 'var(--text-tertiary)',
-                  marginTop: '12px'
-                }}
-              >
-                {metric.label}
               </div>
             </motion.div>
           ))}
+
+          {/* Bottom border */}
+          <div className="border-t border-gray-200" />
         </div>
 
-        {/* Supported Platforms */}
+        {/* Platforms */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col md:flex-row items-center justify-between gap-6"
         >
-          <motion.p
-            variants={fadeInUp}
-            custom={0}
-            className="text-center font-medium mb-6"
-            style={{
-              fontSize: '14px',
-              color: 'var(--text-tertiary)',
-              letterSpacing: '0.02em'
-            }}
-          >
-            Works with your favorite platforms
-          </motion.p>
+          <p className="text-gray-400 text-sm">
+            Works everywhere you stream
+          </p>
 
-          <motion.div
-            variants={fadeInUp}
-            custom={0.1}
-            className="flex flex-wrap justify-center items-center gap-8"
-          >
-            {/* Twitch */}
-            <div
-              className="flex items-center gap-2 px-5 py-3 rounded-xl"
-              style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <TwitchLogo size={24} weight="fill" style={{ color: '#9146FF' }} />
-              <span className="font-semibold" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>
-                Twitch
-              </span>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2 text-gray-500">
+              <TwitchLogo size={20} weight="fill" className="text-[#9146FF]" />
+              <span className="text-sm font-medium">Twitch</span>
             </div>
 
-            {/* Kick */}
-            <div
-              className="flex items-center gap-2 px-5 py-3 rounded-xl"
-              style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <div className="w-6 h-6 rounded bg-[#53FC18] flex items-center justify-center">
-                <span className="font-bold text-black text-xs">K</span>
+            <div className="flex items-center gap-2 text-gray-500">
+              <div className="w-5 h-5 rounded bg-[#53FC18] flex items-center justify-center">
+                <span className="font-bold text-black text-[10px]">K</span>
               </div>
-              <span className="font-semibold" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>
-                Kick
-              </span>
+              <span className="text-sm font-medium">Kick</span>
             </div>
 
-            {/* OBS */}
-            <div
-              className="flex items-center gap-2 px-5 py-3 rounded-xl"
-              style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <div className="w-6 h-6 rounded-full bg-[#302E31] flex items-center justify-center">
-                <span className="font-bold text-white text-xs">O</span>
+            <div className="flex items-center gap-2 text-gray-500">
+              <div className="w-5 h-5 rounded bg-[#FF0000] flex items-center justify-center">
+                <span className="text-white text-[10px]">▶</span>
               </div>
-              <span className="font-semibold" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>
-                OBS
-              </span>
+              <span className="text-sm font-medium">YouTube</span>
             </div>
-          </motion.div>
-        </motion.div>
 
-        {/* Divider */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="mb-16"
-          style={{
-            height: '1px',
-            backgroundColor: 'var(--border-subtle)'
-          }}
-        />
-
-        {/* Testimonial */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          variants={fadeInUp}
-          custom={0.2}
-          className="text-center"
-        >
-          {/* Quote */}
-          <blockquote
-            className="font-body"
-            style={{
-              fontSize: 'clamp(18px, 1.5vw + 8px, 24px)',
-              lineHeight: 1.6,
-              color: 'var(--text-secondary)',
-              maxWidth: '580px',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              fontStyle: 'normal'
-            }}
-          >
-            &ldquo;The only platform where I keep 100% of my crypto donations. Setup took 2 minutes.&rdquo;
-          </blockquote>
-
-          {/* Attribution */}
-          <div className="flex items-center justify-center gap-3 mt-6">
-            {/* Avatar placeholder */}
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'var(--accent-subtle)' }}
-            >
-              <span className="font-semibold text-sm" style={{ color: 'var(--accent-primary)' }}>
-                SC
-              </span>
-            </div>
-            <div className="text-left">
-              <p
-                className="font-semibold"
-                style={{
-                  fontSize: '14px',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                Sarah Chen
-              </p>
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--text-tertiary)'
-                }}
-              >
-                Twitch Partner
-              </p>
+            <div className="flex items-center gap-2 text-gray-500">
+              <div className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center">
+                <span className="font-bold text-white text-[10px]">O</span>
+              </div>
+              <span className="text-sm font-medium">OBS</span>
             </div>
           </div>
         </motion.div>
