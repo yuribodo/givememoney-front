@@ -38,9 +38,8 @@ export function FinalCTASection() {
     <section
       className="relative overflow-hidden"
       style={{
-        backgroundColor: 'var(--bg-subtle)',
-        borderTop: '1px solid var(--border-subtle)',
-        paddingTop: 'clamp(80px, 10vw, 120px)',
+        backgroundColor: '#FAFBFA',
+        paddingTop: 'clamp(40px, 6vw, 80px)',
         paddingBottom: 'clamp(80px, 10vw, 120px)'
       }}
     >
@@ -108,8 +107,8 @@ export function FinalCTASection() {
               transition={{ delay: index * 0.1, duration: 0.4 }}
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)'
+                backgroundColor: '#fff',
+                border: '1px solid rgba(0, 0, 0, 0.06)'
               }}
             >
               <Image
@@ -134,7 +133,7 @@ export function FinalCTASection() {
             fontSize: 'clamp(36px, 4vw + 16px, 64px)',
             lineHeight: 1.1,
             letterSpacing: '-0.02em',
-            color: 'var(--text-primary)'
+            color: '#1A1D1A'
           }}
         >
           Ready to start?
@@ -151,7 +150,7 @@ export function FinalCTASection() {
           style={{
             fontSize: 'clamp(16px, 1.5vw + 8px, 20px)',
             lineHeight: 1.6,
-            color: 'var(--text-secondary)',
+            color: '#5C665C',
             marginTop: '16px'
           }}
         >
@@ -173,19 +172,15 @@ export function FinalCTASection() {
               style={{
                 padding: '20px 40px',
                 fontSize: '18px',
-                backgroundColor: 'var(--text-primary)',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12)'
+                backgroundColor: '#00A896'
               }}
               whileHover={{
-                y: -3,
-                backgroundColor: '#2D302D',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1), 0 16px 32px rgba(0,0,0,0.15)',
-                transition: { duration: 0.3, ease: easeOutExpo }
+                scale: 1.02,
+                backgroundColor: '#009485',
+                transition: { duration: 0.2 }
               }}
               whileTap={{
-                y: 0,
                 scale: 0.98,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
                 transition: { duration: 0.1 }
               }}
             >
@@ -214,20 +209,20 @@ export function FinalCTASection() {
               custom={0.4 + index * 0.1}
               className="flex items-center gap-2 px-4 py-2 rounded-full"
               style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)'
+                backgroundColor: '#fff',
+                border: '1px solid rgba(0, 0, 0, 0.06)'
               }}
             >
               <signal.icon
                 size={18}
                 weight="duotone"
-                style={{ color: 'var(--accent-primary)' }}
+                style={{ color: '#00A896' }}
               />
               <span
                 className="font-medium"
                 style={{
                   fontSize: '14px',
-                  color: 'var(--text-secondary)'
+                  color: '#5C665C'
                 }}
               >
                 {signal.text}

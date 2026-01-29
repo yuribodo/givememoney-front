@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from "react"
+import React, { useRef, useEffect, useState, useCallback } from "react"
 import { motion, useInView } from "motion/react"
 import { ArrowRight, Play, Wallet, TwitchLogo } from "@phosphor-icons/react"
 import Link from "next/link"
@@ -15,36 +15,97 @@ const cryptoIcons = [
   { src: '/icons/binance.png', alt: 'BNB Chain', name: 'BNB' },
 ]
 
-// Grid Pattern Component
-function GridPattern({ className = "" }: { className?: string }) {
+// Interactive Grid Pattern Component with spotlight effect
+function InteractiveGrid({ mousePosition, isHovering }: { mousePosition: { x: number, y: number }, isHovering: boolean }) {
   return (
-    <svg
-      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <pattern
-          id="hero-grid"
-          width="60"
-          height="60"
-          patternUnits="userSpaceOnUse"
-        >
-          <path
-            d="M 60 0 L 0 0 0 60"
-            fill="none"
-            stroke="rgba(0, 168, 150, 0.08)"
-            strokeWidth="1"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#hero-grid)" />
-    </svg>
+    <div className="absolute inset-0 pointer-events-none">
+      {/* Base grid pattern - increased visibility */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern
+            id="hero-grid"
+            width="60"
+            height="60"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 60 0 L 0 0 0 60"
+              fill="none"
+              stroke="rgba(0, 168, 150, 0.12)"
+              strokeWidth="1"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-grid)" />
+      </svg>
+
+      {/* Spotlight glow effect following cursor */}
+      <div
+        className="absolute inset-0 transition-opacity duration-200"
+        style={{
+          opacity: isHovering ? 1 : 0,
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(0, 168, 150, 0.15), transparent 40%)`
+        }}
+      />
+
+      {/* Enhanced grid cells near cursor */}
+      <svg
+        className="absolute inset-0 h-full w-full transition-opacity duration-200"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ opacity: isHovering ? 1 : 0 }}
+      >
+        <defs>
+          <mask id="spotlight-mask">
+            <rect width="100%" height="100%" fill="black" />
+            <circle
+              cx={mousePosition.x}
+              cy={mousePosition.y}
+              r="200"
+              fill="white"
+            />
+          </mask>
+          <pattern
+            id="hero-grid-bright"
+            width="60"
+            height="60"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 60 0 L 0 0 0 60"
+              fill="none"
+              stroke="rgba(0, 168, 150, 0.4)"
+              strokeWidth="1.5"
+            />
+          </pattern>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#hero-grid-bright)"
+          mask="url(#spotlight-mask)"
+        />
+      </svg>
+    </div>
   )
 }
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "0px" })
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isHovering, setIsHovering] = useState(false)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!sectionRef.current) return
+    const rect = sectionRef.current.getBoundingClientRect()
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    })
+  }, [])
 
   useEffect(() => {
     if (!isInView || !sectionRef.current) return
@@ -89,11 +150,14 @@ export function HeroSection() {
         paddingTop: 'clamp(100px, 10vw, 140px)',
         paddingBottom: 'clamp(60px, 8vw, 100px)'
       }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
     >
       {/* Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Grid pattern */}
-        <GridPattern />
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Interactive grid pattern with spotlight effect */}
+        <InteractiveGrid mousePosition={mousePosition} isHovering={isHovering} />
 
         {/* Gradient fade from top */}
         <div

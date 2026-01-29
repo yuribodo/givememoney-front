@@ -1,4 +1,5 @@
 import { HeroSection, ValuePropsSection, FinalCTASection } from '@/features/marketing'
+import { SectionDivider } from '@/components/ui/section-divider'
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       }}
     >
       <HeroSection />
+      <SectionDivider variant="wave" accentLine fromColor="#FAFBFA" toColor="#FAFBFA" />
       <ValuePropsSection />
       <FinalCTASection />
     </div>
