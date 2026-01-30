@@ -1,12 +1,18 @@
-import { HeroSection, FinalCTASection } from '@/features/marketing'
-import { QuickSetupSection, PlatformSection } from '@/features/dashboard'
+import { HeroSection, ValuePropsSection, FinalCTASection } from '@/features/marketing'
+import { SectionDivider } from '@/components/ui/section-divider'
 
 export default function Home() {
   return (
-    <div className="min-h-screen font-body text-electric-slate-900">
+    <div
+      className="min-h-screen font-body"
+      style={{
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)'
+      }}
+    >
       <HeroSection />
-      <QuickSetupSection />
-      <PlatformSection />
+      <SectionDivider variant="wave" accentLine fromColor="#FAFBFA" toColor="#FAFBFA" />
+      <ValuePropsSection />
       <FinalCTASection />
     </div>
   );

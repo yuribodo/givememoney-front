@@ -11,7 +11,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "border-input h-9 rounded-md focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        auth: "h-auto rounded-xl border bg-white/70 backdrop-blur-sm px-4 py-3 text-base font-body transition-all duration-300 placeholder:text-electric-slate-400 hover:bg-white/80 focus:bg-white/90 focus-visible:border-cyber-mint-500 focus-visible:ring-2 focus-visible:ring-cyber-mint-500/20 focus-visible:shadow-lg focus-visible:shadow-cyber-mint-500/10 border-electric-slate-200 hover:border-electric-slate-300",
+        auth: "h-auto rounded-xl border bg-white px-4 py-3 text-base font-body transition-all duration-300 placeholder:text-electric-slate-400 hover:bg-gray-50 focus-visible:border-cyber-mint-500 focus-visible:ring-2 focus-visible:ring-cyber-mint-500/20 border-gray-200 hover:border-gray-300",
       },
       hasError: {
         true: "",

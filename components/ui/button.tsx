@@ -21,9 +21,9 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         auth:
-          "bg-gradient-to-r from-cyber-mint-600 to-cyber-mint-700 text-white hover:from-cyber-mint-700 hover:to-cyber-mint-800 rounded-xl font-semibold font-body shadow-lg hover:shadow-xl transition-all duration-300",
+          "bg-cyber-mint-500 hover:bg-cyber-mint-600 text-white rounded-xl font-semibold font-body transition-all duration-300",
         oauth:
-          "border border-electric-slate-200 rounded-xl bg-white/70 backdrop-blur-sm text-electric-slate-700 hover:bg-white/90 hover:border-electric-slate-300 font-body transition-all duration-300",
+          "border border-gray-200 rounded-xl bg-white text-electric-slate-700 hover:bg-gray-50 hover:border-gray-300 font-body transition-all duration-300",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
