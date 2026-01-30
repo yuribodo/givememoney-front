@@ -7,6 +7,15 @@ import { CaretDown, ArrowRight } from "@phosphor-icons/react"
 import { useAuth } from "@/features/auth"
 import Link from "next/link"
 
+// Create a forwardRef wrapper for Next.js Link to enable motion animations
+const LinkWithRef = React.forwardRef<HTMLAnchorElement, React.ComponentProps<typeof Link>>(
+  (props, ref) => <Link ref={ref} {...props} />
+)
+LinkWithRef.displayName = 'LinkWithRef'
+
+// Create motion-enabled Link component
+const MotionLink = motion.create(LinkWithRef)
+
 const Navbar1 = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -126,16 +135,15 @@ const Navbar1 = () => {
                 >
                   Log in
                 </Link>
-                <Link href="/register">
-                  <motion.button
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-full bg-gray-900 hover:bg-gray-800 transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>Get Started</span>
-                    <ArrowRight size={14} weight="bold" />
-                  </motion.button>
-                </Link>
+                <MotionLink
+                  href="/register"
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-full bg-gray-900 hover:bg-gray-800 transition-colors"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span>Get Started</span>
+                  <ArrowRight size={14} weight="bold" />
+                </MotionLink>
               </>
             )}
 

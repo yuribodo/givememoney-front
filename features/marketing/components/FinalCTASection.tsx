@@ -1,9 +1,19 @@
 'use client'
 
+import React from "react"
 import { motion } from "motion/react"
 import { Check, ArrowRight, Lightning, ShieldCheck, CurrencyCircleDollar } from "@phosphor-icons/react"
 import Link from "next/link"
 import Image from "next/image"
+
+// Create a forwardRef wrapper for Next.js Link to enable motion animations
+const LinkWithRef = React.forwardRef<HTMLAnchorElement, React.ComponentProps<typeof Link>>(
+  (props, ref) => <Link ref={ref} {...props} />
+)
+LinkWithRef.displayName = 'LinkWithRef'
+
+// Create motion-enabled Link component
+const MotionLink = motion.create(LinkWithRef)
 
 const trustSignals = [
   { text: 'No credit card required', icon: ShieldCheck },
@@ -166,32 +176,31 @@ export function FinalCTASection() {
           custom={0.3}
           style={{ marginTop: '40px' }}
         >
-          <Link href="/login">
-            <motion.button
-              className="group inline-flex items-center gap-3 font-semibold text-white rounded-full cursor-pointer"
-              style={{
-                padding: '20px 40px',
-                fontSize: '18px',
-                backgroundColor: '#00A896'
-              }}
-              whileHover={{
-                scale: 1.02,
-                backgroundColor: '#009485',
-                transition: { duration: 0.2 }
-              }}
-              whileTap={{
-                scale: 0.98,
-                transition: { duration: 0.1 }
-              }}
-            >
-              Create Free Account
-              <ArrowRight
-                size={20}
-                weight="bold"
-                className="group-hover:translate-x-1 transition-transform duration-200"
-              />
-            </motion.button>
-          </Link>
+          <MotionLink
+            href="/login"
+            className="group inline-flex items-center gap-3 font-semibold text-white rounded-full cursor-pointer"
+            style={{
+              padding: '20px 40px',
+              fontSize: '18px',
+              backgroundColor: '#00A896'
+            }}
+            whileHover={{
+              scale: 1.02,
+              backgroundColor: '#009485',
+              transition: { duration: 0.2 }
+            }}
+            whileTap={{
+              scale: 0.98,
+              transition: { duration: 0.1 }
+            }}
+          >
+            Create Free Account
+            <ArrowRight
+              size={20}
+              weight="bold"
+              className="group-hover:translate-x-1 transition-transform duration-200"
+            />
+          </MotionLink>
         </motion.div>
 
         {/* Trust Signals */}
