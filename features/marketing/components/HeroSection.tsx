@@ -2,11 +2,8 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react"
 import { motion, useInView } from "motion/react"
-import { ArrowRight, Play, Wallet, TwitchLogo } from "@phosphor-icons/react"
-import Link from "next/link"
-
-// Create motion-enabled Link component
-const MotionLink = motion.create(Link)
+import { TwitchLogo } from "@phosphor-icons/react"
+import { WaitlistForm } from './WaitlistForm'
 import Image from "next/image"
 import gsap from "gsap"
 
@@ -108,7 +105,9 @@ export function HeroSection() {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     })
-  }, [])
+    // Ativa hover no primeiro movimento do mouse (caso já esteja dentro da section)
+    if (!isHovering) setIsHovering(true)
+  }, [isHovering])
 
   useEffect(() => {
     if (!isInView || !sectionRef.current) return
@@ -272,41 +271,12 @@ export function HeroSection() {
             maxWidth: '480px',
           }}
         >
-          Connect your wallet. Add to OBS. Start receiving donations globally in seconds.
+          Be the first to know when we launch. Get early access to crypto donations for streamers.
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-          <MotionLink
-            href="/login"
-            className="hero-cta opacity-0 group flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 text-base font-bold text-white rounded-xl bg-cyber-mint-500 cursor-pointer"
-            whileHover={{ scale: 1.02, backgroundColor: '#009485' }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            role="button"
-            aria-label="Start earning crypto donations now"
-            tabIndex={0}
-          >
-            <Wallet size={20} weight="duotone" />
-            <span>Start Earning Now</span>
-            <ArrowRight size={18} weight="bold" className="group-hover:translate-x-0.5 transition-transform" />
-          </MotionLink>
-
-          <MotionLink
-            href="#how-it-works"
-            className="hero-cta opacity-0 group flex items-center justify-center gap-3 w-full sm:w-auto px-7 py-4 text-base font-semibold text-gray-900 bg-white rounded-xl border border-gray-200 cursor-pointer"
-            whileHover={{ scale: 1.02, borderColor: 'rgba(0, 168, 150, 0.5)' }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            role="button"
-            aria-label="Watch demo video"
-            tabIndex={0}
-          >
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-cyber-mint-500">
-              <Play size={12} weight="fill" className="text-white ml-0.5" />
-            </div>
-            <span>Watch Demo</span>
-          </MotionLink>
+        {/* Waitlist Form */}
+        <div className="hero-cta opacity-0 mb-16">
+          <WaitlistForm />
         </div>
 
         {/* Crypto Icons */}
