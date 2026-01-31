@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "motion/react"
 import { TwitchLogo, Wallet, Link as LinkIcon, CurrencyBtc, Check, Lightning } from "@phosphor-icons/react"
 import Image from "next/image"
 
-const AUTO_ROTATE_INTERVAL = 5000 // 5 seconds per step
+const AUTO_ROTATE_INTERVAL = 3000 // 3 seconds per step
 
 const steps = [
   {
@@ -58,7 +58,7 @@ function StepTimeline({
                   animate={{
                     scaleY: isPast ? 1 : isActive ? progress / 100 : 0
                   }}
-                  transition={{ duration: 0.1, ease: "linear" }}
+                  transition={{ duration: 0.03, ease: "linear" }}
                   style={{ height: '100%' }}
                 />
               </div>
@@ -608,29 +608,26 @@ export function ValuePropsSection() {
   const headerY = useTransform(scrollYProgress, [0, 0.3], [40, 0])
   const headerOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1])
 
-  // Auto-rotation logic
+  // Auto-rotation logic with integrated step advancement
   useEffect(() => {
     if (isPaused) return
 
+    const stepIncrement = 100 / (AUTO_ROTATE_INTERVAL / 30) // Update every 30ms for smoother animation
+
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 100) {
+        const next = prev + stepIncrement
+        if (next >= 100) {
+          // Advance to next step
+          setActiveStep(current => (current + 1) % steps.length)
           return 0
         }
-        return prev + (100 / (AUTO_ROTATE_INTERVAL / 50)) // Update every 50ms
+        return next
       })
-    }, 50)
+    }, 30)
 
     return () => clearInterval(progressInterval)
-  }, [isPaused, activeStep])
-
-  // Advance to next step when progress completes
-  useEffect(() => {
-    if (progress >= 100 && !isPaused) {
-      setActiveStep(prev => (prev + 1) % steps.length)
-      setProgress(0)
-    }
-  }, [progress, isPaused])
+  }, [isPaused])
 
   // Handle manual step click
   const handleStepClick = useCallback((index: number) => {
