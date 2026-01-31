@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { waitlistSchema } from '@/features/marketing/types/waitlist'
 
-const FROM_EMAIL = 'GiveMeMoney <contact@givememoney.fun>'
+const FROM_EMAIL = 'GiveMeMoney <hello@contact.givememoney.fun>'
 
 // Lazy initialization to avoid build-time errors when env vars are missing
 let resendClient: Resend | null = null
