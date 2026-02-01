@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthErrorBoundary } from "@/features/auth";
@@ -36,6 +37,7 @@ export default function RootLayout({
             {children}
           </AuthErrorBoundary>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
