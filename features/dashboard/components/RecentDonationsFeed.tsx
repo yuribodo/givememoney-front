@@ -20,9 +20,10 @@ interface RecentDonation {
 
 interface RecentDonationsFeedProps {
   donations: RecentDonation[]
+  isLive?: boolean
 }
 
-export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
+export function RecentDonationsFeed({ donations, isLive = false }: RecentDonationsFeedProps) {
   const [displayDonations, setDisplayDonations] = useState(donations)
   const [newDonationId, setNewDonationId] = useState<number | null>(null)
   const containerRef = useRef(null)
@@ -248,8 +249,12 @@ export function RecentDonationsFeed({ donations }: RecentDonationsFeedProps) {
             transition={{ delay: 1 }}
             className=" flex items-center justify-center gap-2 text-xs text-muted-foreground"
           >
-            <Circle size={6} fill="currentColor" className="text-success-emerald animate-pulse" />
-            Updating in real-time
+            <Circle
+              size={6}
+              fill="currentColor"
+              className={isLive ? 'text-success-emerald animate-pulse' : 'text-electric-slate-400'}
+            />
+            {isLive ? 'Updating in real-time' : 'Reconnecting...'}
           </motion.div>
         )}
         </motion.div>
