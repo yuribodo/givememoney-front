@@ -60,6 +60,7 @@ export function useWebSocket(streamerId: string | undefined): UseWebSocketReturn
   // Setup WebSocket connection
   useEffect(() => {
     if (!streamerId) {
+      webSocketService.disconnect()
       setConnectionState('disconnected')
       return
     }
@@ -83,14 +84,18 @@ export function useWebSocket(streamerId: string | undefined): UseWebSocketReturn
     }
   }, [streamerId, handleMessage, handleConnect, handleDisconnect])
 
-  // Poll connection state periodically
+  // Poll connection state periodically (only when streamerId is set)
   useEffect(() => {
+    if (!streamerId) {
+      return
+    }
+
     const interval = setInterval(() => {
       setConnectionState(webSocketService.getConnectionState())
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [streamerId])
 
   const disconnect = useCallback(() => {
     webSocketService.disconnect()

@@ -66,7 +66,7 @@ class WebSocketService {
         this.startPingInterval()
 
         // Notify handlers
-        this.connectHandlers.forEach((handler) => handler())
+        this.connectHandlers.forEach((handler) => { handler(); })
       }
 
       this.socket.onmessage = (event) => {
@@ -80,7 +80,7 @@ class WebSocketService {
           }
 
           // Notify message handlers
-          this.messageHandlers.forEach((handler) => handler(data))
+          this.messageHandlers.forEach((handler) => { handler(data); })
         } catch (error) {
           console.error('[WebSocket] Failed to parse message:', error)
         }
@@ -92,7 +92,7 @@ class WebSocketService {
         this.stopPingInterval()
 
         // Notify handlers
-        this.disconnectHandlers.forEach((handler) => handler())
+        this.disconnectHandlers.forEach((handler) => { handler(); })
 
         // Attempt reconnection if not intentionally closed
         if (event.code !== 1000 && this.streamerId) {
@@ -102,7 +102,7 @@ class WebSocketService {
 
       this.socket.onerror = (error) => {
         console.error('[WebSocket] Error:', error)
-        this.errorHandlers.forEach((handler) => handler(error))
+        this.errorHandlers.forEach((handler) => { handler(error); })
       }
     } catch (error) {
       console.error('[WebSocket] Failed to create connection:', error)
@@ -239,9 +239,10 @@ class WebSocketService {
    * Force reconnect
    */
   reconnect(): void {
-    if (this.streamerId) {
+    const id = this.streamerId
+    if (id) {
       this.disconnect()
-      this.connect(this.streamerId)
+      this.connect(id)
     }
   }
 }

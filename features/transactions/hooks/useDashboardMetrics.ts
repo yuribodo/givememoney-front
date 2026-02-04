@@ -70,6 +70,11 @@ function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
+// Type guard to filter out failed transactions
+function isDisplayableTransaction(t: Transaction): t is Transaction & { status: 'confirmed' | 'pending' } {
+  return t.status === 'confirmed' || t.status === 'pending'
+}
+
 /**
  * Hook that calculates dashboard metrics from transaction data
  */
@@ -135,8 +140,9 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
     // Top donors (by total amount)
     const topDonors = calculateTopDonors(transactions)
 
-    // Recent donations (last 10)
-    const recentDonations = transactions
+    // Recent donations (last 10, excluding failed)
+    const recentDonations = [...transactions]
+      .filter(isDisplayableTransaction)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, 10)
       .map((t) => ({
@@ -146,7 +152,7 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
         currency: getCurrencyFromAddress(t.addressFrom),
         message: t.message || undefined,
         timestamp: t.createdAt,
-        status: t.status as 'confirmed' | 'pending',
+        status: t.status,
       }))
 
     return {

@@ -8,6 +8,17 @@ import { WalletProvider, WalletRequest } from '@/lib/backend-types'
 import { useCreateWallet } from '../hooks/useWallets'
 import Image from 'next/image'
 
+/**
+ * Computes a SHA-256 hash of the input string and returns it as a 64-character hex string.
+ */
+async function computeWalletHash(provider: WalletProvider, address: string): Promise<string> {
+  const data = `${provider}:${address}`
+  const encoder = new TextEncoder()
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
 interface WalletConnectionButtonProps {
   provider: WalletProvider
   onSuccess?: () => void
@@ -95,10 +106,11 @@ export function WalletConnectionButton({
         throw new Error(`Unsupported wallet provider: ${provider}`)
       }
 
-      // Create wallet in backend
+      // Create wallet in backend with SHA-256 hash (64 chars)
+      const walletHash = await computeWalletHash(provider, walletAddress)
       const request: WalletRequest = {
         wallet_provider: provider,
-        hash: walletAddress,
+        hash: walletHash,
       }
 
       await createWallet.mutateAsync(request)
