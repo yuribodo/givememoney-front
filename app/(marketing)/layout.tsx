@@ -1,4 +1,5 @@
 import { ConditionalNavbar } from '@/components/layout/ConditionalNavbar'
+import { Footer } from '@/components/layout/Footer'
 
 export default function MarketingLayout({
   children,
@@ -9,6 +10,7 @@ export default function MarketingLayout({
     <>
       <ConditionalNavbar />
       {children}
+      <Footer />
     </>
   )
 }
