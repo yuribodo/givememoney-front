@@ -5,6 +5,7 @@ import "./globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthErrorBoundary } from "@/features/auth";
 import { ConditionalNavbar } from "@/components/layout/ConditionalNavbar";
+import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,11 @@ export default function RootLayout({
         style={{ backgroundColor: '#defcf8' }}
       >
         <ErrorBoundary>
-          <AuthErrorBoundary>
-            {children}
-          </AuthErrorBoundary>
+          <Providers>
+            <AuthErrorBoundary>
+              {children}
+            </AuthErrorBoundary>
+          </Providers>
         </ErrorBoundary>
         <Analytics />
       </body>

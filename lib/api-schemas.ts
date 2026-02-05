@@ -52,5 +52,14 @@ export type {
   JWTClaims,
   BackendStreamer,
   BackendWallet,
-  User
+  User,
+  BackendTransaction,
+  BackendSession,
+  Transaction,
+  Session,
+  TransactionCreateRequest,
+  TransactionsResponse,
+  SessionsResponse,
+  WebSocketMessage,
+  WebSocketDonationAlert
 } from './backend-types'

@@ -2,16 +2,50 @@
 
 import { FloatingNavbar } from '@/components/layout/FloatingNavbar'
 import { MetricsCards, WeeklyStatsCard, TopDonorsCard, RecentDonationsFeed } from '@/features/dashboard'
-import { mockDashboardData } from '@/lib/mock-data'
+import { useAuth } from '@/features/auth'
+import { useDashboardMetrics } from '@/features/transactions'
+import { useWebSocket } from '@/features/websocket'
 import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 
 export default function DashboardPage() {
-  // Map existing mock data to new MetricsData interface
+  const { user, isLoading: isAuthLoading } = useAuth()
+  const {
+    todayTotal,
+    lastHourTotal,
+    totalDonations,
+    weeklyTotal,
+    dailyData,
+    topDonors,
+    recentDonations,
+    isLoading: isMetricsLoading,
+    error: metricsError
+  } = useDashboardMetrics(user?.id)
+
+  const { isConnected } = useWebSocket(user?.id)
+
+  // Map metrics to component props
   const metricsData = {
-    balance: mockDashboardData.liveStatus.todayTotal,
-    messagesReceived: mockDashboardData.liveStatus.totalDonations,
-    valueReceived: mockDashboardData.liveStatus.lastHour
+    balance: todayTotal,
+    messagesReceived: totalDonations,
+    valueReceived: lastHourTotal
   }
+
+  const weeklyStatsData = {
+    total: weeklyTotal,
+    dailyData: dailyData
+  }
+
+  // Transform recent donations to match the component interface
+  const formattedDonations = recentDonations.map((donation, index) => ({
+    id: index + 1,
+    username: donation.username,
+    amount: donation.amount,
+    currency: donation.currency,
+    message: donation.message,
+    timestamp: donation.timestamp,
+    status: donation.status
+  }))
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -36,9 +70,41 @@ export default function DashboardPage() {
     },
   }
 
+  // Loading state
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-pearl with-floating-navbar flex items-center justify-center">
+        <FloatingNavbar isLive={false} />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-cyber-mint-600" />
+          <p className="text-electric-slate-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (metricsError) {
+    return (
+      <div className="min-h-screen bg-pearl with-floating-navbar">
+        <FloatingNavbar isLive={false} />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <p className="text-error-rose font-medium">Failed to load dashboard data</p>
+          <p className="text-electric-slate-600 text-sm">{metricsError.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-cyber-mint-600 text-white rounded-lg hover:bg-cyber-mint-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-pearl with-floating-navbar">
-      <FloatingNavbar isLive={mockDashboardData.liveStatus.isLive} />
+      <FloatingNavbar isLive={isConnected} />
 
       <motion.main
         className="dashboard-grid"
@@ -48,21 +114,48 @@ export default function DashboardPage() {
       >
         {/* Primary Metrics Section (40% visual space) */}
         <motion.div className="card-large" variants={itemVariants}>
-          <MetricsCards data={metricsData} />
+          {isMetricsLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <Loader2 className="w-6 h-6 animate-spin text-cyber-mint-600" />
+            </div>
+          ) : (
+            <MetricsCards data={metricsData} />
+          )}
         </motion.div>
 
         {/* Secondary Metrics Section (30% visual space) */}
         <motion.div className="card-small h-full" variants={itemVariants}>
-          <WeeklyStatsCard data={mockDashboardData.weeklyStats} />
+          {isMetricsLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-6 h-6 animate-spin text-cyber-mint-600" />
+            </div>
+          ) : (
+            <WeeklyStatsCard data={weeklyStatsData} />
+          )}
         </motion.div>
 
         <motion.div className="card-medium h-full" variants={itemVariants}>
-          <TopDonorsCard donors={mockDashboardData.topDonors} />
+          {isMetricsLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-6 h-6 animate-spin text-cyber-mint-600" />
+            </div>
+          ) : (
+            <TopDonorsCard donors={topDonors} />
+          )}
         </motion.div>
 
         {/* Contextual Data Section (30% visual space) */}
         <motion.div className="card-large" variants={itemVariants}>
-          <RecentDonationsFeed donations={mockDashboardData.recentDonations} />
+          {isMetricsLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <Loader2 className="w-6 h-6 animate-spin text-cyber-mint-600" />
+            </div>
+          ) : (
+            <RecentDonationsFeed
+              donations={formattedDonations}
+              isLive={isConnected}
+            />
+          )}
         </motion.div>
       </motion.main>
     </div>
