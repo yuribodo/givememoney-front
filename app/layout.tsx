@@ -7,6 +7,7 @@ import { AuthErrorBoundary } from "@/features/auth";
 import { ConditionalNavbar } from "@/components/layout/ConditionalNavbar";
 import { siteConfig } from "@/lib/site-config";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,9 +98,11 @@ export default function RootLayout({
         style={{ backgroundColor: '#defcf8' }}
       >
         <ErrorBoundary>
-          <AuthErrorBoundary>
-            {children}
-          </AuthErrorBoundary>
+          <Providers>
+            <AuthErrorBoundary>
+              {children}
+            </AuthErrorBoundary>
+          </Providers>
         </ErrorBoundary>
         <Analytics />
       </body>

@@ -8,15 +8,24 @@ import {
   JWTClaims,
   BackendStreamer,
   BackendWallet,
+  BackendTransaction,
+  BackendSession,
+  TransactionsResponse,
+  SessionsResponse,
   User,
+  Transaction,
+  Session,
   WalletProvider,
-  isWalletProvider
+  isWalletProvider,
+  transformBackendTransactionToFrontend,
+  transformBackendSessionToFrontend
 } from './backend-types'
 
 // Provider enum schemas
 export const StreamerProviderSchema = z.enum(["twitch", "kick", "youtube", "email"])
 export const WalletProviderSchema = z.enum(["metamask", "phantom"])
 export const TokenTypeSchema = z.enum(["access", "refresh"])
+export const TransactionStatusSchema = z.enum(["pending", "confirmed", "failed"])
 
 // Backend wallet schema (exact match for Go Wallet struct)
 export const BackendWalletSchema = z.object({
@@ -232,4 +241,107 @@ export class ApiValidator {
       wallet
     }
   }
+
+  // Transaction validators
+  static validateBackendTransaction(data: unknown): BackendTransaction {
+    return this.validateResponse(BackendTransactionSchema, data)
+  }
+
+  static validateTransactionsResponse(data: unknown): TransactionsResponse {
+    return this.validateResponse(TransactionsResponseSchema, data)
+  }
+
+  static validateAndTransformTransactions(data: unknown): Transaction[] {
+    const response = this.validateTransactionsResponse(data)
+    return response.transactions.map(transformBackendTransactionToFrontend)
+  }
+
+  // Session validators
+  static validateBackendSession(data: unknown): BackendSession {
+    return this.validateResponse(BackendSessionSchema, data)
+  }
+
+  static validateSessionsResponse(data: unknown): SessionsResponse {
+    return this.validateResponse(SessionsResponseSchema, data)
+  }
+
+  static validateAndTransformSessions(data: unknown): Session[] {
+    const response = this.validateSessionsResponse(data)
+    return response.sessions.map(transformBackendSessionToFrontend)
+  }
 }
+
+// Backend transaction schema (matches Go model/transaction.go)
+export const BackendTransactionSchema = z.object({
+  id: z.string().uuid(),
+  address_from: z.string().min(1),
+  address_to_id: z.string().uuid(),
+  amount: z.number().positive(),
+  tx_hash: z.string().min(1),
+  status: TransactionStatusSchema,
+  message: z.string(),
+  created_at: z.string(),
+  updated_at: z.string()
+})
+
+export const TransactionsResponseSchema = z.object({
+  transactions: z.array(BackendTransactionSchema)
+})
+
+export const TransactionArraySchema = z.array(BackendTransactionSchema)
+
+// Backend session schema (matches Go model/session.go)
+export const BackendSessionSchema = z.object({
+  id: z.string().uuid(),
+  streamer_id: z.string().uuid(),
+  device_type: z.string(),
+  browser: z.string(),
+  ip_address: z.string(),
+  login_method: z.string(),
+  created_at: z.string(),
+  last_active_at: z.string(),
+  is_current: z.boolean()
+})
+
+export const SessionsResponseSchema = z.object({
+  sessions: z.array(BackendSessionSchema)
+})
+
+export const SessionArraySchema = z.array(BackendSessionSchema)
+
+// WebSocket message schemas
+export const WebSocketDonationAlertSchema = z.object({
+  type: z.literal('donation'),
+  data: z.object({
+    id: z.string(),
+    username: z.string(),
+    amount: z.number(),
+    currency: z.string(),
+    message: z.string().optional(),
+    timestamp: z.string(),
+    tx_hash: z.string()
+  })
+})
+
+export const WebSocketConnectionMessageSchema = z.object({
+  type: z.literal('connection'),
+  data: z.object({
+    status: z.enum(['connected', 'disconnected']),
+    streamer_id: z.string()
+  })
+})
+
+export const WebSocketPingSchema = z.object({
+  type: z.literal('ping')
+})
+
+export const WebSocketPongSchema = z.object({
+  type: z.literal('pong')
+})
+
+export const WebSocketMessageSchema = z.discriminatedUnion('type', [
+  WebSocketDonationAlertSchema,
+  WebSocketConnectionMessageSchema,
+  WebSocketPingSchema,
+  WebSocketPongSchema
+])
