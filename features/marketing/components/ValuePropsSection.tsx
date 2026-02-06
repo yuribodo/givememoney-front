@@ -213,7 +213,7 @@ function WalletConnectionMockup() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      <Image src={wallet.icon} alt="" width={24} height={24} />
+                      <Image src={wallet.icon} alt={`${wallet.name} wallet icon`} width={24} height={24} />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-800">{wallet.name}</div>
@@ -479,7 +479,7 @@ function TransactionLedgerMockup() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100">
-                    <Image src={tx.icon} alt="" width={24} height={24} />
+                    <Image src={tx.icon} alt={`${tx.name} donation icon`} width={24} height={24} />
                   </div>
                   <div>
                     <div className="text-xs font-medium text-gray-800">{tx.name}</div>
@@ -512,7 +512,7 @@ function TransactionLedgerMockup() {
                 transition={{ delay: 1.2 + i * 0.1 }}
               >
                 <div className="w-3 h-3 rounded-full overflow-hidden">
-                  <Image src={total.icon} alt="" width={12} height={12} />
+                  <Image src={total.icon} alt="Cryptocurrency icon" width={12} height={12} />
                 </div>
                 <span className="font-mono text-[10px] text-gray-700">{total.amount}</span>
               </motion.div>
