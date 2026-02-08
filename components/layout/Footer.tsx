@@ -1,21 +1,20 @@
-import Link from "next/link"
 import { TwitchLogo, DiscordLogo, XLogo } from "@phosphor-icons/react/dist/ssr"
 import { siteConfig } from "@/lib/site-config"
 
 const footerLinks = {
   product: [
-    { label: "Features", href: "/#how-it-works" },
-    { label: "How It Works", href: "/#how-it-works" },
+    { label: "Features" },
+    { label: "How It Works" },
   ],
   legal: [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { label: "Privacy Policy" },
+    { label: "Terms of Service" },
   ],
 }
 
 const socialLinks = [
-  { label: "Twitter", href: siteConfig.links.twitter, icon: XLogo },
-  { label: "Discord", href: siteConfig.links.discord, icon: DiscordLogo },
+  { label: "Twitter", icon: XLogo },
+  { label: "Discord", icon: DiscordLogo },
 ]
 
 export function Footer() {
@@ -32,59 +31,53 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-4">
-              <span
-                className="text-xl font-bold font-display"
-                style={{ color: "#00A896" }}
-              >
-                GiveMeMoney
-              </span>
-            </Link>
+            <span
+              className="inline-block mb-4 text-xl font-bold font-display"
+              style={{ color: "#00A896" }}
+            >
+              GiveMeMoney
+            </span>
             <p className="text-sm mb-4" style={{ color: "#5C665C" }}>
               Crypto donations for streamers. Zero fees, instant settlement.
             </p>
-            <nav aria-label="Social media links">
+            <div aria-label="Social media">
               <ul className="flex gap-3">
                 {socialLinks.map((social) => (
                   <li key={social.label}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                      aria-label={`Follow us on ${social.label}`}
+                    <span
+                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200"
+                      aria-label={social.label}
                     >
                       <social.icon
                         size={18}
                         weight="duotone"
                         style={{ color: "#5C665C" }}
                       />
-                    </a>
+                    </span>
                   </li>
                 ))}
               </ul>
-            </nav>
+            </div>
           </div>
 
           {/* Product links */}
-          <nav aria-label="Product navigation">
+          <div>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A1D1A" }}>
               Product
             </h3>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm transition-colors hover:text-cyber-mint-600"
+                  <span
+                    className="text-sm"
                     style={{ color: "#5C665C" }}
                   >
                     {link.label}
-                  </Link>
+                  </span>
                 </li>
               ))}
             </ul>
-          </nav>
+          </div>
 
           {/* Platforms */}
           <nav aria-label="Supported platforms">
@@ -118,24 +111,23 @@ export function Footer() {
           </nav>
 
           {/* Legal links */}
-          <nav aria-label="Legal navigation">
+          <div>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A1D1A" }}>
               Legal
             </h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm transition-colors hover:text-cyber-mint-600"
+                  <span
+                    className="text-sm"
                     style={{ color: "#5C665C" }}
                   >
                     {link.label}
-                  </Link>
+                  </span>
                 </li>
               ))}
             </ul>
-          </nav>
+          </div>
         </div>
 
         {/* Bottom bar */}
