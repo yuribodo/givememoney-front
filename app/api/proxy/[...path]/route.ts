@@ -42,7 +42,10 @@ async function handleProxyRequest(
       }
     }
 
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:9090'
+    const backendUrl =
+      process.env.BACKEND_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      'http://localhost:9090'
     const path = '/' + pathSegments.join('/')
     const url = new URL(path, backendUrl)
 
@@ -96,21 +99,32 @@ async function handleProxyRequest(
       }
     })
 
-    // Prepare request body
+    // If no Authorization header was forwarded, use auth_token cookie as Bearer token
+    if (!headers['authorization'] && authToken) {
+      headers['Authorization'] = `Bearer ${authToken.value}`
+    }
+
+    // Prepare request body (read once to avoid stream reuse errors)
     let body: string | undefined
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
-      const contentType = request.headers.get('content-type')
-      if (contentType?.includes('application/json')) {
-        try {
-          const jsonBody = await request.json()
-          body = JSON.stringify(jsonBody)
-          headers['Content-Type'] = 'application/json'
-        } catch {
-          // If JSON parsing fails, fall back to text
-          body = await request.text()
+      const contentType = request.headers.get('content-type') || ''
+      const rawBody = await request.text()
+
+      if (rawBody) {
+        if (contentType.includes('application/json')) {
+          try {
+            const jsonBody = JSON.parse(rawBody)
+            body = JSON.stringify(jsonBody)
+            headers['Content-Type'] = 'application/json'
+          } catch {
+            // If JSON parsing fails, forward raw body as-is
+            body = rawBody
+            if (contentType) headers['Content-Type'] = contentType
+          }
+        } else {
+          body = rawBody
+          if (contentType) headers['Content-Type'] = contentType
         }
-      } else {
-        body = await request.text()
       }
     }
 
@@ -147,23 +161,25 @@ async function handleProxyRequest(
     })
 
     // Handle Set-Cookie headers from backend (update our cookies)
-    const setCookieHeaders = backendResponse.headers.get('set-cookie')
-    if (setCookieHeaders) {
-      // Parse and set cookies from backend response
-      // This is a simplified implementation - you might need more sophisticated cookie parsing
-      const cookies = setCookieHeaders.split(',').map(c => c.trim())
-      cookies.forEach(cookie => {
-        const [nameValue] = cookie.split(';')
-        const [name, value] = nameValue.split('=')
-        if (name && value) {
-          response.cookies.set(name.trim(), value.trim(), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-          })
-        }
-      })
+    // Use getSetCookie() which returns an array — avoids breaking on commas in dates
+    const setCookieArray = backendResponse.headers.getSetCookie?.() ?? []
+    for (const cookie of setCookieArray) {
+      const [nameValue] = cookie.split(';')
+      const eqIdx = nameValue.indexOf('=')
+      if (eqIdx === -1) continue
+      const name = nameValue.slice(0, eqIdx).trim()
+      const rawValue = nameValue.slice(eqIdx + 1).trim()
+      // Decode URL-encoded JWT values from backend
+      const value = decodeURIComponent(rawValue)
+      if (name && value) {
+        response.cookies.set(name, value, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+          maxAge: name === 'refresh_token' ? 30 * 24 * 60 * 60 : 24 * 60 * 60,
+        })
+      }
     }
 
     return response

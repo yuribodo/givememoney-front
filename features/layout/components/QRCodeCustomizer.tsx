@@ -3,207 +3,247 @@
 import { QRCodeConfig } from '../types'
 import { ColorPicker } from './ColorPicker'
 import { LogoUploader } from './LogoUploader'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
-import { Download } from '@phosphor-icons/react'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { DownloadSimple, FloppyDisk } from '@phosphor-icons/react'
 
 interface QRCodeCustomizerProps {
   config: QRCodeConfig
   onChange: (config: Partial<QRCodeConfig>) => void
+  onSave?: () => void
+  isSaving?: boolean
+  onDownload?: () => void
 }
 
-export function QRCodeCustomizer({ config, onChange }: QRCodeCustomizerProps) {
-  const handleDownload = () => {
-    // TODO: Implement QR Code download functionality
-    alert('Funcionalidade de download será implementada em breve!')
-  }
-
+export function QRCodeCustomizer({ config, onChange, onSave, isSaving, onDownload }: QRCodeCustomizerProps) {
   return (
-    <div className="space-y-6">
-      {/* Colors Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">🎨 Cores do QR Code</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="space-y-5">
+      <Tabs defaultValue="cores">
+        <TabsList variant="line" className="w-full justify-start gap-0 border-b border-electric-slate-100 pb-0">
+          <TabsTrigger value="cores" className="text-[13px] px-3 pb-2.5">Cores</TabsTrigger>
+          <TabsTrigger value="estilo" className="text-[13px] px-3 pb-2.5">Estilo</TabsTrigger>
+          <TabsTrigger value="texto" className="text-[13px] px-3 pb-2.5">Texto</TabsTrigger>
+          <TabsTrigger value="logo" className="text-[13px] px-3 pb-2.5">Logo</TabsTrigger>
+        </TabsList>
+
+        {/* ─── CORES TAB ─── */}
+        <TabsContent value="cores" className="pt-5 space-y-3">
           <ColorPicker
-            label="Cor dos Pixels"
+            label="Pixels"
             value={config.pixelColor}
-            onChange={(color) => onChange({ pixelColor: color })}
+            onChange={(c) => onChange({ pixelColor: c })}
           />
           <ColorPicker
-            label="Cor de Fundo"
+            label="Fundo"
             value={config.backgroundColor}
-            onChange={(color) => onChange({ backgroundColor: color })}
+            onChange={(c) => onChange({ backgroundColor: c })}
           />
           <ColorPicker
-            label="Cor da Borda"
+            label="Borda"
             value={config.borderColor}
-            onChange={(color) => onChange({ borderColor: color })}
+            onChange={(c) => onChange({ borderColor: c })}
           />
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      {/* Logo Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">🖼️ Logo Central</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <LogoUploader
-            label="Upload da Logo"
-            value={config.logoUrl}
-            onChange={(url) => onChange({ logoUrl: url })}
-          />
+        {/* ─── ESTILO TAB ─── */}
+        <TabsContent value="estilo" className="pt-5 space-y-5">
+          {/* Frame style */}
+          <div>
+            <p className="text-[11px] font-medium text-electric-slate-400 mb-2.5">Moldura</p>
+            <div className="grid grid-cols-4 gap-1.5">
+              {([
+                { value: 'none' as const, label: 'Nenhuma' },
+                { value: 'rounded' as const, label: 'Redonda' },
+                { value: 'square' as const, label: 'Quadrada' },
+                { value: 'neon' as const, label: 'Neon' },
+              ]).map((frame) => (
+                <button
+                  key={frame.value}
+                  type="button"
+                  onClick={() => onChange({ frameStyle: frame.value })}
+                  className={`py-2 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                    config.frameStyle === frame.value
+                      ? 'bg-electric-slate-900 text-white'
+                      : 'bg-electric-slate-50 text-electric-slate-600 hover:bg-electric-slate-100'
+                  }`}
+                >
+                  {frame.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">
-              Tamanho da Logo: {config.logoSize}%
-            </Label>
-            <input
-              type="range"
-              min="10"
-              max="30"
-              step="5"
-              value={config.logoSize}
-              onChange={(e) => onChange({ logoSize: parseInt(e.target.value) })}
-              className="w-full h-2 bg-electric-slate-200 rounded-lg appearance-none cursor-pointer"
+          {/* Pixel pattern */}
+          <div>
+            <p className="text-[11px] font-medium text-electric-slate-400 mb-2.5">Padrao dos pixels</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {([
+                { value: 'square' as const, label: 'Quadrado' },
+                { value: 'rounded' as const, label: 'Arredondado' },
+                { value: 'dots' as const, label: 'Pontos' },
+              ]).map((pattern) => (
+                <button
+                  key={pattern.value}
+                  type="button"
+                  onClick={() => onChange({ pixelPattern: pattern.value })}
+                  className={`py-2 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                    config.pixelPattern === pattern.value
+                      ? 'bg-electric-slate-900 text-white'
+                      : 'bg-electric-slate-50 text-electric-slate-600 hover:bg-electric-slate-100'
+                  }`}
+                >
+                  {pattern.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* QR Size */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] font-medium text-electric-slate-400">Tamanho</p>
+              <span className="text-[11px] font-mono text-electric-slate-500 tabular-nums bg-electric-slate-50 px-1.5 py-0.5 rounded">
+                {config.qrSize}px
+              </span>
+            </div>
+            <Slider
+              min={200} max={500} step={50}
+              value={[config.qrSize]}
+              onValueChange={(v) => onChange({ qrSize: v[0] })}
+              className="cursor-pointer"
             />
-            <p className="text-xs text-electric-slate-500">
-              Tamanho ideal: 15-25% para não comprometer a leitura do QR Code
-            </p>
           </div>
+        </TabsContent>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Formato da Logo</Label>
-            <select
-              value={config.logoShape}
-              onChange={(e) => onChange({ logoShape: e.target.value as QRCodeConfig['logoShape'] })}
-              className="w-full px-3 py-2 rounded-lg border border-electric-slate-300 bg-white text-electric-slate-900 focus:outline-none focus:ring-2 focus:ring-cyber-mint-500"
-            >
-              <option value="circle">Círculo</option>
-              <option value="square">Quadrado</option>
-            </select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Text Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">💬 Textos</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Texto Superior</Label>
+        {/* ─── TEXTO TAB ─── */}
+        <TabsContent value="texto" className="pt-5 space-y-4">
+          <div>
+            <p className="text-[11px] font-medium text-electric-slate-400 mb-1.5">Texto superior</p>
             <Input
               value={config.topText}
               onChange={(e) => onChange({ topText: e.target.value })}
               placeholder="Doe Agora!"
-              className="w-full"
+              className="text-sm h-9"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Texto Inferior</Label>
+          <div>
+            <p className="text-[11px] font-medium text-electric-slate-400 mb-1.5">Texto inferior</p>
             <Input
               value={config.bottomText}
               onChange={(e) => onChange({ bottomText: e.target.value })}
               placeholder="@seucanal"
-              className="w-full"
+              className="text-sm h-9"
             />
           </div>
 
           <ColorPicker
-            label="Cor do Texto"
+            label="Cor do texto"
             value={config.textColor}
-            onChange={(color) => onChange({ textColor: color })}
+            onChange={(c) => onChange({ textColor: c })}
           />
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Tamanho da Fonte</Label>
-            <select
-              value={config.textSize}
-              onChange={(e) => onChange({ textSize: e.target.value as QRCodeConfig['textSize'] })}
-              className="w-full px-3 py-2 rounded-lg border border-electric-slate-300 bg-white text-electric-slate-900 focus:outline-none focus:ring-2 focus:ring-cyber-mint-500"
-            >
-              <option value="small">Pequeno</option>
-              <option value="medium">Médio</option>
-              <option value="large">Grande</option>
-            </select>
+          {/* Text size */}
+          <div>
+            <p className="text-[11px] font-medium text-electric-slate-400 mb-2.5">Tamanho da fonte</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {([
+                { value: 'small' as const, label: 'Pequeno' },
+                { value: 'medium' as const, label: 'Medio' },
+                { value: 'large' as const, label: 'Grande' },
+              ]).map((size) => (
+                <button
+                  key={size.value}
+                  type="button"
+                  onClick={() => onChange({ textSize: size.value })}
+                  className={`py-2 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                    config.textSize === size.value
+                      ? 'bg-electric-slate-900 text-white'
+                      : 'bg-electric-slate-50 text-electric-slate-600 hover:bg-electric-slate-100'
+                  }`}
+                >
+                  {size.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      {/* Style Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">✨ Estilo Visual</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Estilo da Moldura</Label>
-            <select
-              value={config.frameStyle}
-              onChange={(e) => onChange({ frameStyle: e.target.value as QRCodeConfig['frameStyle'] })}
-              className="w-full px-3 py-2 rounded-lg border border-electric-slate-300 bg-white text-electric-slate-900 focus:outline-none focus:ring-2 focus:ring-cyber-mint-500"
-            >
-              <option value="none">Sem Moldura</option>
-              <option value="rounded">Arredondada</option>
-              <option value="square">Quadrada</option>
-              <option value="neon">Neon</option>
-            </select>
-          </div>
+        {/* ─── LOGO TAB ─── */}
+        <TabsContent value="logo" className="pt-5 space-y-4">
+          <LogoUploader
+            label="Imagem central"
+            value={config.logoUrl}
+            onChange={(url) => onChange({ logoUrl: url })}
+          />
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">
-              Tamanho do QR Code: {config.qrSize}px
-            </Label>
-            <input
-              type="range"
-              min="200"
-              max="600"
-              step="50"
-              value={config.qrSize}
-              onChange={(e) => onChange({ qrSize: parseInt(e.target.value) })}
-              className="w-full h-2 bg-electric-slate-200 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
+          {config.logoUrl && (
+            <>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-medium text-electric-slate-400">Tamanho</p>
+                  <span className="text-[11px] font-mono text-electric-slate-500 tabular-nums bg-electric-slate-50 px-1.5 py-0.5 rounded">
+                    {config.logoSize}%
+                  </span>
+                </div>
+                <Slider
+                  min={10} max={30} step={5}
+                  value={[config.logoSize]}
+                  onValueChange={(v) => onChange({ logoSize: v[0] })}
+                  className="cursor-pointer"
+                />
+                <p className="text-[10px] text-electric-slate-400 mt-1.5">
+                  15-25% ideal para leitura do QR
+                </p>
+              </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-electric-slate-700">Padrão dos Pixels</Label>
-            <select
-              value={config.pixelPattern}
-              onChange={(e) => onChange({ pixelPattern: e.target.value as QRCodeConfig['pixelPattern'] })}
-              className="w-full px-3 py-2 rounded-lg border border-electric-slate-300 bg-white text-electric-slate-900 focus:outline-none focus:ring-2 focus:ring-cyber-mint-500"
-            >
-              <option value="square">Quadrado</option>
-              <option value="rounded">Arredondado</option>
-              <option value="dots">Pontos</option>
-            </select>
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <p className="text-[11px] font-medium text-electric-slate-400 mb-2.5">Formato</p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {([
+                    { value: 'circle' as const, label: 'Circulo' },
+                    { value: 'square' as const, label: 'Quadrado' },
+                  ]).map((shape) => (
+                    <button
+                      key={shape.value}
+                      type="button"
+                      onClick={() => onChange({ logoShape: shape.value })}
+                      className={`py-2 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                        config.logoShape === shape.value
+                          ? 'bg-electric-slate-900 text-white'
+                          : 'bg-electric-slate-50 text-electric-slate-600 hover:bg-electric-slate-100'
+                      }`}
+                    >
+                      {shape.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
+      {/* Action buttons */}
+      <div className="flex gap-2">
         <Button
-          onClick={handleDownload}
-          className="w-full cursor-pointer hover:scale-105 transition-transform bg-gradient-to-r from-warm-coral-600 to-warm-coral-700 text-white hover:from-warm-coral-700 hover:to-warm-coral-800"
+          className="flex-1 cursor-pointer font-semibold"
           size="lg"
+          onClick={onSave}
+          disabled={isSaving}
         >
-          <Download size={20} weight="duotone" />
-          Baixar QR Code
+          <FloppyDisk size={16} weight="bold" className="mr-1.5" />
+          {isSaving ? 'Salvando...' : 'Salvar'}
         </Button>
-
         <Button
-          className="w-full cursor-pointer hover:scale-105 transition-transform"
-          variant="auth"
+          variant="outline"
           size="lg"
+          onClick={onDownload}
+          className="cursor-pointer"
         >
-          Salvar Configurações
+          <DownloadSimple size={16} weight="bold" />
         </Button>
       </div>
     </div>
