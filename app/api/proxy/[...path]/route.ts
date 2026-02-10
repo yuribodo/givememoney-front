@@ -182,7 +182,7 @@ async function handleProxyRequest(
       const backendMaxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : undefined
       const defaultMaxAge = name === 'refresh_token' ? 30 * 24 * 60 * 60 : 24 * 60 * 60
 
-      if (name && value) {
+      if (name) {
         response.cookies.set(name, value, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
