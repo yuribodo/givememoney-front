@@ -28,6 +28,9 @@ export default function DashboardLayout({
 
     let isMounted = true
     AuthService.processDashboardRedirect()
+      .catch((err) => {
+        console.error('[DashboardLayout] Auth bootstrap failed:', err)
+      })
       .finally(() => {
         if (isMounted) setAuthBootstrapDone(true)
       })
