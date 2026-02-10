@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/features/auth'
 import { useTransactions } from '@/features/transactions'
-import { formatCurrency, getTimeAgo } from '@/lib/mock-data'
+import { formatCurrency, getTimeAgo } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import {
   Table,

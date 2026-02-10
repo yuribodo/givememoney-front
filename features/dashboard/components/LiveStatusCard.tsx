@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge-2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDown, ArrowUp, Wallet, MessageSquare, TrendingUp } from 'lucide-react';
-import { formatCurrency } from '@/lib/mock-data'
+import { formatCurrency } from '@/lib/format'
 import { motion } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
