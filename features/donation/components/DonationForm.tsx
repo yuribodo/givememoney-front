@@ -43,10 +43,14 @@ export function DonationForm({ wallet }: DonationFormProps) {
 
   const handleConnect = async () => {
     setState('connecting')
-    const address = await connect()
-    if (address) {
-      setState('form')
-    } else {
+    try {
+      const address = await connect()
+      if (address) {
+        setState('form')
+      } else {
+        setState('error')
+      }
+    } catch {
       setState('error')
     }
   }
@@ -61,7 +65,13 @@ export function DonationForm({ wallet }: DonationFormProps) {
     setState('confirming')
     setDonationError(null)
 
-    const result = await sendTransaction(parsedAmount)
+    let result
+    try {
+      result = await sendTransaction(parsedAmount)
+    } catch {
+      setState('error')
+      return
+    }
     if (!result) {
       setState('error')
       return
@@ -116,6 +126,7 @@ export function DonationForm({ wallet }: DonationFormProps) {
               setAmount('')
               setMessage('')
               setTxHash(null)
+              setDonationError(null)
             }}
           >
             Send another donation
