@@ -20,12 +20,6 @@ export default function DashboardLayout({
   const pathname = usePathname()
 
   useEffect(() => {
-    const token = AuthService.extractTokenFromUrl()
-    if (!token) {
-      setAuthBootstrapDone(true)
-      return
-    }
-
     let isMounted = true
     AuthService.processDashboardRedirect()
       .catch((err) => {
