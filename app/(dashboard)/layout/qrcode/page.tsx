@@ -401,7 +401,10 @@ export default function QRCodeEditorPage() {
         </div>
       </div>
 
-      {/* Hidden canvas for download */}
+      {/* Hidden canvas for download — renders a plain QR code (no frame, logo, or text).
+         The styled preview (QRCodePreview) uses SVG overlays that can't be directly
+         exported to canvas. A future improvement could use html-to-image or a custom
+         canvas renderer to match the full preview. */}
       <div ref={hiddenCanvasRef} style={{ position: 'absolute', left: '-9999px' }}>
         <QRCodeCanvas
           value={donationUrl || 'https://givememoney.fun'}
