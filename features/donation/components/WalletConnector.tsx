@@ -76,8 +76,10 @@ export function useWalletConnector({ walletProvider, destinationAddress }: UseWa
         return { txHash: tx.hash, fromAddress }
       } else {
         if (!window.solana) throw new Error('Phantom not available')
-        const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed')
-        const fromPubkey = new PublicKey(connectedAddress!)
+        if (!connectedAddress) throw new Error('Wallet not connected. Please connect your wallet first.')
+        const cluster = (process.env.NEXT_PUBLIC_SOLANA_CLUSTER as 'mainnet-beta' | 'devnet' | 'testnet') || 'mainnet-beta'
+        const connection = new Connection(clusterApiUrl(cluster), 'confirmed')
+        const fromPubkey = new PublicKey(connectedAddress)
         const toPubkey = new PublicKey(destinationAddress)
         const transaction = new Transaction().add(
           SystemProgram.transfer({
@@ -91,7 +93,7 @@ export function useWalletConnector({ walletProvider, destinationAddress }: UseWa
         transaction.recentBlockhash = blockhash
         if (!window.solana.signAndSendTransaction) throw new Error('Phantom signAndSendTransaction not available')
         const result = await window.solana.signAndSendTransaction(transaction)
-        return { txHash: result.signature, fromAddress: connectedAddress! }
+        return { txHash: result.signature, fromAddress: connectedAddress }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
