@@ -96,6 +96,7 @@ export function OverlaySettingsPanel({ config, onChange, onSave, isSaving, overl
       const response = await fetch('/api/proxy/api/auth/alerts/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       })
 
       if (!response.ok) {
