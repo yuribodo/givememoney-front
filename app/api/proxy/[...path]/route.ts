@@ -169,15 +169,26 @@ async function handleProxyRequest(
       if (eqIdx === -1) continue
       const name = nameValue.slice(0, eqIdx).trim()
       const rawValue = nameValue.slice(eqIdx + 1).trim()
-      // Decode URL-encoded JWT values from backend
-      const value = decodeURIComponent(rawValue)
+      // Decode URL-encoded JWT values from backend (with fallback for malformed encoding)
+      let value: string
+      try {
+        value = decodeURIComponent(rawValue)
+      } catch {
+        value = rawValue
+      }
+
+      // Parse Max-Age from the original Set-Cookie if present
+      const maxAgeMatch = cookie.match(/max-age=(\d+)/i)
+      const backendMaxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : undefined
+      const defaultMaxAge = name === 'refresh_token' ? 30 * 24 * 60 * 60 : 24 * 60 * 60
+
       if (name && value) {
         response.cookies.set(name, value, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           path: '/',
-          maxAge: name === 'refresh_token' ? 30 * 24 * 60 * 60 : 24 * 60 * 60,
+          maxAge: backendMaxAge ?? defaultMaxAge,
         })
       }
     }
