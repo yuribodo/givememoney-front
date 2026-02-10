@@ -81,7 +81,9 @@ export function DonationForm({ wallet }: DonationFormProps) {
       })
       setState('success')
     } catch {
+      // On-chain tx succeeded but backend recording failed
       setState('success')
+      setDonationError('Transaction sent on-chain, but we could not record it. Please contact support with your tx hash.')
     }
   }
 
@@ -94,6 +96,11 @@ export function DonationForm({ wallet }: DonationFormProps) {
           <p className="text-electric-slate-600">
             Your donation of {amount} {currencyLabel} was sent successfully.
           </p>
+          {donationError && (
+            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+              {donationError}
+            </p>
+          )}
           <a
             href={explorerUrl}
             target="_blank"
