@@ -11,6 +11,10 @@ export function formatPercentage(value: number): string {
   return `${sign}${value}%`
 }
 
+export function formatCrypto(amount: number, currency: 'ETH' | 'SOL'): string {
+  return `${amount.toFixed(6)} ${currency}`
+}
+
 export function getTimeAgo(date: Date): string {
   const now = new Date()
   const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))

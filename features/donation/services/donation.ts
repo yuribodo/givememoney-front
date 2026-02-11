@@ -5,6 +5,7 @@ export interface PublicWallet {
   wallet_provider: WalletProvider
   wallet_address: string
   streamer_id: string
+  streamer_name?: string
 }
 
 export interface TransactionSubmit {
