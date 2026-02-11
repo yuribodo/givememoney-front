@@ -1,22 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useWalletConnector } from './WalletConnector'
 import { useSubmitDonation } from '../hooks/useDonation'
+import { useCryptoPrice } from '../hooks/useCryptoPrice'
 import { PublicWallet } from '../services/donation'
+import { formatCurrency, formatCrypto } from '@/lib/format'
 
 type DonationState = 'form' | 'connecting' | 'confirming' | 'success' | 'error'
+
+const PRESET_AMOUNTS = [1, 5, 10, 25]
 
 interface DonationFormProps {
   wallet: PublicWallet
 }
 
 export function DonationForm({ wallet }: DonationFormProps) {
-  const [amount, setAmount] = useState('')
+  const [usdAmount, setUsdAmount] = useState('')
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
   const [message, setMessage] = useState('')
   const [state, setState] = useState<DonationState>('form')
   const [txHash, setTxHash] = useState<string | null>(null)
@@ -35,11 +40,38 @@ export function DonationForm({ wallet }: DonationFormProps) {
   })
 
   const submitDonation = useSubmitDonation()
+  const { data: prices, isLoading: pricesLoading } = useCryptoPrice()
 
   const currencyLabel = wallet.wallet_provider === 'metamask' ? 'ETH' : 'SOL'
+  const walletLabel = wallet.wallet_provider === 'metamask' ? 'MetaMask' : 'Phantom'
   const explorerUrl = wallet.wallet_provider === 'metamask'
     ? `https://etherscan.io/tx/${txHash}`
     : `https://solscan.io/tx/${txHash}`
+
+  const cryptoPrice = useMemo(() => {
+    if (!prices) return null
+    return wallet.wallet_provider === 'metamask'
+      ? prices.ethereum.usd
+      : prices.solana.usd
+  }, [prices, wallet.wallet_provider])
+
+  const cryptoAmount = useMemo(() => {
+    const usd = parseFloat(usdAmount)
+    if (!usd || !cryptoPrice) return null
+    return usd / cryptoPrice
+  }, [usdAmount, cryptoPrice])
+
+  const handlePresetClick = (usd: number) => {
+    setUsdAmount(usd.toString())
+    setSelectedPreset(usd)
+    setDonationError(null)
+  }
+
+  const handleUsdChange = (value: string) => {
+    setUsdAmount(value)
+    setSelectedPreset(null)
+    setDonationError(null)
+  }
 
   const handleConnect = async () => {
     setState('connecting')
@@ -56,8 +88,7 @@ export function DonationForm({ wallet }: DonationFormProps) {
   }
 
   const handleSend = async () => {
-    const parsedAmount = parseFloat(amount)
-    if (!parsedAmount || parsedAmount <= 0) {
+    if (!cryptoAmount || cryptoAmount <= 0) {
       setDonationError('Please enter a valid amount')
       return
     }
@@ -67,7 +98,7 @@ export function DonationForm({ wallet }: DonationFormProps) {
 
     let result
     try {
-      result = await sendTransaction(parsedAmount)
+      result = await sendTransaction(cryptoAmount)
     } catch {
       setState('error')
       return
@@ -83,7 +114,7 @@ export function DonationForm({ wallet }: DonationFormProps) {
       await submitDonation.mutateAsync({
         walletId: wallet.id,
         data: {
-          amount: parsedAmount,
+          amount: cryptoAmount,
           message: message || undefined,
           tx_hash: result.txHash,
           address_from: result.fromAddress,
@@ -99,12 +130,14 @@ export function DonationForm({ wallet }: DonationFormProps) {
 
   if (state === 'success' && txHash) {
     return (
-      <Card>
+      <Card className="border border-electric-slate-200">
         <CardContent className="p-8 text-center space-y-4">
-          <div className="text-4xl">&#10003;</div>
+          <div className="w-12 h-12 rounded-full bg-cyber-mint-50 border border-cyber-mint-200 flex items-center justify-center mx-auto">
+            <span className="text-cyber-mint-600 text-xl">&#10003;</span>
+          </div>
           <h2 className="text-2xl font-bold text-electric-slate-900">Donation Sent!</h2>
           <p className="text-electric-slate-600">
-            Your donation of {amount} {currencyLabel} was sent successfully.
+            You sent {formatCurrency(parseFloat(usdAmount))} ({cryptoAmount ? formatCrypto(cryptoAmount, currencyLabel as 'ETH' | 'SOL') : ''})
           </p>
           {donationError && (
             <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
@@ -123,7 +156,8 @@ export function DonationForm({ wallet }: DonationFormProps) {
             variant="outline"
             onClick={() => {
               setState('form')
-              setAmount('')
+              setUsdAmount('')
+              setSelectedPreset(null)
               setMessage('')
               setTxHash(null)
               setDonationError(null)
@@ -137,24 +171,22 @@ export function DonationForm({ wallet }: DonationFormProps) {
   }
 
   return (
-    <Card>
+    <Card className="border border-electric-slate-200">
       <CardHeader>
         <CardTitle>Send a Donation</CardTitle>
         <CardDescription>
-          Send {currencyLabel} via {wallet.wallet_provider === 'metamask' ? 'MetaMask' : 'Phantom'}
+          Send {currencyLabel} via {walletLabel}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {!connectedAddress ? (
           <Button
-            className="w-full"
+            className="w-full cursor-pointer"
             size="lg"
             onClick={handleConnect}
             disabled={isConnecting}
           >
-            {isConnecting
-              ? 'Connecting...'
-              : `Connect ${wallet.wallet_provider === 'metamask' ? 'MetaMask' : 'Phantom'}`}
+            {isConnecting ? 'Connecting...' : `Connect ${walletLabel}`}
           </Button>
         ) : (
           <>
@@ -162,20 +194,69 @@ export function DonationForm({ wallet }: DonationFormProps) {
               Connected: <span className="font-mono text-xs">{connectedAddress}</span>
             </p>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount ({currencyLabel})</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.0001"
-                min="0"
-                placeholder={`0.01 ${currencyLabel}`}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
+            {/* Preset amount buttons */}
+            <div>
+              <p className="text-xs font-medium text-electric-slate-400 mb-2">Quick amounts</p>
+              <div className="grid grid-cols-4 gap-2">
+                {PRESET_AMOUNTS.map((usd) => {
+                  const isSelected = selectedPreset === usd
+                  const presetCrypto = cryptoPrice ? usd / cryptoPrice : null
+                  return (
+                    <button
+                      key={usd}
+                      type="button"
+                      onClick={() => handlePresetClick(usd)}
+                      disabled={pricesLoading}
+                      className={`py-2.5 rounded-lg text-center transition-all cursor-pointer border ${
+                        isSelected
+                          ? 'border-cyber-mint-500 bg-cyber-mint-50 text-cyber-mint-700'
+                          : 'border-electric-slate-200 bg-white text-electric-slate-700 hover:border-electric-slate-300'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      <span className="text-sm font-semibold">${usd}</span>
+                      {presetCrypto && (
+                        <span className="block text-[10px] text-electric-slate-400 mt-0.5">
+                          {presetCrypto.toFixed(4)} {currencyLabel}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            <div className="space-y-2">
+            {/* USD input with crypto conversion */}
+            <div className="space-y-1.5">
+              <Label htmlFor="amount">Amount (USD)</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-electric-slate-400 text-sm">$</span>
+                <Input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={usdAmount}
+                  onChange={(e) => handleUsdChange(e.target.value)}
+                  className="pl-7"
+                />
+              </div>
+              {cryptoAmount && cryptoPrice ? (
+                <p className="text-xs text-electric-slate-500">
+                  ≈ {formatCrypto(cryptoAmount, currencyLabel as 'ETH' | 'SOL')}
+                  <span className="text-electric-slate-300 ml-1.5">
+                    (1 {currencyLabel} = {formatCurrency(cryptoPrice)})
+                  </span>
+                </p>
+              ) : pricesLoading ? (
+                <p className="text-xs text-electric-slate-400">Loading prices...</p>
+              ) : !prices ? (
+                <p className="text-xs text-amber-500">Unable to fetch prices. Enter crypto amount directly.</p>
+              ) : null}
+            </div>
+
+            {/* Message */}
+            <div className="space-y-1.5">
               <Label htmlFor="message">Message (optional)</Label>
               <textarea
                 id="message"
@@ -187,13 +268,18 @@ export function DonationForm({ wallet }: DonationFormProps) {
               />
             </div>
 
+            {/* Send button */}
             <Button
-              className="w-full"
+              className="w-full cursor-pointer"
               size="lg"
               onClick={handleSend}
-              disabled={isConfirming || !amount}
+              disabled={isConfirming || !usdAmount || !cryptoAmount}
             >
-              {isConfirming ? 'Confirming transaction...' : `Send ${amount || '0'} ${currencyLabel}`}
+              {isConfirming
+                ? 'Confirming transaction...'
+                : cryptoAmount
+                  ? `Send ${formatCurrency(parseFloat(usdAmount))} (≈${cryptoAmount.toFixed(4)} ${currencyLabel})`
+                  : `Send ${currencyLabel}`}
             </Button>
           </>
         )}

@@ -37,9 +37,11 @@ export default function DonatePage({ params }: DonatePageProps) {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold">Donate via {wallet.wallet_provider === 'metamask' ? 'Ethereum' : 'Solana'}</h1>
+          <h1 className="text-2xl font-bold">
+            {wallet.streamer_name ? `Donate to ${wallet.streamer_name}` : 'Send a Donation'}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Sending to wallet: <span className="font-mono text-xs">{wallet.wallet_address.slice(0, 6)}...{wallet.wallet_address.slice(-4)}</span>
+            via {wallet.wallet_provider === 'metamask' ? 'Ethereum' : 'Solana'} &middot; <span className="font-mono text-xs">{wallet.wallet_address.slice(0, 6)}...{wallet.wallet_address.slice(-4)}</span>
           </p>
         </div>
         <DonationForm wallet={wallet} />
