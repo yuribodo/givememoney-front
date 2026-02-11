@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { BarChart3 } from 'lucide-react'
-import { formatCurrency } from '@/lib/mock-data'
+import { formatCurrency } from '@/lib/format'
 import { DashboardCard } from './DashboardCard'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion } from 'framer-motion'

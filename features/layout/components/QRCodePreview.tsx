@@ -5,9 +5,10 @@ import { QRCodeSVG } from 'qrcode.react'
 
 interface QRCodePreviewProps {
   config: QRCodeConfig
+  donationUrl?: string
 }
 
-export function QRCodePreview({ config }: QRCodePreviewProps) {
+export function QRCodePreview({ config, donationUrl = 'https://givememoney.fun' }: QRCodePreviewProps) {
   const frameStyles = {
     none: '',
     rounded: 'rounded-3xl',
@@ -22,8 +23,18 @@ export function QRCodePreview({ config }: QRCodePreviewProps) {
   }
 
   return (
-    <div className="w-full flex items-center justify-center p-8 bg-electric-slate-50 rounded-xl">
-      <div className="flex flex-col items-center gap-4">
+    <div className="relative w-full min-h-[420px] flex items-center justify-center overflow-hidden rounded-xl bg-[#f8f9fa]">
+      {/* Dot grid background */}
+      <div
+        className="absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #c8ccd0 0.8px, transparent 0.8px)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+
+      {/* QR Code content */}
+      <div className="relative z-10 flex flex-col items-center gap-3 py-8">
         {/* Top Text */}
         {config.topText && (
           <p
@@ -36,17 +47,17 @@ export function QRCodePreview({ config }: QRCodePreviewProps) {
 
         {/* QR Code Container */}
         <div
-          className={`relative p-6 ${frameStyles[config.frameStyle]}`}
+          className={`relative p-5 transition-all duration-200 ${frameStyles[config.frameStyle]}`}
           style={{
             backgroundColor: config.backgroundColor,
             borderColor: config.borderColor,
-            borderWidth: config.frameStyle !== 'none' ? '4px' : '0',
+            borderWidth: config.frameStyle !== 'none' ? '3px' : '0',
+            borderStyle: 'solid',
           }}
         >
-          {/* QR Code */}
           <div className="relative">
             <QRCodeSVG
-              value="https://givememoney.fun/donate/user123"
+              value={donationUrl}
               size={config.qrSize}
               bgColor={config.backgroundColor}
               fgColor={config.pixelColor}
@@ -60,7 +71,7 @@ export function QRCodePreview({ config }: QRCodePreviewProps) {
             {/* Logo Overlay */}
             {config.logoUrl && (
               <div
-                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-2 ${
+                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-1.5 ${
                   config.logoShape === 'circle' ? 'rounded-full' : 'rounded-lg'
                 }`}
                 style={{

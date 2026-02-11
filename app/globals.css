@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -282,12 +283,12 @@ body {
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.65 0.15 175);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.97 0.01 175);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.65 0.15 175);
 }
 
 .dark {
@@ -317,7 +318,7 @@ body {
   --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: oklch(0.65 0.15 175);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -409,7 +410,7 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-lg);
-  min-height: calc(100vh - 120px); /* Account for floating navbar */
+  min-height: calc(100vh - 3.5rem); /* Account for top bar height */
 }
 
 /* Tablet */
@@ -497,67 +498,9 @@ body {
   transition: width 0.3s ease;
 }
 
-/* Floating Navbar Enhancements */
-.floating-navbar {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(203, 210, 221, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.floating-navbar:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(203, 210, 221, 0.5);
-}
-
-/* Layout spacing for pages with floating navbar */
+/* Layout spacing for pages with floating navbar (marketing/auth pages) */
 .with-floating-navbar {
-  padding-top: 96px; /* 6rem = 96px - espaço para a navbar flutuante */
-}
-
-/* Smooth animations for navbar */
-.nav-item {
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-  will-change: transform, background-color, box-shadow;
-}
-
-.nav-item-active {
-  animation: navActivate 0.3s ease-out;
-}
-
-.nav-item-inactive:hover {
-  box-shadow: 0 4px 12px rgba(0, 171, 150, 0.15);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-/* Keyframes for smooth nav transitions */
-@keyframes navActivate {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Smooth transitions for all navbar elements */
-.floating-navbar * {
-  transition-duration: 0.2s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: 96px;
 }
 
 /* Enhanced hover effects */

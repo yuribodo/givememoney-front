@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
 } from '@/components/ui/table'
-import { formatCurrency } from '@/lib/mock-data'
+import { formatCurrency } from '@/lib/format'
 import { DashboardCard } from './DashboardCard'
 import { motion } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
