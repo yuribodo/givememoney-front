@@ -8,19 +8,35 @@ import {
   TableHead,
   TableHeader,
 } from '@/components/ui/table'
-import { formatCurrency } from '@/lib/format'
 import { DashboardCard } from './DashboardCard'
 import { motion } from 'framer-motion'
-import { AnimatedCounter } from '@/components/ui/animated-counter'
+import { CurrencyTotals } from '@/features/transactions'
 
 interface TopDonor {
   username: string
-  amount: number
+  amounts: CurrencyTotals
   rank: number
 }
 
 interface TopDonorsCardProps {
   donors: TopDonor[]
+}
+
+function DonorAmounts({ amounts }: { amounts: CurrencyTotals }) {
+  const entries = Object.entries(amounts).filter(([, v]) => (v ?? 0) > 0)
+  if (entries.length === 0) return <span className="text-sm text-muted-foreground">—</span>
+  return (
+    <div className="space-y-0.5 text-right">
+      {entries.map(([currency, amount]) => (
+        <div key={currency} className="flex items-baseline justify-end gap-1">
+          <span className="text-sm font-semibold text-foreground">
+            {(amount ?? 0).toFixed(4)}
+          </span>
+          <span className="text-xs text-muted-foreground">{currency}</span>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export function TopDonorsCard({ donors }: TopDonorsCardProps) {
@@ -37,9 +53,9 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
     switch (rank) {
       case 1:
         return (
-          <motion.div 
-            variants={iconVariants} 
-            initial="hidden" 
+          <motion.div
+            variants={iconVariants}
+            initial="hidden"
             animate="show"
             transition={{ type: "spring", stiffness: 200, damping: 12 }}
           >
@@ -48,9 +64,9 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
         )
       case 2:
         return (
-          <motion.div 
-            variants={iconVariants} 
-            initial="hidden" 
+          <motion.div
+            variants={iconVariants}
+            initial="hidden"
             animate="show"
             transition={{ type: "spring", stiffness: 200, damping: 12 }}
           >
@@ -59,9 +75,9 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
         )
       case 3:
         return (
-          <motion.div 
-            variants={iconVariants} 
-            initial="hidden" 
+          <motion.div
+            variants={iconVariants}
+            initial="hidden"
             animate="show"
             transition={{ type: "spring", stiffness: 200, damping: 12 }}
           >
@@ -157,12 +173,8 @@ export function TopDonorsCard({ donors }: TopDonorsCardProps) {
                     <TableCell className="py-5 font-medium text-foreground">
                       {donor.username}
                     </TableCell>
-                    <TableCell className="py-5 text-right font-semibold money-display text-foreground pr-6">
-                      <AnimatedCounter
-                        value={donor.amount}
-                        formatter={(v) => formatCurrency(v)}
-                        className="inline-block"
-                      />
+                    <TableCell className="py-5 pr-6">
+                      <DonorAmounts amounts={donor.amounts} />
                     </TableCell>
                   </motion.tr>
                 ))}

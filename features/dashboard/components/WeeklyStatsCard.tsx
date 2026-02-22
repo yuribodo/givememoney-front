@@ -1,101 +1,62 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { BarChart3 } from 'lucide-react'
-import { formatCurrency } from '@/lib/format'
 import { DashboardCard } from './DashboardCard'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion } from 'framer-motion'
-import { AnimatedCounter } from '@/components/ui/animated-counter'
+import { CurrencyTotals } from '@/features/transactions'
 
 interface DailyData {
   day: string
-  value: number
+  value: number    // message count (currency-agnostic)
   messages: number
 }
 
 interface WeeklyStatsData {
+  totals: CurrencyTotals
   dailyData: DailyData[]
-  total: number
 }
 
 interface WeeklyStatsCardProps {
   data: WeeklyStatsData
 }
 
+function WeeklyTotalsDisplay({ totals }: { totals: CurrencyTotals }) {
+  const entries = Object.entries(totals).filter(([, v]) => (v ?? 0) > 0)
+  if (entries.length === 0) {
+    return <span className="text-3xl font-bold text-foreground">—</span>
+  }
+  return (
+    <div className="space-y-0.5">
+      {entries.map(([currency, amount]) => (
+        <div key={currency} className="flex items-baseline justify-center gap-1.5">
+          <span className="text-3xl font-bold text-foreground">
+            {(amount ?? 0).toFixed(4)}
+          </span>
+          <span className="text-base font-semibold text-muted-foreground">{currency}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
-  const { dailyData, total } = data
-  const [pathLength, setPathLength] = useState(0)
+  const { dailyData, totals } = data
 
-  useEffect(() => {
-    // Trigger animation after component mounts
-    const timer = setTimeout(() => setPathLength(1), 100)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: DailyData }> }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const d = payload[0].payload
       return (
-        <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-[160px]">
-          <p className="text-xs font-semibold text-muted-foreground mb-2">{data.day}</p>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">Value:</span>
-              <span className="text-sm font-semibold text-foreground money-display">
-                {formatCurrency(data.value)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">Messages:</span>
-              <span className="text-sm font-semibold text-foreground">
-                {data.messages}
-              </span>
-            </div>
+        <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-[140px]">
+          <p className="text-xs font-semibold text-muted-foreground mb-2">{d.day}</p>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-muted-foreground">Donations:</span>
+            <span className="text-sm font-semibold text-foreground">{d.messages}</span>
           </div>
         </div>
       )
     }
     return null
-  }
-
-  const AnimatedLine = (props: any) => {
-    const { points } = props
-    if (!points || points.length === 0) return null
-
-    const pathString = points.reduce((acc: string, point: any, i: number) => {
-      if (i === 0) return `M ${point.x},${point.y}`
-      return `${acc} L ${point.x},${point.y}`
-    }, '')
-
-    return (
-      <motion.path
-        d={pathString}
-        fill="none"
-        stroke="#00a896"
-        strokeWidth={3}
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
-        transition={{
-          pathLength: { duration: 1.5, ease: 'easeInOut' },
-          opacity: { duration: 0.3 },
-        }}
-      />
-    )
-  }
-
-  const dotVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    show: (i: number) => ({
-      scale: 1,
-      opacity: 1,
-      transition: {
-        delay: 1 + i * 0.1,
-        type: 'spring',
-        stiffness: 200,
-        damping: 10,
-      },
-    }),
   }
 
   return (
@@ -109,11 +70,7 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
         >
           <div className="text-center mb-6">
             <div className="text-sm text-muted-foreground mb-1">Weekly Total</div>
-            <AnimatedCounter
-              value={total}
-              className="text-3xl font-bold money-display text-foreground"
-              formatter={(v) => formatCurrency(v)}
-            />
+            <WeeklyTotalsDisplay totals={totals} />
           </div>
 
           <div className="flex-1 w-full min-h-[200px]">
@@ -132,8 +89,9 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  width={50}
-                  tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`}
+                  width={35}
+                  allowDecimals={false}
+                  tickFormatter={(v) => String(v)}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e6ed' }} />
                 <Line
@@ -156,8 +114,8 @@ export function WeeklyStatsCard({ data }: WeeklyStatsCardProps) {
   )
 }
 
-function CustomDot(props: any) {
-  const { cx, cy, index } = props
+function CustomDot(props: { cx?: number; cy?: number; index?: number }) {
+  const { cx, cy, index = 0 } = props
 
   return (
     <motion.circle

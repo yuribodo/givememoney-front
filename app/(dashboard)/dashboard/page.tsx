@@ -10,10 +10,10 @@ import { Loader2 } from 'lucide-react'
 export default function DashboardPage() {
   const { user, isLoading: isAuthLoading } = useAuth()
   const {
-    todayTotal,
-    lastHourTotal,
+    todayTotals,
+    lastHourTotals,
     totalDonations,
-    weeklyTotal,
+    weeklyTotals,
     dailyData,
     topDonors,
     recentDonations,
@@ -25,14 +25,14 @@ export default function DashboardPage() {
 
   // Map metrics to component props
   const metricsData = {
-    balance: todayTotal,
+    balanceTotals: todayTotals,
     messagesReceived: totalDonations,
-    valueReceived: lastHourTotal
+    valueReceivedTotals: lastHourTotals,
   }
 
   const weeklyStatsData = {
-    total: weeklyTotal,
-    dailyData: dailyData
+    totals: weeklyTotals,
+    dailyData: dailyData,
   }
 
   // Transform recent donations to match the component interface

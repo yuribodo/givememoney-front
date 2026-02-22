@@ -2,62 +2,42 @@
 
 import { Badge } from '@/components/ui/badge-2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDown, ArrowUp, Wallet, MessageSquare, TrendingUp } from 'lucide-react';
-import { formatCurrency } from '@/lib/format'
+import { ArrowUp, Wallet, MessageSquare, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
+import { CurrencyTotals } from '@/features/transactions'
 
 interface MetricsData {
-  balance: number
+  balanceTotals: CurrencyTotals
   messagesReceived: number
-  valueReceived: number
+  valueReceivedTotals: CurrencyTotals
 }
 
 interface MetricsCardsProps {
   data: MetricsData
 }
 
-export function MetricsCards({ data }: MetricsCardsProps) {
-  const { balance, messagesReceived, valueReceived } = data
-
-  const stats = [
-    {
-      title: 'Balance',
-      icon: Wallet,
-      value: balance,
-      delta: 12.5,
-      lastMonth: balance * 0.888,
-      positive: true,
-      format: formatCurrency,
-      lastFormat: formatCurrency,
-    },
-    {
-      title: 'Messages Received',
-      icon: MessageSquare,
-      value: messagesReceived,
-      delta: 8.3,
-      lastMonth: Math.round(messagesReceived * 0.924),
-      positive: true,
-      format: (v: number) => v.toString(),
-      lastFormat: (v: number) => v.toString(),
-    },
-    {
-      title: 'Value Received',
-      icon: TrendingUp,
-      value: valueReceived,
-      delta: 15.7,
-      lastMonth: valueReceived * 0.864,
-      positive: true,
-      format: formatCurrency,
-      lastFormat: formatCurrency,
-    },
-  ];
-
-  function formatNumber(n: number) {
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (n >= 1_000) return n.toLocaleString();
-    return n.toString();
+function CurrencyBreakdown({ totals }: { totals: CurrencyTotals }) {
+  const entries = Object.entries(totals).filter(([, v]) => (v ?? 0) > 0)
+  if (entries.length === 0) {
+    return <span className="text-3xl font-bold text-foreground tracking-tight">—</span>
   }
+  return (
+    <div className="space-y-0.5">
+      {entries.map(([currency, amount]) => (
+        <div key={currency} className="flex items-baseline gap-1.5">
+          <span className="text-3xl font-bold text-foreground tracking-tight">
+            {(amount ?? 0).toFixed(4)}
+          </span>
+          <span className="text-sm font-semibold text-muted-foreground">{currency}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function MetricsCards({ data }: MetricsCardsProps) {
+  const { balanceTotals, messagesReceived, valueReceivedTotals } = data
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -103,51 +83,80 @@ export function MetricsCards({ data }: MetricsCardsProps) {
       initial="hidden"
       animate="show"
     >
-      {stats.map((stat, index) => {
-        const Icon = stat.icon;
-        return (
-          <motion.div key={index} variants={cardVariants}>
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-gray-50 border-b border-gray-200">
-                <CardTitle className="flex items-center justify-center gap-2 text-base">
-                  <Icon size={20} className="text-foreground" />
-                  <span className="text-foreground font-semibold">{stat.title}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2.5 p-6">
-                <div className="flex items-center justify-start gap-2.5">
-                  {stat.title === 'Messages Received' ? (
-                    <AnimatedCounter
-                      value={stat.value}
-                      className="text-3xl font-bold text-foreground tracking-tight"
-                    />
-                  ) : (
-                    <AnimatedCounter
-                      value={stat.value}
-                      className="text-3xl font-bold text-foreground tracking-tight money-display"
-                      formatter={(v) => formatCurrency(v)}
-                    />
-                  )}
-                  <motion.div variants={badgeVariants}>
-                    <Badge variant={stat.positive ? 'success' : 'destructive'} appearance="light">
-                      {stat.delta > 0 ? <ArrowUp /> : <ArrowDown />}
-                      {stat.delta}%
-                    </Badge>
-                  </motion.div>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2.5">
-                  Vs last month:{' '}
-                  <span className="font-medium text-foreground">
-                    {stat.lastFormat
-                      ? stat.lastFormat(stat.lastMonth)
-                      : formatNumber(stat.lastMonth)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        );
-      })}
+      {/* Balance (today's totals per currency) */}
+      <motion.div variants={cardVariants}>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <CardTitle className="flex items-center justify-center gap-2 text-base">
+              <Wallet size={20} className="text-foreground" />
+              <span className="text-foreground font-semibold">Balance</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2.5 p-6">
+            <div className="flex items-start justify-start gap-2.5">
+              <CurrencyBreakdown totals={balanceTotals} />
+              <motion.div variants={badgeVariants}>
+                <Badge variant="success" appearance="light">
+                  <ArrowUp />
+                  Today
+                </Badge>
+              </motion.div>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2.5">
+              Donations received today
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Messages Received (count — currency-agnostic) */}
+      <motion.div variants={cardVariants}>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <CardTitle className="flex items-center justify-center gap-2 text-base">
+              <MessageSquare size={20} className="text-foreground" />
+              <span className="text-foreground font-semibold">Messages Received</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2.5 p-6">
+            <div className="flex items-center justify-start gap-2.5">
+              <AnimatedCounter
+                value={messagesReceived}
+                className="text-3xl font-bold text-foreground tracking-tight"
+              />
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2.5">
+              Total donations received
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Value Received (last hour, per currency) */}
+      <motion.div variants={cardVariants}>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <CardTitle className="flex items-center justify-center gap-2 text-base">
+              <TrendingUp size={20} className="text-foreground" />
+              <span className="text-foreground font-semibold">Value Received</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2.5 p-6">
+            <div className="flex items-start justify-start gap-2.5">
+              <CurrencyBreakdown totals={valueReceivedTotals} />
+              <motion.div variants={badgeVariants}>
+                <Badge variant="success" appearance="light">
+                  <ArrowUp />
+                  1h
+                </Badge>
+              </motion.div>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2.5">
+              Donations in the last hour
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </motion.div>
   )
 }
