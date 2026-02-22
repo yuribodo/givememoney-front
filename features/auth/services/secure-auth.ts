@@ -39,7 +39,7 @@ export class SecureAuthService {
 
       // Store only non-sensitive user data in sessionStorage for client state
       if (data.user) {
-        const user = ApiValidator.validateAndTransformUserInfo(data.user)
+        const user = ApiValidator.validateUser(data.user)
         sessionStorage.setItem('user_data', JSON.stringify(user))
         sessionStorage.setItem('session_id', user.id)
         return user

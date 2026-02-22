@@ -1,9 +1,19 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { SecureAuthService } from '../services/secure-auth'
 import { AuthService } from '../services/auth'
 import { User } from '@/lib/backend-types'
+
+interface AuthInitResult {
+  user: User | null
+  error: string | null
+}
+
+let authInitPromise: Promise<AuthInitResult> | null = null
+let lastAuthSnapshot: (AuthInitResult & { timestamp: number }) | null = null
+const AUTH_INIT_THROTTLE_MS = 1500
 
 interface AuthState {
   user: User | null
@@ -30,6 +40,7 @@ export function useAuth(): AuthState & AuthActions {
   const [error, setError] = useState<string | null>(null)
   const [tokenExpiration, setTokenExpiration] = useState<Date | null>(null)
   const [isTokenExpiringSoon, setIsTokenExpiringSoon] = useState(false)
+  const router = useRouter()
 
   const clearError = useCallback(() => {
     setError(null)
@@ -42,57 +53,69 @@ export function useAuth(): AuthState & AuthActions {
 
   const initAuth = useCallback(async () => {
     try {
+      const now = Date.now()
+      if (
+        !authInitPromise &&
+        lastAuthSnapshot &&
+        now - lastAuthSnapshot.timestamp < AUTH_INIT_THROTTLE_MS
+      ) {
+        setUser(lastAuthSnapshot.user)
+        setError(lastAuthSnapshot.error)
+        setIsLoading(false)
+        updateTokenInfo()
+        return
+      }
+
       setIsLoading(true)
       setError(null)
 
-      const storedUser = SecureAuthService.getUser()
-      if (storedUser) {
-        setUser(storedUser)
-        setIsLoading(false)
-
-        try {
-          const sessionStatus = await SecureAuthService.checkSession()
-          if (!sessionStatus.authenticated) {
-            console.log('Session expired, clearing auth')
-            setUser(null)
-            SecureAuthService.clearClientData()
-          }
-        } catch (sessionError) {
-          console.warn('Failed to check session status:', sessionError)
-          setError('Connection issue. Some features may not work properly.')
-        }
-      } else {
-        try {
-          const sessionStatus = await SecureAuthService.checkSession()
-          if (sessionStatus.authenticated) {
-            const response = await fetch('/api/auth/session', {
-              method: 'GET',
-              credentials: 'include',
-            })
-
-            if (response.ok) {
-              const sessionData = await response.json()
-              if (sessionData.user) {
-                sessionStorage.setItem('user_data', JSON.stringify(sessionData.user))
-                sessionStorage.setItem('session_id', sessionData.user.id)
-                setUser(sessionData.user)
+      if (!authInitPromise) {
+        authInitPromise = (async () => {
+          const storedUser = SecureAuthService.getUser()
+          if (storedUser) {
+            try {
+              const sessionStatus = await SecureAuthService.checkSession()
+              if (!sessionStatus.authenticated) {
+                console.log('Session expired, clearing auth')
+                SecureAuthService.clearClientData()
+                return { user: null, error: null }
               }
+              return { user: sessionStatus.user ?? storedUser, error: null }
+            } catch (sessionError) {
+              console.warn('Failed to check session status:', sessionError)
+              return { user: storedUser, error: 'Connection issue. Some features may not work properly.' }
             }
-          }
-        } catch (error) {
-          console.warn('Failed to check session:', error)
-        }
 
-        setIsLoading(false)
-        setTokenExpiration(null)
-        setIsTokenExpiringSoon(false)
+          }
+
+          try {
+            const sessionStatus = await SecureAuthService.checkSession()
+            if (sessionStatus.authenticated) {
+              const sessionUser = sessionStatus.user || SecureAuthService.getUser()
+              return { user: sessionUser ?? null, error: null }
+            }
+          } catch (error) {
+            console.warn('Failed to check session:', error)
+          }
+
+          return { user: null, error: null }
+        })()
       }
+
+      const result = await authInitPromise
+      authInitPromise = null
+      lastAuthSnapshot = { ...result, timestamp: Date.now() }
+
+      setUser(result.user)
+      setError(result.error)
+      setIsLoading(false)
+      updateTokenInfo()
     } catch (error) {
       console.error('Auth initialization error:', error)
+      authInitPromise = null
       setError(error instanceof Error ? error.message : 'Authentication initialization failed')
       setIsLoading(false)
-      setTokenExpiration(null)
-      setIsTokenExpiringSoon(false)
+      updateTokenInfo()
     }
   }, [updateTokenInfo])
 
@@ -151,6 +174,8 @@ export function useAuth(): AuthState & AuthActions {
       setIsTokenExpiringSoon(false)
       setIsLoading(false)
       SecureAuthService.clearClientData()
+    } finally {
+      router.replace('/login')
     }
   }
 

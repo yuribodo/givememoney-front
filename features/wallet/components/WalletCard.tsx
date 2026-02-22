@@ -20,9 +20,9 @@ export function WalletCard({ wallet, onDisconnect }: WalletCardProps) {
   const getProviderIcon = (provider: string) => {
     switch (provider.toLowerCase()) {
       case 'metamask':
-        return '/icons/metamask.png'
+        return '/icons/ethereum.png'
       case 'phantom':
-        return '/icons/phantom.png'
+        return '/icons/solana.png'
       default:
         return null
     }
@@ -46,7 +46,7 @@ export function WalletCard({ wallet, onDisconnect }: WalletCardProps) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(wallet.hash)
+      await navigator.clipboard.writeText(wallet.wallet_address)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -101,7 +101,7 @@ export function WalletCard({ wallet, onDisconnect }: WalletCardProps) {
           </div>
           <div className="flex items-center gap-1 mt-1">
             <code className="text-sm text-electric-slate-600 font-mono">
-              {truncateHash(wallet.hash)}
+              {truncateHash(wallet.wallet_address)}
             </code>
             <button
               onClick={handleCopy}

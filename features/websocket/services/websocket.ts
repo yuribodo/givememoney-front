@@ -101,7 +101,16 @@ class WebSocketService {
       }
 
       this.socket.onerror = (error) => {
-        console.error('[WebSocket] Error:', error)
+        const shouldLogAsError = this.connectionState === 'connected'
+        const logger = shouldLogAsError ? console.error : console.debug
+
+        logger('[WebSocket] Error:', {
+          error,
+          url: this.socket?.url,
+          state: this.socket?.readyState,
+          connectionState: this.connectionState,
+        })
+
         this.errorHandlers.forEach((handler) => { handler(error); })
       }
     } catch (error) {

@@ -33,8 +33,8 @@ export interface ProviderUser {
 export interface BackendWallet {
   id: string               // UUID as string
   wallet_provider: WalletProvider
-  wallet_provider_id: string
-  hash: string             // 64 character hash
+  wallet_address: string   // 64 character address/hash
+  streamer_id?: string     // UUID as string
   created_at: string       // ISO timestamp
   updated_at: string       // ISO timestamp
 }
@@ -62,7 +62,7 @@ export interface BackendUserInfo {
   wallet?: {
     id: string
     provider: string
-    hash: string
+    wallet_address: string
   } | null
 }
 
@@ -91,7 +91,7 @@ export interface HealthResponse {
 // WalletRequest from Go model/wallet.go
 export interface WalletRequest {
   wallet_provider: WalletProvider
-  hash: string            // Must be 64 characters
+  wallet_address: string  // Must be 64 characters
 }
 
 // Refresh Token Request
@@ -147,7 +147,7 @@ export interface User {
   wallet?: {
     id: string
     provider: WalletProvider
-    hash: string
+    address: string
   } | null
   createdAt?: Date        // Parsed from ISO string
   updatedAt?: Date        // Parsed from ISO string
@@ -168,7 +168,7 @@ export function transformBackendUserInfoToFrontend(backendUser: BackendUserInfo)
     wallet: backendUser.wallet ? {
       id: backendUser.wallet.id,
       provider: backendUser.wallet.provider as WalletProvider,
-      hash: backendUser.wallet.hash
+      address: backendUser.wallet.wallet_address
     } : null
   }
 }
@@ -183,7 +183,7 @@ export function transformBackendStreamerToFrontend(backendStreamer: BackendStrea
     wallet: backendStreamer.wallet ? {
       id: backendStreamer.wallet.id,
       provider: backendStreamer.wallet.wallet_provider,
-      hash: backendStreamer.wallet.hash
+      address: backendStreamer.wallet.wallet_address
     } : null,
     createdAt: new Date(backendStreamer.created_at),
     updatedAt: new Date(backendStreamer.updated_at)
@@ -200,6 +200,7 @@ export interface BackendTransaction {
   amount: number                // Transaction amount
   tx_hash: string               // Blockchain transaction hash
   status: TransactionStatus     // Transaction status
+  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string               // Donation message
   created_at: string            // ISO timestamp
   updated_at: string            // ISO timestamp
@@ -279,6 +280,7 @@ export interface Transaction {
   amount: number
   txHash: string
   status: TransactionStatus
+  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string
   createdAt: Date
   updatedAt: Date
@@ -293,6 +295,7 @@ export function transformBackendTransactionToFrontend(backendTransaction: Backen
     amount: backendTransaction.amount,
     txHash: backendTransaction.tx_hash,
     status: backendTransaction.status,
+    currency: backendTransaction.currency,
     message: backendTransaction.message,
     createdAt: new Date(backendTransaction.created_at),
     updatedAt: new Date(backendTransaction.updated_at)

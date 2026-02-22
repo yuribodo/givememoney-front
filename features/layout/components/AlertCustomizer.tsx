@@ -15,9 +15,11 @@ import { Info } from 'lucide-react'
 interface AlertCustomizerProps {
   config: AlertConfig
   onChange: (config: Partial<AlertConfig>) => void
+  onSave?: () => void
+  isSaving?: boolean
 }
 
-export function AlertCustomizer({ config, onChange }: AlertCustomizerProps) {
+export function AlertCustomizer({ config, onChange, onSave, isSaving }: AlertCustomizerProps) {
   const isDurationValid = config.minDuration <= config.maxDuration
 
   return (
@@ -253,9 +255,10 @@ export function AlertCustomizer({ config, onChange }: AlertCustomizerProps) {
         className="w-full cursor-pointer"
         variant="default"
         size="lg"
-        disabled={!isDurationValid}
+        disabled={!isDurationValid || isSaving}
+        onClick={onSave}
       >
-        Salvar Configurações
+        {isSaving ? 'Salvando...' : 'Salvar Configurações'}
       </Button>
       </div>
     </TooltipProvider>
