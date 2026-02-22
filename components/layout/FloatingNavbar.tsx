@@ -216,20 +216,6 @@ export function FloatingNavbar({ isLive = false }: FloatingNavbarProps) {
                       exit={{ opacity: 0, y: 10 }}
                       className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                     >
-                      <a
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Meu Perfil
-                      </a>
-                      <a
-                        href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Configurações
-                      </a>
                       <button
                         onClick={() => {
                           logout()

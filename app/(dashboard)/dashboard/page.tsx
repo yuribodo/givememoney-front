@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { MetricsCards, WeeklyStatsCard, TopDonorsCard, RecentDonationsFeed } from '@/features/dashboard'
 import { useAuth } from '@/features/auth'
 import { useDashboardMetrics } from '@/features/transactions'
@@ -98,12 +99,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <motion.main
-      className="dashboard-grid"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
+    <>
+      {!isAuthLoading && user && user.wallet === null && (
+        <div className="mx-4 mt-4 border border-cyber-mint-200 bg-cyber-mint-50 rounded-lg px-4 py-3 flex items-center justify-between gap-4">
+          <span className="text-sm text-electric-slate-700">
+            <span className="font-semibold">⚡ Complete seu perfil</span> — Conecte sua carteira para começar a receber doações.
+          </span>
+          <Link
+            href="/layout/qrcode"
+            className="text-sm font-medium text-cyber-mint-600 hover:text-cyber-mint-700 shrink-0 transition-colors"
+          >
+            Conectar agora →
+          </Link>
+        </div>
+      )}
+      <motion.main
+        className="dashboard-grid"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
       {/* Primary Metrics Section (40% visual space) */}
       <motion.div className="card-large" variants={itemVariants}>
         {isMetricsLoading ? (
@@ -150,5 +165,6 @@ export default function DashboardPage() {
         )}
       </motion.div>
     </motion.main>
+    </>
   )
 }
