@@ -200,6 +200,7 @@ export interface BackendTransaction {
   amount: number                // Transaction amount
   tx_hash: string               // Blockchain transaction hash
   status: TransactionStatus     // Transaction status
+  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string               // Donation message
   created_at: string            // ISO timestamp
   updated_at: string            // ISO timestamp
@@ -279,6 +280,7 @@ export interface Transaction {
   amount: number
   txHash: string
   status: TransactionStatus
+  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string
   createdAt: Date
   updatedAt: Date
@@ -293,6 +295,7 @@ export function transformBackendTransactionToFrontend(backendTransaction: Backen
     amount: backendTransaction.amount,
     txHash: backendTransaction.tx_hash,
     status: backendTransaction.status,
+    currency: backendTransaction.currency,
     message: backendTransaction.message,
     createdAt: new Date(backendTransaction.created_at),
     updatedAt: new Date(backendTransaction.updated_at)

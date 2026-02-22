@@ -118,6 +118,7 @@ export function DonationForm({ wallet }: DonationFormProps) {
           message: message || undefined,
           tx_hash: result.txHash,
           address_from: result.fromAddress,
+          currency: currencyLabel,
         },
       })
       setState('success')

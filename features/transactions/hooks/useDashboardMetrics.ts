@@ -51,19 +51,6 @@ export interface DashboardMetrics {
   error: Error | null
 }
 
-// Helper to get currency from wallet provider (simplified)
-function getCurrencyFromAddress(address: string): string {
-  // Ethereum addresses start with 0x and are 42 characters
-  if (address.startsWith('0x') && address.length === 42) {
-    return 'ETH'
-  }
-  // Solana addresses are base58 encoded and typically 32-44 characters
-  if (address.length >= 32 && address.length <= 44 && !address.startsWith('0x')) {
-    return 'SOL'
-  }
-  return 'CRYPTO'
-}
-
 // Helper to truncate address for display
 function truncateAddress(address: string): string {
   if (address.length <= 10) return address
@@ -92,27 +79,27 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
     const weekStart = new Date(todayStart.getTime() - 6 * 24 * 60 * 60 * 1000)
     const previousWeekStart = new Date(weekStart.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-    // Today's total (confirmed only)
+    // Today's total
     const todayTotal = transactions
       .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= todayStart
+        (t) => t.status !== 'failed' && t.createdAt >= todayStart
       )
       .reduce((sum, t) => sum + t.amount, 0)
 
-    // Last hour total (confirmed only)
+    // Last hour total
     const lastHourTotal = transactions
       .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= oneHourAgo
+        (t) => t.status !== 'failed' && t.createdAt >= oneHourAgo
       )
       .reduce((sum, t) => sum + t.amount, 0)
 
     // Total donations count
-    const totalDonations = transactions.filter((t) => t.status === 'confirmed').length
+    const totalDonations = transactions.filter((t) => t.status !== 'failed').length
 
     // This week's total
     const weeklyTotal = transactions
       .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= weekStart
+        (t) => t.status !== 'failed' && t.createdAt >= weekStart
       )
       .reduce((sum, t) => sum + t.amount, 0)
 
@@ -120,7 +107,7 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
     const previousWeekTotal = transactions
       .filter(
         (t) =>
-          t.status === 'confirmed' &&
+          t.status !== 'failed' &&
           t.createdAt >= previousWeekStart &&
           t.createdAt < weekStart
       )
@@ -149,7 +136,7 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
         id: t.id,
         username: `@${truncateAddress(t.addressFrom)}`,
         amount: t.amount,
-        currency: getCurrencyFromAddress(t.addressFrom),
+        currency: t.currency,
         message: t.message || undefined,
         timestamp: t.createdAt,
         status: t.status,
@@ -190,7 +177,7 @@ function calculateDailyData(transactions: Transaction[], weekStart: Date): Daily
 
   // Aggregate transactions by day
   transactions
-    .filter((t) => t.status === 'confirmed' && t.createdAt >= weekStart)
+    .filter((t) => t.status !== 'failed' && t.createdAt >= weekStart)
     .forEach((t) => {
       const dayName = dayNames[t.createdAt.getDay()]
       const existing = dailyMap.get(dayName) || { value: 0, messages: 0 }
@@ -217,7 +204,7 @@ function calculateTopDonors(transactions: Transaction[]): TopDonor[] {
 
   // Sum up donations by address
   transactions
-    .filter((t) => t.status === 'confirmed')
+    .filter((t) => t.status !== 'failed')
     .forEach((t) => {
       const current = donorTotals.get(t.addressFrom) || 0
       donorTotals.set(t.addressFrom, current + t.amount)
