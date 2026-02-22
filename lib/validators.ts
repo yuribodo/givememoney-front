@@ -285,6 +285,7 @@ export const BackendTransactionSchema = z.object({
   tx_hash: z.string().min(1),
   status: TransactionStatusSchema,
   message: z.string(),
+  currency: z.string(),
   created_at: z.string(),
   updated_at: z.string()
 })
