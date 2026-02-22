@@ -1,4 +1,4 @@
-import { WalletProvider } from '@/lib/backend-types'
+import { Currency, WalletProvider } from '@/lib/backend-types'
 
 export interface PublicWallet {
   id: string
@@ -13,7 +13,7 @@ export interface TransactionSubmit {
   message?: string
   tx_hash: string
   address_from: string
-  currency: string
+  currency: Currency
 }
 
 export class DonationService {

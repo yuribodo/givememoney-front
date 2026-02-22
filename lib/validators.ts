@@ -277,6 +277,8 @@ export class ApiValidator {
 }
 
 // Backend transaction schema (matches Go model/transaction.go)
+export const CurrencySchema = z.enum(['ETH', 'SOL', 'USDT', 'USDC'])
+
 export const BackendTransactionSchema = z.object({
   id: z.string().uuid(),
   address_from: z.string().min(1),
@@ -285,7 +287,7 @@ export const BackendTransactionSchema = z.object({
   tx_hash: z.string().min(1),
   status: TransactionStatusSchema,
   message: z.string(),
-  currency: z.string(),
+  currency: CurrencySchema,
   created_at: z.string(),
   updated_at: z.string()
 })
@@ -322,7 +324,7 @@ export const WebSocketDonationAlertSchema = z.object({
     id: z.string(),
     username: z.string(),
     amount: z.number(),
-    currency: z.string(),
+    currency: CurrencySchema,
     message: z.string().optional(),
     timestamp: z.string(),
     tx_hash: z.string()

@@ -111,6 +111,8 @@ function Spinner() {
 // ─── Explorer URL ─────────────────────────────────────────────────────────────
 
 const ETH_NETWORK = process.env.NEXT_PUBLIC_ETH_NETWORK ?? 'mainnet'
+const SOL_CLUSTER = process.env.NEXT_PUBLIC_SOLANA_CLUSTER ?? 'mainnet-beta'
+const SOL_CLUSTER_PARAM = SOL_CLUSTER !== 'mainnet-beta' ? `?cluster=${SOL_CLUSTER}` : ''
 
 function getExplorerUrl(provider: 'metamask' | 'phantom', txHash: string): string {
   if (provider === 'metamask') {
@@ -118,7 +120,7 @@ function getExplorerUrl(provider: 'metamask' | 'phantom', txHash: string): strin
       ? `https://sepolia.etherscan.io/tx/${txHash}`
       : `https://etherscan.io/tx/${txHash}`
   }
-  return `https://solscan.io/tx/${txHash}`
+  return `https://solscan.io/tx/${txHash}${SOL_CLUSTER_PARAM}`
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────

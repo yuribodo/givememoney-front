@@ -192,6 +192,7 @@ export function transformBackendStreamerToFrontend(backendStreamer: BackendStrea
 
 // Transaction types from Go model/transaction.go
 export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
+export type Currency = 'ETH' | 'SOL' | 'USDT' | 'USDC'
 
 export interface BackendTransaction {
   id: string                    // UUID
@@ -200,7 +201,7 @@ export interface BackendTransaction {
   amount: number                // Transaction amount
   tx_hash: string               // Blockchain transaction hash
   status: TransactionStatus     // Transaction status
-  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
+  currency: Currency            // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string               // Donation message
   created_at: string            // ISO timestamp
   updated_at: string            // ISO timestamp
@@ -211,6 +212,7 @@ export interface TransactionCreateRequest {
   message?: string
   tx_hash: string
   address_from: string
+  currency: Currency
 }
 
 export interface TransactionsResponse {
@@ -243,7 +245,7 @@ export interface WebSocketDonationAlert {
     id: string
     username: string            // Donor display name or address
     amount: number
-    currency: string            // e.g., "ETH", "SOL", "BTC"
+    currency: Currency          // e.g., "ETH", "SOL", "USDT", "USDC"
     message?: string
     timestamp: string           // ISO timestamp
     tx_hash: string
@@ -280,7 +282,7 @@ export interface Transaction {
   amount: number
   txHash: string
   status: TransactionStatus
-  currency: string              // e.g. "ETH", "SOL", "USDT", "USDC"
+  currency: Currency            // e.g. "ETH", "SOL", "USDT", "USDC"
   message: string
   createdAt: Date
   updatedAt: Date
@@ -295,7 +297,7 @@ export function transformBackendTransactionToFrontend(backendTransaction: Backen
     amount: backendTransaction.amount,
     txHash: backendTransaction.tx_hash,
     status: backendTransaction.status,
-    currency: backendTransaction.currency,
+    currency: backendTransaction.currency ?? 'ETH',
     message: backendTransaction.message,
     createdAt: new Date(backendTransaction.created_at),
     updatedAt: new Date(backendTransaction.updated_at)
