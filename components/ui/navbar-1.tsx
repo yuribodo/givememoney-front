@@ -44,8 +44,7 @@ const Navbar1 = () => {
             </Link>
             <Link
               href="/register"
-              className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-              style={{ backgroundColor: "#00A896" }}
+              className="px-4 py-2 text-sm font-medium text-white bg-cyber-mint-500 hover:bg-cyber-mint-600 rounded-lg transition-colors"
             >
               Get Started
             </Link>
