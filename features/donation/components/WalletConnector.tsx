@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { BrowserProvider, parseEther } from 'ethers'
-import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL, clusterApiUrl } from '@solana/web3.js'
+import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { WalletProvider } from '@/lib/backend-types'
 
 interface WalletConnectorResult {
@@ -79,7 +79,7 @@ export function useWalletConnector({ walletProvider, destinationAddress }: UseWa
         if (!window.solana) throw new Error('Phantom not available')
         if (!connectedAddress) throw new Error('Wallet not connected. Please connect your wallet first.')
         const cluster = (process.env.NEXT_PUBLIC_SOLANA_CLUSTER as 'mainnet-beta' | 'devnet' | 'testnet') || 'mainnet-beta'
-        const connection = new Connection(clusterApiUrl(cluster), 'confirmed')
+        const connection = new Connection(`/api/solana-rpc?cluster=${cluster}`, 'confirmed')
         const fromPubkey = new PublicKey(connectedAddress)
         const toPubkey = new PublicKey(destinationAddress)
         const transaction = new Transaction().add(
