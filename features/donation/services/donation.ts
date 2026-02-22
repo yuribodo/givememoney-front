@@ -13,6 +13,7 @@ export interface TransactionSubmit {
   message?: string
   tx_hash: string
   address_from: string
+  currency: string
 }
 
 export class DonationService {
