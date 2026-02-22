@@ -79,7 +79,8 @@ export function useWalletConnector({ walletProvider, destinationAddress }: UseWa
         if (!window.solana) throw new Error('Phantom not available')
         if (!connectedAddress) throw new Error('Wallet not connected. Please connect your wallet first.')
         const cluster = (process.env.NEXT_PUBLIC_SOLANA_CLUSTER as 'mainnet-beta' | 'devnet' | 'testnet') || 'mainnet-beta'
-        const connection = new Connection(`/api/solana-rpc?cluster=${cluster}`, 'confirmed')
+        const rpcUrl = `${window.location.origin}/api/solana-rpc?cluster=${cluster}`
+        const connection = new Connection(rpcUrl, 'confirmed')
         const fromPubkey = new PublicKey(connectedAddress)
         const toPubkey = new PublicKey(destinationAddress)
         const transaction = new Transaction().add(
