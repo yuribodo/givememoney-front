@@ -33,6 +33,23 @@ const Navbar1 = () => {
               GiveMeMoney
             </span>
           </Link>
+
+          {/* Nav actions */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+              style={{ backgroundColor: "#00A896" }}
+            >
+              Get Started
+            </Link>
+          </div>
         </nav>
       </div>
     </header>

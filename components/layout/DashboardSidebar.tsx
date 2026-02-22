@@ -8,8 +8,6 @@ import {
   CurrencyCircleDollar,
   Monitor,
   QrCode,
-  User,
-  GearSix,
   SignOut,
   CaretUpDown,
 } from '@phosphor-icons/react'
@@ -197,21 +195,6 @@ export function DashboardSidebar() {
                         {user.email}
                       </p>
                     )}
-                  </div>
-                  <DropdownMenuSeparator className="bg-electric-slate-100" />
-                  <div className="py-1">
-                    <DropdownMenuItem asChild className="cursor-pointer gap-2 px-3 py-1.5 text-electric-slate-600">
-                      <Link href="/profile">
-                        <User size={15} weight="duotone" />
-                        <span className="text-[13px]">Meu Perfil</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer gap-2 px-3 py-1.5 text-electric-slate-600">
-                      <Link href="/settings">
-                        <GearSix size={15} weight="duotone" />
-                        <span className="text-[13px]">Configurações</span>
-                      </Link>
-                    </DropdownMenuItem>
                   </div>
                   <DropdownMenuSeparator className="bg-electric-slate-100" />
                   <div className="py-1">

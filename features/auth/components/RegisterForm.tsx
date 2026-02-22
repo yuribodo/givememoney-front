@@ -29,8 +29,8 @@ export function RegisterForm() {
     try {
       await AuthService.registerWithEmail(data.name, data.email, data.password, data.confirmPassword)
 
-      // Redirect to dashboard on successful registration
-      window.location.href = '/dashboard'
+      // Redirect new users to wallet setup before the dashboard
+      window.location.href = '/layout/qrcode'
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Registration failed. Please try again.')
     } finally {
