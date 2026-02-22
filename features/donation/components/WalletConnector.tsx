@@ -68,8 +68,9 @@ export function useWalletConnector({ walletProvider, destinationAddress }: UseWa
         const provider = new BrowserProvider(window.ethereum as any)
         const signer = await provider.getSigner()
         const fromAddress = await signer.getAddress()
+        const ethAddress = destinationAddress.startsWith('0x') ? destinationAddress : `0x${destinationAddress}`
         const tx = await signer.sendTransaction({
-          to: destinationAddress,
+          to: ethAddress,
           value: parseEther(amount.toString()),
         })
         await tx.wait()
