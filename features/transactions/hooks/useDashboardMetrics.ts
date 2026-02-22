@@ -51,19 +51,6 @@ export interface DashboardMetrics {
   error: Error | null
 }
 
-// Helper to get currency from wallet provider (simplified)
-function getCurrencyFromAddress(address: string): string {
-  // Ethereum addresses start with 0x and are 42 characters
-  if (address.startsWith('0x') && address.length === 42) {
-    return 'ETH'
-  }
-  // Solana addresses are base58 encoded and typically 32-44 characters
-  if (address.length >= 32 && address.length <= 44 && !address.startsWith('0x')) {
-    return 'SOL'
-  }
-  return 'CRYPTO'
-}
-
 // Helper to truncate address for display
 function truncateAddress(address: string): string {
   if (address.length <= 10) return address
@@ -149,7 +136,7 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
         id: t.id,
         username: `@${truncateAddress(t.addressFrom)}`,
         amount: t.amount,
-        currency: getCurrencyFromAddress(t.addressFrom),
+        currency: t.currency,
         message: t.message || undefined,
         timestamp: t.createdAt,
         status: t.status,
