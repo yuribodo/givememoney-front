@@ -8,35 +8,12 @@ import { WalletProvider, WalletRequest } from '@/lib/backend-types'
 import { useCreateWallet } from '../hooks/useWallets'
 import Image from 'next/image'
 
-/**
- * Computes a SHA-256 hash of the input string and returns it as a 64-character hex string.
- */
-async function computeWalletHash(provider: WalletProvider, address: string): Promise<string> {
-  const data = `${provider}:${address}`
-  const encoder = new TextEncoder()
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
 
 interface WalletConnectionButtonProps {
   provider: WalletProvider
   onSuccess?: () => void
   onError?: (error: Error) => void
   disabled?: boolean
-}
-
-declare global {
-  interface Window {
-    ethereum?: {
-      request: (args: { method: string; params?: unknown[] }) => Promise<string[]>
-      isMetaMask?: boolean
-    }
-    solana?: {
-      connect: () => Promise<{ publicKey: { toString: () => string } }>
-      isPhantom?: boolean
-    }
-  }
 }
 
 export function WalletConnectionButton({
@@ -53,14 +30,14 @@ export function WalletConnectionButton({
       case 'metamask':
         return {
           label: 'MetaMask',
-          icon: '/icons/metamask.png',
+          icon: '/icons/ethereum.png',
           color: 'bg-[#F6851B]/10 hover:bg-[#F6851B]/20 text-[#F6851B]',
           borderColor: 'border-[#F6851B]/30',
         }
       case 'phantom':
         return {
           label: 'Phantom',
-          icon: '/icons/phantom.png',
+          icon: '/icons/solana.png',
           color: 'bg-[#AB9FF2]/10 hover:bg-[#AB9FF2]/20 text-[#AB9FF2]',
           borderColor: 'border-[#AB9FF2]/30',
         }
@@ -84,11 +61,12 @@ export function WalletConnectionButton({
   }
 
   const connectPhantom = async (): Promise<string> => {
-    if (!window.solana?.isPhantom) {
+    const phantom = window.phantom?.solana ?? (window.solana?.isPhantom ? window.solana : null)
+    if (!phantom?.isPhantom) {
       throw new Error('Phantom is not installed. Please install Phantom extension.')
     }
 
-    const response = await window.solana.connect()
+    const response = await phantom.connect()
     return response.publicKey.toString()
   }
 
@@ -106,11 +84,9 @@ export function WalletConnectionButton({
         throw new Error(`Unsupported wallet provider: ${provider}`)
       }
 
-      // Create wallet in backend with SHA-256 hash (64 chars)
-      const walletHash = await computeWalletHash(provider, walletAddress)
       const request: WalletRequest = {
         wallet_provider: provider,
-        hash: walletHash,
+        wallet_address: walletAddress,
       }
 
       await createWallet.mutateAsync(request)

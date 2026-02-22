@@ -6,13 +6,13 @@ import { Transaction } from '@/lib/backend-types'
 
 export interface DailyData {
   day: string
-  value: number
+  value: number    // message count (currency-agnostic)
   messages: number
 }
 
 export interface TopDonor {
   username: string
-  amount: number
+  amounts: CurrencyTotals
   rank: number
 }
 
@@ -26,18 +26,20 @@ export interface RecentDonation {
   status: 'confirmed' | 'pending'
 }
 
+export type CurrencyTotals = Partial<Record<string, number>>
+
 export interface DashboardMetrics {
   // Today's stats
-  todayTotal: number
-  lastHourTotal: number
+  todayTotals: CurrencyTotals
+  lastHourTotals: CurrencyTotals
   totalDonations: number
 
   // Weekly stats
-  weeklyTotal: number
-  weeklyPercentageChange: number
-  previousWeekTotal: number
+  weeklyTotals: CurrencyTotals
+  weeklyPercentageChange: number   // based on donation count
+  previousWeekTotals: CurrencyTotals
 
-  // Daily breakdown for chart
+  // Daily breakdown for chart (value = message count)
   dailyData: DailyData[]
 
   // Top donors
@@ -51,19 +53,6 @@ export interface DashboardMetrics {
   error: Error | null
 }
 
-// Helper to get currency from wallet provider (simplified)
-function getCurrencyFromAddress(address: string): string {
-  // Ethereum addresses start with 0x and are 42 characters
-  if (address.startsWith('0x') && address.length === 42) {
-    return 'ETH'
-  }
-  // Solana addresses are base58 encoded and typically 32-44 characters
-  if (address.length >= 32 && address.length <= 44 && !address.startsWith('0x')) {
-    return 'SOL'
-  }
-  return 'CRYPTO'
-}
-
 // Helper to truncate address for display
 function truncateAddress(address: string): string {
   if (address.length <= 10) return address
@@ -73,6 +62,14 @@ function truncateAddress(address: string): string {
 // Type guard to filter out failed transactions
 function isDisplayableTransaction(t: Transaction): t is Transaction & { status: 'confirmed' | 'pending' } {
   return t.status === 'confirmed' || t.status === 'pending'
+}
+
+// Sum amounts grouped by currency
+function sumByCurrency(txs: Transaction[]): CurrencyTotals {
+  return txs.reduce<CurrencyTotals>((acc, t) => {
+    acc[t.currency] = (acc[t.currency] ?? 0) + t.amount
+    return acc
+  }, {})
 }
 
 /**
@@ -92,52 +89,41 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
     const weekStart = new Date(todayStart.getTime() - 6 * 24 * 60 * 60 * 1000)
     const previousWeekStart = new Date(weekStart.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-    // Today's total (confirmed only)
-    const todayTotal = transactions
-      .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= todayStart
-      )
-      .reduce((sum, t) => sum + t.amount, 0)
+    const nonFailed = transactions.filter((t) => t.status !== 'failed')
 
-    // Last hour total (confirmed only)
-    const lastHourTotal = transactions
-      .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= oneHourAgo
-      )
-      .reduce((sum, t) => sum + t.amount, 0)
+    // Today's totals per currency
+    const todayTotals = sumByCurrency(nonFailed.filter((t) => t.createdAt >= todayStart))
+
+    // Last hour totals per currency
+    const lastHourTotals = sumByCurrency(nonFailed.filter((t) => t.createdAt >= oneHourAgo))
 
     // Total donations count
-    const totalDonations = transactions.filter((t) => t.status === 'confirmed').length
+    const totalDonations = nonFailed.length
 
-    // This week's total
-    const weeklyTotal = transactions
-      .filter(
-        (t) => t.status === 'confirmed' && t.createdAt >= weekStart
-      )
-      .reduce((sum, t) => sum + t.amount, 0)
+    // This week's totals per currency
+    const thisWeekTxs = nonFailed.filter((t) => t.createdAt >= weekStart)
+    const weeklyTotals = sumByCurrency(thisWeekTxs)
 
-    // Previous week's total
-    const previousWeekTotal = transactions
-      .filter(
-        (t) =>
-          t.status === 'confirmed' &&
-          t.createdAt >= previousWeekStart &&
-          t.createdAt < weekStart
-      )
-      .reduce((sum, t) => sum + t.amount, 0)
+    // Previous week's totals per currency
+    const prevWeekTxs = nonFailed.filter(
+      (t) => t.createdAt >= previousWeekStart && t.createdAt < weekStart
+    )
+    const previousWeekTotals = sumByCurrency(prevWeekTxs)
 
-    // Calculate percentage change
+    // Percentage change based on donation count (currency-agnostic)
+    const currentWeekCount = thisWeekTxs.length
+    const previousWeekCount = prevWeekTxs.length
     const weeklyPercentageChange =
-      previousWeekTotal > 0
-        ? Math.round(((weeklyTotal - previousWeekTotal) / previousWeekTotal) * 100)
-        : weeklyTotal > 0
+      previousWeekCount > 0
+        ? Math.round(((currentWeekCount - previousWeekCount) / previousWeekCount) * 100)
+        : currentWeekCount > 0
         ? 100
         : 0
 
-    // Daily data for chart (last 7 days)
+    // Daily data for chart (last 7 days) — value = message count
     const dailyData = calculateDailyData(transactions, weekStart)
 
-    // Top donors (by total amount)
+    // Top donors (per currency amounts)
     const topDonors = calculateTopDonors(transactions)
 
     // Recent donations (last 10, excluding failed)
@@ -149,19 +135,19 @@ export function useDashboardMetrics(streamerId: string | undefined): DashboardMe
         id: t.id,
         username: `@${truncateAddress(t.addressFrom)}`,
         amount: t.amount,
-        currency: getCurrencyFromAddress(t.addressFrom),
+        currency: t.currency,
         message: t.message || undefined,
         timestamp: t.createdAt,
         status: t.status,
       }))
 
     return {
-      todayTotal,
-      lastHourTotal,
+      todayTotals,
+      lastHourTotals,
       totalDonations,
-      weeklyTotal,
+      weeklyTotals,
       weeklyPercentageChange,
-      previousWeekTotal,
+      previousWeekTotals,
       dailyData,
       topDonors,
       recentDonations,
@@ -188,14 +174,14 @@ function calculateDailyData(transactions: Transaction[], weekStart: Date): Daily
     dailyMap.set(dayName, { value: 0, messages: 0 })
   }
 
-  // Aggregate transactions by day
+  // Aggregate transactions by day — value = message count (currency-agnostic)
   transactions
-    .filter((t) => t.status === 'confirmed' && t.createdAt >= weekStart)
+    .filter((t) => t.status !== 'failed' && t.createdAt >= weekStart)
     .forEach((t) => {
       const dayName = dayNames[t.createdAt.getDay()]
       const existing = dailyMap.get(dayName) || { value: 0, messages: 0 }
       dailyMap.set(dayName, {
-        value: existing.value + t.amount,
+        value: existing.messages + 1,
         messages: existing.messages + 1,
       })
     })
@@ -206,42 +192,49 @@ function calculateDailyData(transactions: Transaction[], weekStart: Date): Daily
     const data = dailyMap.get(day) || { value: 0, messages: 0 }
     return {
       day,
-      value: Math.round(data.value * 100) / 100,
+      value: data.value,
       messages: data.messages,
     }
   })
 }
 
 function calculateTopDonors(transactions: Transaction[]): TopDonor[] {
-  const donorTotals = new Map<string, number>()
+  const donorMap = new Map<string, CurrencyTotals>()
 
-  // Sum up donations by address
+  // Sum donations per address, per currency
   transactions
-    .filter((t) => t.status === 'confirmed')
+    .filter((t) => t.status !== 'failed')
     .forEach((t) => {
-      const current = donorTotals.get(t.addressFrom) || 0
-      donorTotals.set(t.addressFrom, current + t.amount)
+      const curr = donorMap.get(t.addressFrom) ?? {}
+      curr[t.currency] = (curr[t.currency] ?? 0) + t.amount
+      donorMap.set(t.addressFrom, curr)
     })
 
-  // Sort by total and take top 5
-  return Array.from(donorTotals.entries())
-    .sort((a, b) => b[1] - a[1])
+  // Rank by cross-currency total (best proxy for overall contribution)
+  return Array.from(donorMap.entries())
+    .sort((a, b) => {
+      const sumA = Object.values(a[1]).reduce((s: number, v) => s + (v ?? 0), 0)
+      const sumB = Object.values(b[1]).reduce((s: number, v) => s + (v ?? 0), 0)
+      return sumB - sumA
+    })
     .slice(0, 5)
-    .map(([address, amount], index) => ({
+    .map(([address, amounts], index) => ({
       username: `@${truncateAddress(address)}`,
-      amount: Math.round(amount * 100) / 100,
+      amounts: Object.fromEntries(
+        Object.entries(amounts).map(([c, a]) => [c, Math.round((a ?? 0) * 1e6) / 1e6])
+      ) as CurrencyTotals,
       rank: index + 1,
     }))
 }
 
 function getEmptyMetrics(): Omit<DashboardMetrics, 'isLoading' | 'error'> {
   return {
-    todayTotal: 0,
-    lastHourTotal: 0,
+    todayTotals: {},
+    lastHourTotals: {},
     totalDonations: 0,
-    weeklyTotal: 0,
+    weeklyTotals: {},
     weeklyPercentageChange: 0,
-    previousWeekTotal: 0,
+    previousWeekTotals: {},
     dailyData: [
       { day: 'Mon', value: 0, messages: 0 },
       { day: 'Tue', value: 0, messages: 0 },

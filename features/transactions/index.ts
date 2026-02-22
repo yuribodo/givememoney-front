@@ -10,6 +10,7 @@ export {
 export {
   useDashboardMetrics,
   type DashboardMetrics,
+  type CurrencyTotals,
   type DailyData,
   type TopDonor,
   type RecentDonation,

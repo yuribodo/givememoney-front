@@ -31,8 +31,8 @@ export const TransactionStatusSchema = z.enum(["pending", "confirmed", "failed"]
 export const BackendWalletSchema = z.object({
   id: z.string().uuid(),
   wallet_provider: WalletProviderSchema,
-  wallet_provider_id: z.string(),
-  hash: z.string().min(1), // Supports both temp hashes and full 64-char crypto hashes
+  wallet_address: z.string().min(1),
+  streamer_id: z.string().uuid().optional(),
   created_at: z.string(),
   updated_at: z.string()
 })
@@ -67,7 +67,7 @@ export const JWTClaimsSchema = z.object({
 const BackendUserInfoWalletSchema = z.object({
   id: z.string().uuid(),
   provider: z.string().min(1),
-  hash: z.string().min(1)
+  wallet_address: z.string().min(1)
 })
 
 export const BackendUserInfoSchema = z.object({
@@ -117,7 +117,7 @@ export const UserSchema = z.object({
   wallet: z.object({
     id: z.string().uuid(),
     provider: WalletProviderSchema,
-    hash: z.string().min(1) // Supports both temp hashes and full 64-char crypto hashes
+    address: z.string().min(1)
   }).nullable().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
@@ -228,7 +228,7 @@ export class ApiValidator {
           provider: isWalletProvider(backendUser.wallet.provider)
             ? backendUser.wallet.provider
             : "metamask",
-          hash: backendUser.wallet.hash
+          address: backendUser.wallet.wallet_address
         }
       : null
 
@@ -252,8 +252,13 @@ export class ApiValidator {
   }
 
   static validateAndTransformTransactions(data: unknown): Transaction[] {
-    const response = this.validateTransactionsResponse(data)
-    return response.transactions.map(transformBackendTransactionToFrontend)
+    // Backend returns array directly, not wrapped in { transactions: [] }
+    const transactions = Array.isArray(data) ? data : (data as Record<string, unknown>)?.transactions ?? []
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return []
+    }
+    const validated = TransactionArraySchema.parse(transactions)
+    return validated.map(transformBackendTransactionToFrontend)
   }
 
   // Session validators
@@ -272,6 +277,8 @@ export class ApiValidator {
 }
 
 // Backend transaction schema (matches Go model/transaction.go)
+export const CurrencySchema = z.enum(['ETH', 'SOL', 'USDT', 'USDC'])
+
 export const BackendTransactionSchema = z.object({
   id: z.string().uuid(),
   address_from: z.string().min(1),
@@ -280,6 +287,7 @@ export const BackendTransactionSchema = z.object({
   tx_hash: z.string().min(1),
   status: TransactionStatusSchema,
   message: z.string(),
+  currency: CurrencySchema,
   created_at: z.string(),
   updated_at: z.string()
 })
@@ -316,7 +324,7 @@ export const WebSocketDonationAlertSchema = z.object({
     id: z.string(),
     username: z.string(),
     amount: z.number(),
-    currency: z.string(),
+    currency: CurrencySchema,
     message: z.string().optional(),
     timestamp: z.string(),
     tx_hash: z.string()

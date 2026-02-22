@@ -15,6 +15,9 @@ export interface AlertConfig {
   minDuration: number // in milliseconds
   maxDuration: number // in milliseconds
   soundEnabled: boolean
+
+  // Position
+  position: 'top' | 'center' | 'bottom'
 }
 
 export interface QRCodeConfig {

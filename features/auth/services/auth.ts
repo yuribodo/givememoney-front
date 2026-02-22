@@ -4,6 +4,7 @@ import { ApiError } from '@/lib/api-schemas'
 import { apiClient, TypeSafeApiClient } from '@/lib/api-client'
 import { User } from '@/lib/backend-types'
 import { log } from '@/lib/logger'
+import { SecureAuthService } from './secure-auth'
 
 export type { User }
 
@@ -28,8 +29,8 @@ export class AuthService {
       // Validate user data
       const validatedUser = ApiValidator.validateUser(user)
 
-      // Only store data after successful validation
-      SecureStorage.setToken(token)
+      // Store non-sensitive user data for client-side UI state
+      // Token is NOT stored client-side — it's set as HttpOnly cookie via proxy or SecureAuthService
       SecureStorage.setUserData(validatedUser)
 
       if (typeof window !== 'undefined') {
@@ -231,6 +232,18 @@ export class AuthService {
 
       this.saveAuth(token, user)
 
+      // Set HttpOnly cookie via server-side session route
+      const sessionUser = await SecureAuthService.createSession({
+        access_token: token,
+        user,
+      })
+
+      if (!sessionUser) {
+        console.error('Failed to create server session after dashboard redirect')
+        this.clearAuth()
+        throw new Error('Failed to establish secure session')
+      }
+
       window.history.replaceState({}, document.title, window.location.pathname)
 
       console.log(`✅ ${provider || 'Twitch'} dashboard redirect processed successfully`)
@@ -266,8 +279,7 @@ export class AuthService {
 
   static async registerWithEmail(name: string, email: string, password: string, confirmPassword: string): Promise<User> {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
-      const response = await fetch(`${backendUrl}/api/auth/register`, {
+      const response = await fetch('/api/proxy/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -299,6 +311,18 @@ export class AuthService {
       // Save auth data from successful registration
       this.saveAuth(data.access_token, user)
 
+      // Set HttpOnly cookie via server-side session route
+      const sessionUser = await SecureAuthService.createSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user,
+      })
+
+      if (!sessionUser) {
+        this.clearAuth()
+        throw new ApiError(500, 'Failed to establish secure session')
+      }
+
       log.auth.success('Email registration successful')
       return user
     } catch (error) {
@@ -309,8 +333,7 @@ export class AuthService {
 
   static async loginWithEmail(email: string, password: string): Promise<User> {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9090'
-      const response = await fetch(`${backendUrl}/api/auth/login`, {
+      const response = await fetch('/api/proxy/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,6 +358,18 @@ export class AuthService {
 
       // Save auth data from successful login
       this.saveAuth(data.access_token, user)
+
+      // Set HttpOnly cookie via server-side session route
+      const sessionUser = await SecureAuthService.createSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user,
+      })
+
+      if (!sessionUser) {
+        this.clearAuth()
+        throw new ApiError(500, 'Failed to establish secure session')
+      }
 
       log.auth.success('Email login successful')
       return user
@@ -429,6 +464,19 @@ export class AuthService {
 
       // Save new token with existing user data
       this.saveAuth(tokenPair.access_token, currentUser)
+
+      // Update HttpOnly cookie via server-side session route
+      const sessionUser = await SecureAuthService.createSession({
+        access_token: tokenPair.access_token,
+        refresh_token: tokenPair.refresh_token,
+        user: currentUser,
+      })
+
+      if (!sessionUser) {
+        log.auth.error('Failed to update server session during token refresh')
+        this.clearAuth()
+        return false
+      }
 
       log.auth.success('Token refresh successful')
       return true

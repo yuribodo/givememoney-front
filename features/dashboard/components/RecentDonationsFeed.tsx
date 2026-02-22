@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { DollarSign, Circle, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, getTimeAgo } from '@/lib/mock-data'
+import { formatCurrency, getTimeAgo } from '@/lib/format'
 import { DashboardCard } from './DashboardCard'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import Image from 'next/image'

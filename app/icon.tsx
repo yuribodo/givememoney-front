@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og"
+import { ICON_DATA_URI } from "./icon-svg"
 
 export const size = {
   width: 32,
@@ -11,19 +12,17 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
           background: "#00A896",
           width: "100%",
           height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "white",
           borderRadius: "6px",
-          fontWeight: 700,
         }}
       >
-        $
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={ICON_DATA_URI} alt="" width={22} height={22} />
       </div>
     ),
     {
